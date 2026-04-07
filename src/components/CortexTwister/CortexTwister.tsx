@@ -1,34 +1,65 @@
 import { Canvas, useFrame } from '@react-three/fiber';
-import { 
-  OrbitControls, 
-  PerspectiveCamera, 
-  Environment, 
-  Float, 
-  MeshDistortMaterial, 
-  Text, 
-  MeshTransmissionMaterial, 
-  ContactShadows, 
+import {
+  OrbitControls,
+  PerspectiveCamera,
+  Environment,
+  Float,
+  MeshDistortMaterial,
+  Text,
+  ContactShadows,
   PointMaterial,
   Points,
-  QuadraticBezierLine
 } from '@react-three/drei';
 import { EffectComposer, Bloom, Noise, Vignette } from '@react-three/postprocessing';
-import { useState, useRef, useMemo, forwardRef } from 'react';
+import { useState, useRef, useMemo, useEffect, forwardRef } from 'react';
 import * as THREE from 'three';
 import { CATEGORIES } from '../../data/categories';
-
-const TIER_1 = ["MEDIUM", "METHOD", "SUBJECT", "STYLE"];
-const TIER_2 = ["ELEMENTS", "FUNCTION", "CONTEXT", "HISTORY"];
+import Sidebar from './Sidebar';
+import EdgePanels from './EdgePanels';
 
 interface SelectionState {
   [key: string]: string;
 }
 
+const STORAGE_KEY = 'cortex-twister:selections';
+
+const EMPTY_SELECTIONS: SelectionState = {
+  MEDIUM: "", METHOD: "", SUBJECT: "", STYLE: "",
+  ELEMENTS: "", FUNCTION: "", CONTEXT: "", HISTORY: "",
+};
+
+function loadSelections(): SelectionState {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return { ...EMPTY_SELECTIONS };
+    const parsed = JSON.parse(raw);
+    // Merge with EMPTY_SELECTIONS to ensure all keys exist and ignore unknown ones
+    const result: SelectionState = { ...EMPTY_SELECTIONS };
+    for (const key of Object.keys(EMPTY_SELECTIONS)) {
+      const value = parsed?.[key];
+      if (typeof value === 'string' && (value === '' || CATEGORIES[key]?.includes(value))) {
+        result[key] = value;
+      }
+    }
+    return result;
+  } catch {
+    return { ...EMPTY_SELECTIONS };
+  }
+}
+
 export default function CortexTwister() {
-  const [selections, setSelections] = useState<SelectionState>({
-    MEDIUM: "", METHOD: "", SUBJECT: "", STYLE: "",
-    ELEMENTS: "", FUNCTION: "", CONTEXT: "", HISTORY: "",
-  });
+  const [selections, setSelections] = useState<SelectionState>(loadSelections);
+  const [autoRotate, setAutoRotate] = useState(false);
+  const [effectsEnabled, setEffectsEnabled] = useState(true);
+  const orbitRef = useRef<any>(null);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(selections));
+    } catch {
+      // ignore quota / privacy-mode errors
+    }
+  }, [selections]);
 
   const prompt = useMemo(() => {
     return [
@@ -59,45 +90,79 @@ export default function CortexTwister() {
     setSelections(newSelections);
   };
 
+  const clearAll = () => {
+    const cleared: SelectionState = {};
+    Object.keys(CATEGORIES).forEach(cat => { cleared[cat] = ""; });
+    setSelections(cleared);
+  };
+
   const copyToClipboard = () => {
     if (prompt) navigator.clipboard.writeText(prompt);
   };
 
-  return (
-    <div style={{ width: '100vw', height: '100vh', background: '#050505' }}>
-      <Canvas shadows gl={{ antialias: false, stencil: false, depth: true }}>
-        <PerspectiveCamera makeDefault position={[0, 0, 10]} fov={45} />
-        <OrbitControls 
-          enableZoom={true} 
-          enablePan={false} 
-          maxPolarAngle={Math.PI / 1.5} 
-          minPolarAngle={Math.PI / 2.5}
-          maxAzimuthAngle={Math.PI / 4}
-          minAzimuthAngle={-Math.PI / 4}
-        />
-        
-        <Scene 
-          selections={selections} 
-          onSelect={handleSelect} 
-          prompt={prompt} 
-          onRandomize={randomize} 
-          onCopy={copyToClipboard} 
-        />
-        
-        <ambientLight intensity={0.1} />
-        <pointLight position={[10, 10, 10]} intensity={2} color="#8800ff" />
-        <pointLight position={[-10, -5, 5]} intensity={1} color="#0088ff" />
-        
-        <Environment preset="night" />
-        <fog attach="fog" args={['#050505', 10, 25]} />
+  const resetCamera = () => {
+    orbitRef.current?.reset();
+  };
 
-        <EffectComposer>
-          <Bloom luminanceThreshold={1} mipmapBlur intensity={1.5} radius={0.4} />
-          <Noise opacity={0.05} />
-          <Vignette eskil={false} offset={0.1} darkness={1.1} />
-        </EffectComposer>
-      </Canvas>
-    </div>
+  return (
+    <>
+      <Sidebar
+        selections={selections}
+        prompt={prompt}
+        onSelect={handleSelect}
+        onRandomize={randomize}
+        onClear={clearAll}
+        onCopy={copyToClipboard}
+        autoRotate={autoRotate}
+        onToggleAutoRotate={() => setAutoRotate(v => !v)}
+        effectsEnabled={effectsEnabled}
+        onToggleEffects={() => setEffectsEnabled(v => !v)}
+        onResetCamera={resetCamera}
+      />
+      <EdgePanels selections={selections} onSelect={handleSelect} />
+      <div style={{ position: 'fixed', inset: 0, background: '#030308' }}>
+        <Canvas shadows gl={{ antialias: false, stencil: false, depth: true }}>
+          <PerspectiveCamera makeDefault position={[0, 0.4, 10]} fov={55} />
+          <OrbitControls
+            ref={orbitRef}
+            enableZoom={true}
+            enablePan={false}
+            target={[0, 0, 0]}
+            maxPolarAngle={Math.PI / 1.5}
+            minPolarAngle={Math.PI / 3}
+            maxAzimuthAngle={Math.PI / 4}
+            minAzimuthAngle={-Math.PI / 4}
+            autoRotate={autoRotate}
+            autoRotateSpeed={0.6}
+          />
+
+          <Scene
+            selections={selections}
+            onSelect={handleSelect}
+            prompt={prompt}
+            onRandomize={randomize}
+            onCopy={copyToClipboard}
+          />
+
+          <ambientLight intensity={0.12} />
+          <pointLight position={[10, 10, 10]} intensity={2} color="#8800ff" />
+          <pointLight position={[-10, -5, 5]} intensity={1.2} color="#00d4ff" />
+          <pointLight position={[0, 6, 6]} intensity={1.4} color="#00ffff" />
+          <pointLight position={[0, -3, 6]} intensity={1.0} color="#ff33cc" />
+
+          <Environment preset="night" />
+          <fog attach="fog" args={['#030308', 12, 28]} />
+
+          {effectsEnabled && (
+            <EffectComposer>
+              <Bloom luminanceThreshold={1} mipmapBlur intensity={1.5} radius={0.4} />
+              <Noise opacity={0.05} />
+              <Vignette eskil={false} offset={0.1} darkness={1.1} />
+            </EffectComposer>
+          )}
+        </Canvas>
+      </div>
+    </>
   );
 }
 
@@ -113,31 +178,15 @@ function Scene({ selections, onSelect, prompt, onRandomize, onCopy }: {
   return (
     <>
       <CortexCore ref={coreRef} selections={selections} />
-      
-      {/* Tier 1 - Primary interaction (closest) */}
-      <PanelGroup 
-        categories={TIER_1} 
-        tier={1} 
-        radius={7} 
-        selections={selections} 
-        onSelect={onSelect} 
-        arcWidth={110}
-        coreRef={coreRef}
-      />
-      
-      {/* Tier 2 - Secondary interaction (recessed) */}
-      <PanelGroup 
-        categories={TIER_2} 
-        tier={2} 
-        radius={9} 
-        selections={selections} 
-        onSelect={onSelect} 
-        arcWidth={130}
-        coreRef={coreRef}
-      />
 
-      {/* Tier 3 - Output */}
-      <OutputPanel prompt={prompt} onRandomize={onRandomize} onCopy={onCopy} />
+      {/* Analog synth control surface */}
+      <OutputPanel
+        prompt={prompt}
+        onRandomize={onRandomize}
+        onCopy={onCopy}
+        selections={selections}
+        onSelect={onSelect}
+      />
 
       {/* Environment elements */}
       <BackgroundStars />
@@ -158,10 +207,10 @@ const CortexCore = forwardRef(({ selections }: { selections: SelectionState }, r
   });
 
   return (
-    <group ref={ref} position={[0, 0, 0]}>
+    <group ref={ref} position={[0, 0.7, 0]}>
       <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
         <mesh ref={meshRef}>
-          <sphereGeometry args={[1.2, 64, 64]} />
+          <sphereGeometry args={[1.1, 64, 64]} />
           <MeshDistortMaterial
             color="#a020f0"
             emissive="#a020f0"
@@ -174,7 +223,7 @@ const CortexCore = forwardRef(({ selections }: { selections: SelectionState }, r
         </mesh>
       </Float>
       <pointLight intensity={10 + activeCount * 5} distance={20} color="#a020f0" />
-      
+
       {/* Internal volumetric glow effect using point sprites */}
       <CoreGlow activeCount={activeCount} />
     </group>
@@ -207,256 +256,350 @@ function CoreGlow({ activeCount }: { activeCount: number }) {
   );
 }
 
-function PanelGroup({ categories, radius, selections, onSelect, arcWidth, coreRef }: any) {
-  return (
-    <group>
-      {categories.map((cat: string, i: number) => {
-        const total = categories.length;
-        const angle = ((i / (total - 1)) - 0.5) * (arcWidth * Math.PI / 180);
-        const x = Math.sin(angle) * radius;
-        const z = Math.cos(angle) * radius - radius;
-        const y = 0;
+function OutputPanel({ prompt, onRandomize, onCopy, selections, onSelect }: {
+  prompt: string,
+  onRandomize: () => void,
+  onCopy: () => void,
+  selections: SelectionState,
+  onSelect: (cat: string, val: string) => void,
+}) {
+  const categoryKeys = Object.keys(CATEGORIES);
+  const knobSpacing = 0.92;
+  const knobStartX = -((categoryKeys.length - 1) * knobSpacing) / 2;
 
-        return (
-          <UIPanel 
-            key={cat}
-            category={cat}
-            position={[x, y, z]}
-            rotation={[0, -angle, 0]}
-            options={CATEGORIES[cat]}
-            selectedOption={selections[cat]}
-            onSelect={(val: string) => onSelect(cat, val)}
-            coreRef={coreRef}
-          />
-        );
-      })}
-    </group>
-  );
-}
-
-function UIPanel({ category, position, rotation, options, selectedOption, onSelect, coreRef }: any) {
-  const [hovered, setHovered] = useState(false);
-  const panelRef = useRef<THREE.Group>(null!);
-  
-  useFrame(() => {
-    const targetZ = hovered ? 0.3 : 0;
-    panelRef.current.position.z = THREE.MathUtils.lerp(panelRef.current.position.z, targetZ, 0.1);
-  });
+  // Chassis dimensions
+  const W = 8.6;
+  const H = 2.5;
 
   return (
-    <group position={position} rotation={rotation}>
-      <group ref={panelRef}>
-        <Float speed={1.5} rotationIntensity={0.05} floatIntensity={0.1}>
-          {/* Panel Background - Subtly curved cylinder segment for better XR readability */}
-          <mesh 
-            onPointerOver={() => setHovered(true)} 
-            onPointerOut={() => setHovered(false)}
-          >
-            <cylinderGeometry args={[10, 10, 4.5, 32, 1, true, -Math.PI / 2 - 0.14, 0.28]} />
-            <MeshTransmissionMaterial
-              backside
-              samples={16}
-              thickness={0.2}
-              roughness={0.1}
-              transmission={0.9}
-              ior={1.3}
-              chromaticAberration={0.05}
-              anisotropy={0.1}
-              clearcoat={1}
-              attenuationDistance={0.5}
-              attenuationColor="#ffffff"
-              color={hovered ? "#222" : "#0a0a0a"}
-            />
-          </mesh>
-          
-          {/* Border Glow */}
-          <mesh position={[0, 0, -0.01]}>
-            <planeGeometry args={[2.85, 4.55]} />
-            <meshBasicMaterial color="#a020f0" transparent opacity={hovered ? 0.2 : 0.05} />
-          </mesh>
-          
-          {/* Category Label */}
-          <Text
-            position={[0, 2, 0.05]}
-            fontSize={0.2}
-            color="white"
-            anchorX="center"
-            anchorY="middle"
-            letterSpacing={0.1}
-          >
-            {category}
-          </Text>
-
-          {/* Options */}
-          <group position={[0, 1.5, 0.1]}>
-            {options.map((option: string, i: number) => (
-              <OptionItem 
-                key={option}
-                label={option}
-                position={[0, -i * 0.35, 0]}
-                isSelected={selectedOption === option}
-                onClick={() => onSelect(option)}
-              />
-            ))}
-          </group>
-        </Float>
-      </group>
-
-      {/* Animated Connection to Core */}
-      {selectedOption && <Connection coreRef={coreRef} />}
-    </group>
-  );
-}
-
-function OptionItem({ label, position, isSelected, onClick }: any) {
-  const [hovered, setHovered] = useState(false);
-  const meshRef = useRef<THREE.Group>(null!);
-
-  useFrame(() => {
-    const targetZ = isSelected ? 0.2 : (hovered ? 0.1 : 0);
-    meshRef.current.position.z = THREE.MathUtils.lerp(meshRef.current.position.z, targetZ, 0.2);
-  });
-  
-  return (
-    <group ref={meshRef} position={position} onClick={(e) => { e.stopPropagation(); onClick(); }}>
-      <mesh onPointerOver={() => setHovered(true)} onPointerOut={() => setHovered(false)}>
-        <planeGeometry args={[2.5, 0.3]} />
-        <meshStandardMaterial 
-          transparent 
-          opacity={isSelected ? 0.4 : (hovered ? 0.2 : 0.05)} 
-          color={isSelected ? "#a020f0" : "white"} 
-          emissive={isSelected ? "#a020f0" : "#000"}
-          emissiveIntensity={isSelected ? 2 : 0}
-        />
-      </mesh>
-      <Text
-        position={[0, 0, 0.02]}
-        fontSize={0.14}
-        color={isSelected ? "white" : (hovered ? "white" : "#ccc")}
-        anchorX="center"
-        anchorY="middle"
-      >
-        {label.toUpperCase()}
-      </Text>
-      {isSelected && (
-        <mesh position={[-1.2, 0, 0.02]}>
-           <boxGeometry args={[0.04, 0.2, 0.04]} />
-           <meshStandardMaterial color="#a020f0" emissive="#a020f0" emissiveIntensity={5} />
+    <group position={[0, -2.4, 3.2]} rotation={[-Math.PI / 9, 0, 0]}>
+      <Float speed={0.8} rotationIntensity={0.02} floatIntensity={0.04}>
+        {/* Faceplate body — brushed metal chassis */}
+        <mesh castShadow receiveShadow>
+          <boxGeometry args={[W, H, 0.22]} />
+          <meshStandardMaterial color="#0a0612" metalness={0.85} roughness={0.4} />
         </mesh>
-      )}
-    </group>
-  );
-}
 
-function Connection({ coreRef }: { coreRef: any }) {
-  const lineRef = useRef<any>(null!);
-  const [targetPos] = useState(() => new THREE.Vector3(0, 0, 0));
-
-  useFrame((state) => {
-    if (coreRef.current) {
-      targetPos.setFromMatrixPosition(coreRef.current.matrixWorld);
-    }
-    const time = state.clock.getElapsedTime();
-    if (lineRef.current) {
-       lineRef.current.material.dashOffset = -time * 2;
-    }
-  });
-
-  return (
-    <QuadraticBezierLine
-      ref={lineRef}
-      start={[0,0,0]} // Local to panel
-      end={new THREE.Vector3().copy(targetPos).applyMatrix4(new THREE.Matrix4().copy(lineRef.current?.parent?.matrixWorld || new THREE.Matrix4()).invert())}
-      mid={[0, 2, -2]}
-      color="#a020f0"
-      lineWidth={1}
-      transparent
-      opacity={0.5}
-      dashed
-      dashScale={5}
-      dashSize={0.5}
-      gapSize={0.2}
-    />
-  );
-}
-
-function OutputPanel({ prompt, onRandomize, onCopy }: { prompt: string, onRandomize: () => void, onCopy: () => void }) {
-  return (
-    <group position={[0, -3.5, 3]} rotation={[-Math.PI / 10, 0, 0]}>
-      <Float speed={1} rotationIntensity={0.05} floatIntensity={0.1}>
-        <mesh>
-          <planeGeometry args={[8, 2]} />
-          <MeshTransmissionMaterial
-            thickness={0.2}
+        {/* Top + bottom glow rails */}
+        <mesh position={[0, H / 2 - 0.06, 0.13]}>
+          <boxGeometry args={[W, 0.06, 0.04]} />
+          <meshStandardMaterial
+            color="#a020f0"
+            emissive="#a020f0"
+            emissiveIntensity={0.55}
+            metalness={0.9}
             roughness={0.2}
-            transmission={0.9}
-            color="#000"
-            metalness={0.5}
           />
         </mesh>
-        
-        {/* Glow edge */}
-        <mesh position={[0, 0, -0.01]}>
-           <planeGeometry args={[8.1, 2.1]} />
-           <meshBasicMaterial color="#0088ff" transparent opacity={0.1} />
+        <mesh position={[0, -H / 2 + 0.06, 0.13]}>
+          <boxGeometry args={[W, 0.06, 0.04]} />
+          <meshStandardMaterial
+            color="#a020f0"
+            emissive="#a020f0"
+            emissiveIntensity={0.55}
+            metalness={0.9}
+            roughness={0.2}
+          />
         </mesh>
 
+        {/* Brand silkscreen */}
         <Text
-          position={[0, 0.6, 0.1]}
-          fontSize={0.12}
-          color="#888"
-          anchorX="center"
+          position={[-W / 2 + 0.25, H / 2 - 0.18, 0.12]}
+          fontSize={0.1}
+          color="#d8a8ff"
+          anchorX="left"
+          anchorY="middle"
           letterSpacing={0.2}
         >
-          GENERATED PROMPT
+          CORTEX·TWISTER
         </Text>
         <Text
-          position={[0, -0.1, 0.1]}
-          fontSize={0.18}
-          maxWidth={7.5}
-          textAlign="center"
-          color="white"
-          anchorX="center"
+          position={[W / 2 - 0.25, H / 2 - 0.18, 0.12]}
+          fontSize={0.07}
+          color="#5a4060"
+          anchorX="right"
+          anchorY="middle"
+          letterSpacing={0.18}
         >
-          {prompt || "SELECT OPTIONS TO GENERATE A PROMPT..."}
+          MODEL CTX-8
         </Text>
 
-        <group position={[0, -1.2, 0.1]}>
-           <ActionButton label="RANDOMIZE" position={[-1.5, 0, 0]} onClick={onRandomize} />
-           <ActionButton label="COPY TO CLIPBOARD" position={[1.5, 0, 0]} onClick={onCopy} disabled={!prompt} />
+        {/* Knob row */}
+        <group position={[0, 0.42, 0.12]}>
+          {categoryKeys.map((cat, i) => {
+            const x = knobStartX + i * knobSpacing;
+            const options = CATEGORIES[cat];
+            const value = selections[cat];
+            const idx = value ? options.indexOf(value) : -1;
+            return (
+              <Knob
+                key={cat}
+                position={[x, 0, 0]}
+                label={cat}
+                valueLabel={value}
+                valueIndex={idx}
+                optionCount={options.length}
+                onClick={() => {
+                  if (idx < 0) {
+                    onSelect(cat, options[0]);
+                  } else if (idx === options.length - 1) {
+                    onSelect(cat, options[idx]); // toggles off
+                  } else {
+                    onSelect(cat, options[idx + 1]);
+                  }
+                }}
+              />
+            );
+          })}
         </group>
+
+        {/* Display screen — bottom-left section */}
+        <group position={[-1.85, -0.85, 0.12]}>
+          {/* Bezel */}
+          <mesh position={[0, 0, -0.005]}>
+            <planeGeometry args={[4.3, 0.7]} />
+            <meshStandardMaterial color="#0a0510" metalness={0.7} roughness={0.4} />
+          </mesh>
+          {/* Screen */}
+          <mesh>
+            <planeGeometry args={[4.15, 0.58]} />
+            <meshStandardMaterial
+              color="#01040a"
+              emissive="#001428"
+              emissiveIntensity={0.7}
+              metalness={0.3}
+              roughness={0.7}
+            />
+          </mesh>
+          {/* Inner glow */}
+          <mesh position={[0, 0, 0.001]}>
+            <planeGeometry args={[4.15, 0.58]} />
+            <meshBasicMaterial color="#0088ff" transparent opacity={0.06} />
+          </mesh>
+          <Text
+            position={[-2.0, 0.21, 0.01]}
+            fontSize={0.055}
+            color="#0aa6ff"
+            anchorX="left"
+            anchorY="middle"
+            letterSpacing={0.2}
+          >
+            GENERATED PROMPT
+          </Text>
+          <Text
+            position={[0, -0.04, 0.01]}
+            fontSize={0.085}
+            maxWidth={3.95}
+            textAlign="center"
+            color="#7fd0ff"
+            anchorX="center"
+            anchorY="middle"
+          >
+            {prompt || "— SELECT OPTIONS —"}
+          </Text>
+        </group>
+
+        {/* Action buttons — bottom-right section */}
+        <group position={[2.75, -0.85, 0.12]}>
+          <SynthButton label="RND" position={[-0.55, 0, 0]} onClick={onRandomize} />
+          <SynthButton label="CPY" position={[0.55, 0, 0]} onClick={onCopy} disabled={!prompt} />
+        </group>
+
+        {/* Decorative screws at corners */}
+        {[
+          [-W / 2 + 0.18, H / 2 - 0.18],
+          [W / 2 - 0.18, H / 2 - 0.18],
+          [-W / 2 + 0.18, -H / 2 + 0.18],
+          [W / 2 - 0.18, -H / 2 + 0.18],
+        ].map(([sx, sy], i) => (
+          <group key={i} position={[sx, sy, 0.12]}>
+            <mesh>
+              <cylinderGeometry args={[0.05, 0.05, 0.025, 16]} />
+              <meshStandardMaterial color="#777" metalness={0.95} roughness={0.3} />
+            </mesh>
+            <mesh position={[0, 0, 0.015]} rotation={[Math.PI / 2, 0, Math.PI / 4]}>
+              <boxGeometry args={[0.08, 0.012, 0.005]} />
+              <meshStandardMaterial color="#222" metalness={0.5} roughness={0.6} />
+            </mesh>
+          </group>
+        ))}
       </Float>
     </group>
   );
 }
 
-function ActionButton({ label, position, onClick, disabled }: any) {
+function Knob({ position, label, valueLabel, valueIndex, optionCount, onClick }: {
+  position: [number, number, number],
+  label: string,
+  valueLabel: string,
+  valueIndex: number,
+  optionCount: number,
+  onClick: () => void,
+}) {
+  const knobRef = useRef<THREE.Group>(null!);
   const [hovered, setHovered] = useState(false);
+
+  // Map -1 (off) and 0..N-1 to angles from 7 o'clock down to 5 o'clock (300° sweep)
+  const positionIndex = valueIndex + 1; // 0 = off, 1..N = options
+  const totalSteps = optionCount; // sweep divided into N steps from off to last option
+  const fraction = positionIndex / totalSteps;
+  const targetAngle = (5 / 6 - fraction * (10 / 6)) * Math.PI;
+
+  useFrame(() => {
+    if (knobRef.current) {
+      knobRef.current.rotation.z = THREE.MathUtils.lerp(
+        knobRef.current.rotation.z,
+        targetAngle,
+        0.18
+      );
+    }
+  });
+
+  const isOn = valueIndex >= 0;
+
   return (
-    <group position={position} onClick={(e) => { e.stopPropagation(); if (!disabled) onClick(); }}>
-       <mesh onPointerOver={() => setHovered(true)} onPointerOut={() => setHovered(false)}>
-          <planeGeometry args={[2.5, 0.4]} />
-          <meshStandardMaterial 
-            color={disabled ? "#222" : (hovered ? "#333" : "#111")} 
-            transparent 
-            opacity={0.8}
-            metalness={0.8}
-            roughness={0.2}
+    <group position={position}>
+      {/* Recessed mounting ring */}
+      <mesh position={[0, 0, -0.01]}>
+        <ringGeometry args={[0.34, 0.44, 32]} />
+        <meshStandardMaterial
+          color={isOn ? "#a020f0" : "#1a1018"}
+          emissive={isOn ? "#a020f0" : "#000"}
+          emissiveIntensity={isOn ? 0.7 : 0}
+          metalness={0.85}
+          roughness={0.3}
+        />
+      </mesh>
+
+      {/* Tick marks around the knob */}
+      {Array.from({ length: optionCount + 1 }).map((_, i) => {
+        const a = (5 / 6 - (i / optionCount) * (10 / 6)) * Math.PI;
+        const tx = -Math.sin(a) * 0.48;
+        const ty = Math.cos(a) * 0.48;
+        const lit = i <= positionIndex && isOn;
+        return (
+          <mesh key={i} position={[tx, ty, 0]} rotation={[0, 0, a]}>
+            <boxGeometry args={[0.018, 0.06, 0.005]} />
+            <meshStandardMaterial
+              color="#555"
+              emissive={lit ? "#a020f0" : "#000"}
+              emissiveIntensity={lit ? 2 : 0}
+            />
+          </mesh>
+        );
+      })}
+
+      {/* Rotating knob group */}
+      <group ref={knobRef}>
+        {/* Knob cylinder body */}
+        <mesh
+          rotation={[Math.PI / 2, 0, 0]}
+          onPointerOver={() => setHovered(true)}
+          onPointerOut={() => setHovered(false)}
+          onClick={(e) => { e.stopPropagation(); onClick(); }}
+          castShadow
+        >
+          <cylinderGeometry args={[0.32, 0.34, 0.2, 32]} />
+          <meshStandardMaterial
+            color={hovered ? "#3a2a40" : "#1a1018"}
+            metalness={0.92}
+            roughness={0.28}
           />
-       </mesh>
-       <mesh position={[0, 0, -0.01]}>
-          <planeGeometry args={[2.55, 0.45]} />
-          <meshBasicMaterial color={disabled ? "#111" : "#a020f0"} transparent opacity={hovered ? 0.8 : 0.3} />
-       </mesh>
-       <Text
-          position={[0, 0, 0.05]}
-          fontSize={0.12}
-          color={disabled ? "#444" : "white"}
+        </mesh>
+        {/* Knurled top cap */}
+        <mesh position={[0, 0, 0.1]}>
+          <circleGeometry args={[0.32, 32]} />
+          <meshStandardMaterial
+            color={hovered ? "#4a3550" : "#251830"}
+            metalness={0.88}
+            roughness={0.42}
+          />
+        </mesh>
+        {/* Indicator pointer */}
+        <mesh position={[0, 0.22, 0.11]}>
+          <boxGeometry args={[0.04, 0.16, 0.02]} />
+          <meshStandardMaterial
+            color="#fff"
+            emissive={isOn ? "#ff77ff" : "#888"}
+            emissiveIntensity={isOn ? 4 : 0.6}
+          />
+        </mesh>
+      </group>
+
+      {/* Label below */}
+      <Text
+        position={[0, -0.62, 0.01]}
+        fontSize={0.085}
+        color="#9b7bb0"
+        anchorX="center"
+        anchorY="middle"
+        letterSpacing={0.12}
+      >
+        {label}
+      </Text>
+
+      {/* Value above */}
+      {isOn && (
+        <Text
+          position={[0, 0.62, 0.01]}
+          fontSize={0.062}
+          color="#e0b0ff"
           anchorX="center"
           anchorY="middle"
+          letterSpacing={0.06}
         >
-          {label}
+          {valueLabel.toUpperCase()}
         </Text>
+      )}
+    </group>
+  );
+}
+
+function SynthButton({ label, position, onClick, disabled }: {
+  label: string,
+  position: [number, number, number],
+  onClick: () => void,
+  disabled?: boolean,
+}) {
+  const [hovered, setHovered] = useState(false);
+  const [pressed, setPressed] = useState(false);
+
+  return (
+    <group position={position}>
+      {/* Recessed housing */}
+      <mesh position={[0, 0, -0.02]}>
+        <boxGeometry args={[1.05, 0.6, 0.06]} />
+        <meshStandardMaterial color="#0a0610" metalness={0.7} roughness={0.5} />
+      </mesh>
+      {/* Button cap */}
+      <mesh
+        position={[0, 0, pressed ? 0.04 : 0.07]}
+        onPointerOver={() => setHovered(true)}
+        onPointerOut={() => { setHovered(false); setPressed(false); }}
+        onPointerDown={() => setPressed(true)}
+        onPointerUp={() => setPressed(false)}
+        onClick={(e) => { e.stopPropagation(); if (!disabled) onClick(); }}
+        castShadow
+      >
+        <boxGeometry args={[0.88, 0.44, 0.1]} />
+        <meshStandardMaterial
+          color={disabled ? "#222" : (hovered ? "#3a2045" : "#1a0a22")}
+          emissive={disabled ? "#000" : "#a020f0"}
+          emissiveIntensity={disabled ? 0 : (hovered ? 1.2 : 0.4)}
+          metalness={0.7}
+          roughness={0.35}
+        />
+      </mesh>
+      <Text
+        position={[0, 0, pressed ? 0.1 : 0.13]}
+        fontSize={0.11}
+        color={disabled ? "#444" : "white"}
+        anchorX="center"
+        anchorY="middle"
+        letterSpacing={0.18}
+      >
+        {label}
+      </Text>
     </group>
   );
 }
@@ -488,16 +631,22 @@ function BackgroundStars() {
 
 function ReflectiveFloor() {
   return (
-    <group position={[0, -6, 0]}>
+    <group position={[0, -4.4, 0]}>
+      {/* Mirror floor */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <planeGeometry args={[100, 100]} />
-        <meshStandardMaterial 
-          color="#050505" 
-          roughness={0.05} 
-          metalness={0.9}
+        <planeGeometry args={[120, 120]} />
+        <meshStandardMaterial
+          color="#02020a"
+          roughness={0.08}
+          metalness={0.95}
         />
       </mesh>
-      <ContactShadows resolution={1024} scale={20} blur={2} opacity={0.5} far={10} color="#000000" />
+      {/* TRON grid lines */}
+      <gridHelper
+        args={[80, 60, '#a020f0', '#00d4ff']}
+        position={[0, 0.005, 0]}
+      />
+      <ContactShadows resolution={1024} scale={24} blur={2.2} opacity={0.55} far={10} color="#000000" />
     </group>
   );
 }
