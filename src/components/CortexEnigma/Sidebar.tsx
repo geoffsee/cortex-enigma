@@ -49,7 +49,7 @@ export default function Sidebar({
   return (
     <Wrapper>
       <Header>
-        <Brand>ENTROPY MACHINE</Brand>
+        <Brand>CORTEX ENIGMA</Brand>
         <Tagline>Generative Prompt Synth</Tagline>
       </Header>
 
