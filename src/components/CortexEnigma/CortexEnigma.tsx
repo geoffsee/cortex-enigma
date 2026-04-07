@@ -13,19 +13,23 @@ import {
 import { EffectComposer, Bloom, Noise, Vignette } from '@react-three/postprocessing';
 import { useState, useRef, useMemo, useEffect, forwardRef } from 'react';
 import * as THREE from 'three';
+import * as webllm from "@mlc-ai/web-llm";
 import { CATEGORIES } from '../../data/categories';
 import Sidebar from './Sidebar';
 import EdgePanels from './EdgePanels';
 
+
 interface SelectionState {
   [key: string]: string;
+  foundation: string;
 }
 
-const STORAGE_KEY = 'cortex-twister:selections';
+const STORAGE_KEY = 'cortex-twister:selections-v2';
 
 const EMPTY_SELECTIONS: SelectionState = {
   MEDIUM: "", METHOD: "", SUBJECT: "", STYLE: "",
   ELEMENTS: "", FUNCTION: "", CONTEXT: "", HISTORY: "",
+  foundation: "",
 };
 
 function loadSelections(): SelectionState {
@@ -37,8 +41,12 @@ function loadSelections(): SelectionState {
     const result: SelectionState = { ...EMPTY_SELECTIONS };
     for (const key of Object.keys(EMPTY_SELECTIONS)) {
       const value = parsed?.[key];
-      if (typeof value === 'string' && (value === '' || CATEGORIES[key]?.includes(value))) {
-        result[key] = value;
+      if (typeof value === 'string') {
+        if (key === 'foundation') {
+          result[key] = value;
+        } else if (value === '' || CATEGORIES[key]?.includes(value)) {
+          result[key] = value;
+        }
       }
     }
     return result;
@@ -47,11 +55,11 @@ function loadSelections(): SelectionState {
   }
 }
 
-export default function CortexTwister() {
+export default function CortexEnigma() {
   const [selections, setSelections] = useState<SelectionState>(loadSelections);
   const [autoRotate, setAutoRotate] = useState(false);
   const [effectsEnabled, setEffectsEnabled] = useState(true);
-  const orbitRef = useRef<any>(null);
+  const orbitRef = useRef<THREE.EventDispatcher & { reset: () => void }>(null);
 
   useEffect(() => {
     try {
@@ -62,16 +70,19 @@ export default function CortexTwister() {
   }, [selections]);
 
   const prompt = useMemo(() => {
-    return [
-      selections.HISTORY,
+    const parts = [
+      selections.foundation,
+      selections.MEDIUM,
+      selections.SUBJECT,
       selections.STYLE,
       selections.ELEMENTS,
+      selections.HISTORY,
       selections.FUNCTION,
-      selections.SUBJECT,
-      selections.MEDIUM,
       selections.METHOD ? `made via ${selections.METHOD}` : "",
       selections.CONTEXT ? `in a ${selections.CONTEXT} context` : "",
-    ].filter(Boolean).join(", ");
+    ].filter(Boolean);
+
+    return parts.join(", ");
   }, [selections]);
 
   const handleSelect = (category: string, value: string) => {
@@ -82,7 +93,7 @@ export default function CortexTwister() {
   };
 
   const randomize = () => {
-    const newSelections: SelectionState = {};
+    const newSelections: SelectionState = { ...EMPTY_SELECTIONS };
     Object.keys(CATEGORIES).forEach(cat => {
       const options = CATEGORIES[cat];
       newSelections[cat] = options[Math.floor(Math.random() * options.length)];
@@ -91,9 +102,7 @@ export default function CortexTwister() {
   };
 
   const clearAll = () => {
-    const cleared: SelectionState = {};
-    Object.keys(CATEGORIES).forEach(cat => { cleared[cat] = ""; });
-    setSelections(cleared);
+    setSelections({ ...EMPTY_SELECTIONS });
   };
 
   const copyToClipboard = () => {
@@ -104,12 +113,86 @@ export default function CortexTwister() {
     orbitRef.current?.reset();
   };
 
+  const handleFoundationChange = (value: string) => {
+    setSelections(prev => ({ ...prev, foundation: value }));
+  };
+
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isModelLoading, setIsModelLoading] = useState(false);
+  const [loadProgress, setLoadProgress] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const engineRef = useRef<webllm.MLCEngine | null>(null);
+
+  useEffect(() => {
+    // Warm up the model
+    const loadModel = async () => {
+      if (engineRef.current) return;
+      setIsModelLoading(true);
+      setError(null);
+      try {
+        const selectedModel = "Llama-3.2-1B-Instruct-q4f16_1-MLC";
+        engineRef.current = await webllm.CreateMLCEngine(selectedModel, {
+          initProgressCallback: (report) => {
+            setLoadProgress(report.text);
+          },
+        });
+        console.log("Model loaded");
+      } catch (err: unknown) {
+        console.error("Failed to load model:", err);
+        const msg = err instanceof Error ? err.message : 'Unknown error';
+        setError(`Failed to load model: ${msg}`);
+      } finally {
+        setIsModelLoading(false);
+      }
+    };
+    loadModel();
+  }, []);
+
+  const handleGenerate = async () => {
+    if (!selections.foundation || !engineRef.current) return;
+    setIsGenerating(true);
+    setError(null);
+    try {
+      const messages: webllm.ChatCompletionMessageParam[] = [
+        { 
+          role: "system", 
+          content: "You are an expert AI image prompt engineer. Your task is to expand the user's foundation concept into a detailed and evocative image prompt. Include vivid adjectives, lighting details (e.g., 'volumetric lighting', 'dramatic chiaroscuro', 'sharp focus'), and high-quality textures. Only output the descriptive expansion. Keep it under 15 words." 
+        },
+        { role: "user", content: selections.foundation },
+      ];
+
+      const reply = await engineRef.current.chat.completions.create({
+        messages,
+        max_tokens: 30,
+        temperature: 0.8,
+      });
+
+      const newFoundation = reply.choices[0].message.content?.trim();
+      if (newFoundation) {
+        // Remove leading comma if present
+        const cleanedExpansion = newFoundation.replace(/^,\s*/, '');
+        setSelections(prev => ({ ...prev, foundation: `${prev.foundation}, ${cleanedExpansion}` }));
+      }
+    } catch (err: unknown) {
+      console.error("Generation failed:", err);
+      const msg = err instanceof Error ? err.message : 'Unknown error';
+      setError(`Generation failed: ${msg}`);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   return (
     <>
       <Sidebar
         selections={selections}
         prompt={prompt}
         onSelect={handleSelect}
+        onFoundationChange={handleFoundationChange}
+        isGenerating={isGenerating || isModelLoading}
+        loadProgress={loadProgress}
+        onGenerate={handleGenerate}
+        error={error}
         onRandomize={randomize}
         onClear={clearAll}
         onCopy={copyToClipboard}
@@ -195,7 +278,7 @@ function Scene({ selections, onSelect, prompt, onRandomize, onCopy }: {
   );
 }
 
-const CortexCore = forwardRef(({ selections }: { selections: SelectionState }, ref: any) => {
+const CortexCore = forwardRef(({ selections }: { selections: SelectionState }, ref: React.ForwardedRef<THREE.Group>) => {
   const meshRef = useRef<THREE.Mesh>(null!);
   const activeCount = Object.values(selections).filter(Boolean).length;
   
@@ -234,8 +317,11 @@ function CoreGlow({ activeCount }: { activeCount: number }) {
   const points = useMemo(() => {
     const p = new Float32Array(100 * 3);
     for (let i = 0; i < 100; i++) {
+      // eslint-disable-next-line react-hooks/purity
       p[i * 3] = (Math.random() - 0.5) * 2.5;
+      // eslint-disable-next-line react-hooks/purity
       p[i * 3 + 1] = (Math.random() - 0.5) * 2.5;
+      // eslint-disable-next-line react-hooks/purity
       p[i * 3 + 2] = (Math.random() - 0.5) * 2.5;
     }
     return p;
@@ -311,7 +397,7 @@ function OutputPanel({ prompt, onRandomize, onCopy, selections, onSelect }: {
           anchorY="middle"
           letterSpacing={0.2}
         >
-          CORTEX·TWISTER
+          CORTEX·ENIGMA
         </Text>
         <Text
           position={[W / 2 - 0.25, H / 2 - 0.18, 0.12]}
@@ -608,8 +694,11 @@ function BackgroundStars() {
   const points = useMemo(() => {
     const p = new Float32Array(500 * 3);
     for (let i = 0; i < 500; i++) {
+      // eslint-disable-next-line react-hooks/purity
       p[i * 3] = (Math.random() - 0.5) * 50;
+      // eslint-disable-next-line react-hooks/purity
       p[i * 3 + 1] = (Math.random() - 0.5) * 50;
+      // eslint-disable-next-line react-hooks/purity
       p[i * 3 + 2] = (Math.random() - 0.5) * 50;
     }
     return p;

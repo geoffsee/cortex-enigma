@@ -1,12 +1,16 @@
 import styled from 'styled-components';
 import { CATEGORIES } from '../../data/categories';
 
-type SelectionState = Record<string, string>;
+type SelectionState = {
+  [key: string]: string;
+  foundation: string;
+};
 
 type Props = {
   selections: SelectionState;
   prompt: string;
   onSelect: (cat: string, val: string) => void;
+  onFoundationChange: (val: string) => void;
   onRandomize: () => void;
   onClear: () => void;
   onCopy: () => void;
@@ -15,12 +19,17 @@ type Props = {
   effectsEnabled: boolean;
   onToggleEffects: () => void;
   onResetCamera: () => void;
+  isGenerating?: boolean;
+  loadProgress?: string;
+  onGenerate?: () => void;
+  error?: string | null;
 };
 
 export default function Sidebar({
   selections,
   prompt,
   onSelect,
+  onFoundationChange,
   onRandomize,
   onClear,
   onCopy,
@@ -29,6 +38,10 @@ export default function Sidebar({
   effectsEnabled,
   onToggleEffects,
   onResetCamera,
+  isGenerating,
+  loadProgress,
+  onGenerate,
+  error,
 }: Props) {
   const categoryKeys = Object.keys(CATEGORIES);
   const activeCount = Object.values(selections).filter(Boolean).length;
@@ -36,11 +49,32 @@ export default function Sidebar({
   return (
     <Wrapper>
       <Header>
-        <Brand>CORTEX · TWISTER</Brand>
+        <Brand>ENTROPY MACHINE</Brand>
         <Tagline>Generative Prompt Synth</Tagline>
       </Header>
 
       <ScrollArea>
+        <Section>
+          <SectionTitle>Foundation</SectionTitle>
+          <InputGroup>
+            <Input
+              placeholder="Enter a foundation concept..."
+              value={selections.foundation}
+              onChange={(e) => onFoundationChange(e.target.value)}
+            />
+            <GenerateButton
+              onClick={onGenerate}
+              disabled={!selections.foundation || isGenerating}
+            >
+              {isGenerating ? '...' : 'GEN'}
+            </GenerateButton>
+          </InputGroup>
+          {loadProgress && isGenerating && !error && (
+            <LoadingProgress>{loadProgress}</LoadingProgress>
+          )}
+          {error && <ErrorMessage>{error}</ErrorMessage>}
+        </Section>
+
         <Section>
           <SectionTitle>Active Selections</SectionTitle>
           {categoryKeys.map((cat) => {
@@ -184,6 +218,74 @@ const ScrollArea = styled.div`
 
 const Section = styled.section`
   margin-bottom: 24px;
+`;
+
+const InputGroup = styled.div`
+  display: flex;
+  gap: 8px;
+`;
+
+const Input = styled.input`
+  flex: 1;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(160, 32, 240, 0.25);
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 11px;
+  color: #fff;
+  font-family: inherit;
+
+  &:focus {
+    outline: none;
+    border-color: rgba(160, 32, 240, 0.6);
+  }
+`;
+
+const GenerateButton = styled.button`
+  background: rgba(160, 32, 240, 0.25);
+  border: 1px solid rgba(160, 32, 240, 0.6);
+  color: #fff;
+  border-radius: 4px;
+  padding: 0 10px;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover:not(:disabled) {
+    background: rgba(160, 32, 240, 0.4);
+    border-color: rgba(160, 32, 240, 0.8);
+  }
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+`;
+
+const ErrorMessage = styled.div`
+  color: #ff4081;
+  font-size: 10px;
+  margin-top: 8px;
+  padding: 4px 8px;
+  background: rgba(255, 64, 129, 0.1);
+  border: 1px solid rgba(255, 64, 129, 0.2);
+  border-radius: 4px;
+  line-height: 1.4;
+`;
+
+const LoadingProgress = styled.div`
+  color: #c084fc;
+  font-size: 9px;
+  margin-top: 8px;
+  padding: 4px 8px;
+  background: rgba(160, 32, 240, 0.1);
+  border: 1px solid rgba(160, 32, 240, 0.2);
+  border-radius: 4px;
+  line-height: 1.4;
+  font-family: ui-monospace, Consolas, monospace;
+  white-space: pre-wrap;
+  word-break: break-all;
 `;
 
 const SectionTitle = styled.h2`

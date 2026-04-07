@@ -1,13 +1,13 @@
 import { ThemeProvider } from 'styled-components'
 import { darkTheme } from './styles/theme'
 import { GlobalStyles } from './styles/GlobalStyles'
-import CortexTwister from './components/CortexTwister/CortexTwister'
+import CortexEnigma from './components/CortexEnigma/CortexEnigma'
 
 export const App = () => {
   return (
     <ThemeProvider theme={darkTheme}>
       <GlobalStyles />
-      <CortexTwister />
+      <CortexEnigma />
     </ThemeProvider>
   );
 };
