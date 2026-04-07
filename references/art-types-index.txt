@@ -1,0 +1,697 @@
+VISUAL ART
+|
++-- I. FUNDAMENTAL DIVISIONS
+|   |
+|   +-- A. Fine Art
+|   |   |
+|   |   +-- 1. Painting
+|   |   |   |
+|   |   |   +-- a. Easel Painting
+|   |   |   |   +-- oil
+|   |   |   |   +-- acrylic
+|   |   |   |   +-- watercolor
+|   |   |   |   +-- gouache
+|   |   |   |   +-- tempera
+|   |   |   |   +-- encaustic
+|   |   |   |   +-- ink
+|   |   |   |   \-- mixed media
+|   |   |   |
+|   |   |   +-- b. Wall-Based Painting
+|   |   |   |   +-- mural
+|   |   |   |   +-- fresco
+|   |   |   |   +-- secco
+|   |   |   |   \-- public wall painting
+|   |   |   |
+|   |   |   +-- c. Painting by Surface
+|   |   |   |   +-- canvas
+|   |   |   |   +-- wood panel
+|   |   |   |   +-- paper
+|   |   |   |   +-- plaster
+|   |   |   |   +-- metal
+|   |   |   |   +-- glass
+|   |   |   |   \-- found surface
+|   |   |   |
+|   |   |   +-- d. Painting by Function
+|   |   |   |   +-- portrait
+|   |   |   |   +-- landscape
+|   |   |   |   +-- seascape
+|   |   |   |   +-- still life
+|   |   |   |   +-- history painting
+|   |   |   |   +-- religious painting
+|   |   |   |   +-- allegorical painting
+|   |   |   |   +-- genre painting
+|   |   |   |   +-- battle painting
+|   |   |   |   \-- decorative painting
+|   |   |   |
+|   |   |   \-- e. Expanded Painting
+|   |   |       +-- shaped canvas
+|   |   |       +-- painted object
+|   |   |       +-- process painting
+|   |   |       +-- action painting
+|   |   |       \-- installation-based painting
+|   |   |
+|   |   +-- 2. Drawing
+|   |   |   |
+|   |   |   +-- a. Dry Media
+|   |   |   |   +-- graphite
+|   |   |   |   +-- charcoal
+|   |   |   |   +-- chalk
+|   |   |   |   +-- silverpoint
+|   |   |   |   +-- colored pencil
+|   |   |   |   +-- pastel
+|   |   |   |   \-- conte
+|   |   |   |
+|   |   |   +-- b. Wet Media
+|   |   |   |   +-- brush and ink
+|   |   |   |   +-- wash
+|   |   |   |   +-- marker
+|   |   |   |   \-- liquid graphite
+|   |   |   |
+|   |   |   +-- c. Drawing Types
+|   |   |   |   +-- sketch
+|   |   |   |   +-- study
+|   |   |   |   +-- cartoon
+|   |   |   |   +-- life drawing
+|   |   |   |   +-- technical drawing
+|   |   |   |   +-- architectural rendering
+|   |   |   |   +-- anatomical drawing
+|   |   |   |   \-- diagrammatic drawing
+|   |   |   |
+|   |   |   \-- d. Contexts
+|   |   |       +-- preparatory
+|   |   |       +-- independent work
+|   |   |       +-- notebook practice
+|   |   |       +-- academic exercise
+|   |   |       \-- illustration-adjacent drawing
+|   |   |
+|   |   +-- 3. Printmaking
+|   |   |   |
+|   |   |   +-- a. Relief
+|   |   |   |   +-- woodcut
+|   |   |   |   +-- linocut
+|   |   |   |   +-- wood engraving
+|   |   |   |   \-- stamp-based relief
+|   |   |   |
+|   |   |   +-- b. Intaglio
+|   |   |   |   +-- engraving
+|   |   |   |   +-- etching
+|   |   |   |   +-- drypoint
+|   |   |   |   +-- aquatint
+|   |   |   |   +-- mezzotint
+|   |   |   |   \-- chine-colle
+|   |   |   |
+|   |   |   +-- c. Planographic
+|   |   |   |   +-- lithography
+|   |   |   |   +-- monotype
+|   |   |   |   \-- monoprint
+|   |   |   |
+|   |   |   +-- d. Stencil
+|   |   |   |   +-- screenprint / silkscreen
+|   |   |   |   +-- pochoir
+|   |   |   |   \-- spray stencil
+|   |   |   |
+|   |   |   \-- e. Print Culture
+|   |   |       +-- editioned print
+|   |   |       +-- artist proof
+|   |   |       +-- portfolio
+|   |   |       +-- zine print culture
+|   |   |       \-- poster art
+|   |   |
+|   |   +-- 4. Sculpture
+|   |   |   |
+|   |   |   +-- a. By Method
+|   |   |   |   +-- carving
+|   |   |   |   +-- modeling
+|   |   |   |   +-- casting
+|   |   |   |   +-- construction
+|   |   |   |   +-- assemblage
+|   |   |   |   +-- welding
+|   |   |   |   +-- 3D printing
+|   |   |   |   \-- kinetic fabrication
+|   |   |   |
+|   |   |   +-- b. By Form
+|   |   |   |   +-- freestanding
+|   |   |   |   +-- relief
+|   |   |   |   +-- bust
+|   |   |   |   +-- statue
+|   |   |   |   +-- monument
+|   |   |   |   +-- mobile
+|   |   |   |   +-- stabile
+|   |   |   |   +-- environmental sculpture
+|   |   |   |   \-- site-specific sculpture
+|   |   |   |
+|   |   |   +-- c. By Material
+|   |   |   |   +-- stone
+|   |   |   |   +-- wood
+|   |   |   |   +-- bronze
+|   |   |   |   +-- iron / steel
+|   |   |   |   +-- clay
+|   |   |   |   +-- plaster
+|   |   |   |   +-- wax
+|   |   |   |   +-- resin
+|   |   |   |   +-- plastic
+|   |   |   |   +-- glass
+|   |   |   |   +-- textile
+|   |   |   |   \-- found materials
+|   |   |   |
+|   |   |   \-- d. By Scale
+|   |   |       +-- miniature
+|   |   |       +-- tabletop
+|   |   |       +-- human scale
+|   |   |       +-- monumental
+|   |   |       \-- landscape scale
+|   |   |
+|   |   +-- 5. Photography
+|   |   |   |
+|   |   |   +-- a. Analog
+|   |   |   |   +-- daguerreotype
+|   |   |   |   +-- tintype
+|   |   |   |   +-- albumen print
+|   |   |   |   +-- gelatin silver print
+|   |   |   |   +-- cyanotype
+|   |   |   |   +-- Polaroid / instant
+|   |   |   |   \-- darkroom manipulation
+|   |   |   |
+|   |   |   +-- b. Digital
+|   |   |   |   +-- DSLR / mirrorless capture
+|   |   |   |   +-- phone photography
+|   |   |   |   +-- digital compositing
+|   |   |   |   +-- HDR
+|   |   |   |   \-- computational imaging
+|   |   |   |
+|   |   |   +-- c. Genres
+|   |   |   |   +-- portrait
+|   |   |   |   +-- documentary
+|   |   |   |   +-- photojournalism
+|   |   |   |   +-- landscape
+|   |   |   |   +-- street
+|   |   |   |   +-- fashion
+|   |   |   |   +-- architecture
+|   |   |   |   +-- still life
+|   |   |   |   +-- conceptual photography
+|   |   |   |   +-- fine art nude
+|   |   |   |   \-- scientific / astronomical
+|   |   |   |
+|   |   |   \-- d. Expanded Photography
+|   |   |       +-- photogram
+|   |   |       +-- camera obscura
+|   |   |       +-- collage with photos
+|   |   |       +-- installation with photos
+|   |   |       \-- lens-based art
+|   |   |
+|   |   +-- 6. Installation Art
+|   |   |   |
+|   |   |   +-- a. Spatial Installation
+|   |   |   +-- b. Immersive Installation
+|   |   |   +-- c. Interactive Installation
+|   |   |   +-- d. Sound-Light Installation
+|   |   |   +-- e. Video Installation
+|   |   |   +-- f. Site-Specific Work
+|   |   |   \-- g. Environmental / Temporary Installation
+|   |   |
+|   |   +-- 7. Video Art / Moving Image
+|   |   |   |
+|   |   |   +-- a. Single-Channel Video
+|   |   |   +-- b. Multi-Channel Video
+|   |   |   +-- c. Projection Art
+|   |   |   +-- d. Experimental Film
+|   |   |   +-- e. Loop-Based Gallery Video
+|   |   |   +-- f. Found Footage Work
+|   |   |   \-- g. Digital Animation as Fine Art
+|   |   |
+|   |   +-- 8. Performance-Linked Visual Art
+|   |   |   |
+|   |   |   +-- a. Body Art
+|   |   |   +-- b. Happenings
+|   |   |   +-- c. Action Documentation
+|   |   |   +-- d. Live Mark-Making
+|   |   |   \-- e. Ritual / Social Action Art
+|   |   |
+|   |   \-- 9. Conceptual Art
+|   |       |
+|   |       +-- a. Text-Based Work
+|   |       +-- b. Instruction-Based Work
+|   |       +-- c. Documentation as Artwork
+|   |       +-- d. Systems Art
+|   |       +-- e. Archive-Based Work
+|   |       \-- f. Dematerialized Art Object
+|   |
+|   +-- B. Applied Art
+|   |   |
+|   |   +-- 1. Decorative Arts
+|   |   |   +-- ceramics
+|   |   |   +-- glassware
+|   |   |   +-- metalwork
+|   |   |   +-- furniture
+|   |   |   +-- wallpaper
+|   |   |   +-- mosaic
+|   |   |   \-- ornamental surface design
+|   |   |
+|   |   +-- 2. Design
+|   |   |   +-- graphic design
+|   |   |   +-- typography
+|   |   |   +-- poster design
+|   |   |   +-- editorial design
+|   |   |   +-- branding / identity
+|   |   |   +-- industrial design
+|   |   |   +-- furniture design
+|   |   |   +-- interior design
+|   |   |   +-- fashion design
+|   |   |   +-- textile design
+|   |   |   +-- UI / digital interface design
+|   |   |   \-- motion graphics
+|   |   |
+|   |   +-- 3. Craft
+|   |   |   +-- pottery
+|   |   |   +-- weaving
+|   |   |   +-- quilting
+|   |   |   +-- basketry
+|   |   |   +-- jewelry
+|   |   |   +-- woodworking
+|   |   |   +-- bookbinding
+|   |   |   \-- fiber arts
+|   |   |
+|   |   \-- 4. Illustration
+|   |       +-- editorial illustration
+|   |       +-- book illustration
+|   |       +-- scientific illustration
+|   |       +-- medical illustration
+|   |       +-- concept art
+|   |       +-- storyboarding
+|   |       +-- children's illustration
+|   |       \-- advertising illustration
+|   |
+|   +-- C. Folk, Vernacular, and Indigenous Art
+|   |   |
+|   |   +-- 1. Folk Painting
+|   |   +-- 2. Tribal / Ceremonial Objects
+|   |   +-- 3. Pattern Traditions
+|   |   +-- 4. Mask Making
+|   |   +-- 5. Totemic / Symbolic Carving
+|   |   +-- 6. Tattoo Traditions
+|   |   +-- 7. Domestic Decorative Practice
+|   |   \-- 8. Ritual / Community-Based Making
+|   |
+|   \-- D. Commercial / Mass Visual Culture
+|       |
+|       +-- 1. Advertising Art
+|       +-- 2. Comics
+|       +-- 3. Animation
+|       +-- 4. Game Art
+|       +-- 5. Film Production Design
+|       +-- 6. Album / Media Packaging
+|       +-- 7. Merchandise Graphics
+|       \-- 8. Popular Print Ephemera
+|
++-- II. PRIMARY MEDIA
+|   |
+|   +-- A. Pigment-Based
+|   |   +-- oil
+|   |   +-- acrylic
+|   |   +-- watercolor
+|   |   +-- gouache
+|   |   +-- tempera
+|   |   +-- fresco pigment
+|   |   \-- spray paint
+|   |
+|   +-- B. Mark-Making Media
+|   |   +-- graphite
+|   |   +-- charcoal
+|   |   +-- chalk
+|   |   +-- ink
+|   |   +-- pastel
+|   |   +-- pencil
+|   |   +-- marker
+|   |   \-- stylus
+|   |
+|   +-- C. Plastic / Moldable
+|   |   +-- clay
+|   |   +-- wax
+|   |   +-- plaster
+|   |   +-- resin
+|   |   \-- polymer compounds
+|   |
+|   +-- D. Hard Structural
+|   |   +-- stone
+|   |   +-- wood
+|   |   +-- metal
+|   |   +-- glass
+|   |   +-- concrete
+|   |   \-- ceramic
+|   |
+|   +-- E. Flexible / Textile
+|   |   +-- fabric
+|   |   +-- thread
+|   |   +-- felt
+|   |   +-- leather
+|   |   +-- paper pulp
+|   |   \-- fiber
+|   |
+|   +-- F. Light / Time / Signal
+|   |   +-- projected light
+|   |   +-- LED systems
+|   |   +-- monitor display
+|   |   +-- audio signal
+|   |   \-- coded behavior
+|   |
+|   \-- G. Found / Hybrid
+|       +-- readymade object
+|       +-- organic material
+|       +-- scrap / salvage
+|       +-- archival material
+|       \-- mixed media assemblage
+|
++-- III. FORMAL ELEMENTS
+|   |
+|   +-- A. Line
+|   |   +-- contour
+|   |   +-- gesture
+|   |   +-- implied line
+|   |   +-- calligraphic line
+|   |   \-- structural line
+|   |
+|   +-- B. Shape
+|   |   +-- geometric
+|   |   +-- organic
+|   |   +-- positive
+|   |   \-- negative
+|   |
+|   +-- C. Form
+|   |   +-- volumetric
+|   |   +-- planar
+|   |   +-- solid
+|   |   \-- void-defined
+|   |
+|   +-- D. Color
+|   |   +-- hue
+|   |   +-- value
+|   |   +-- saturation
+|   |   +-- temperature
+|   |   +-- local color
+|   |   +-- symbolic color
+|   |   \-- optical color
+|   |
+|   +-- E. Texture
+|   |   +-- tactile
+|   |   +-- visual
+|   |   +-- smooth
+|   |   +-- rough
+|   |   \-- layered / impasto
+|   |
+|   +-- F. Space
+|   |   +-- shallow
+|   |   +-- deep
+|   |   +-- atmospheric
+|   |   +-- ambiguous
+|   |   +-- illusionistic
+|   |   \-- literal physical space
+|   |
+|   +-- G. Value / Light
+|   |   +-- chiaroscuro
+|   |   +-- tonal range
+|   |   +-- highlight
+|   |   +-- shadow
+|   |   \-- reflected light
+|   |
+|   \-- H. Scale / Proportion
+|       +-- human scale
+|       +-- monumental
+|       +-- miniature
+|       +-- exaggerated proportion
+|       \-- ideal proportion
+|
++-- IV. PRINCIPLES OF ORGANIZATION
+|   |
+|   +-- A. Composition
+|   |   +-- symmetrical
+|   |   +-- asymmetrical
+|   |   +-- radial
+|   |   +-- grid-based
+|   |   +-- all-over
+|   |   \-- centered / axial
+|   |
+|   +-- B. Balance
+|   +-- C. Contrast
+|   +-- D. Emphasis / Focal Point
+|   +-- E. Rhythm
+|   +-- F. Pattern
+|   +-- G. Repetition
+|   +-- H. Unity
+|   +-- I. Variety
+|   +-- J. Movement
+|   +-- K. Hierarchy
+|   \-- L. Tension / Disequilibrium
+|
++-- V. SUBJECT MATTER
+|   |
+|   +-- A. Human Figure
+|   |   +-- portrait
+|   |   +-- self-portrait
+|   |   +-- nude
+|   |   +-- figure in narrative
+|   |   \-- identity-focused representation
+|   |
+|   +-- B. Nature
+|   |   +-- landscape
+|   |   +-- botanical
+|   |   +-- animal art
+|   |   +-- ecological art
+|   |   \-- weather / atmosphere
+|   |
+|   +-- C. Object World
+|   |   +-- still life
+|   |   +-- vanitas
+|   |   +-- domestic objects
+|   |   \-- industrial objects
+|   |
+|   +-- D. Narrative / Event
+|   |   +-- mythological
+|   |   +-- religious
+|   |   +-- historical
+|   |   +-- political
+|   |   +-- personal memory
+|   |   \-- speculative / fictional
+|   |
+|   +-- E. Abstraction
+|   |   +-- geometric abstraction
+|   |   +-- lyrical abstraction
+|   |   +-- gestural abstraction
+|   |   +-- color field
+|   |   +-- minimal abstraction
+|   |   \-- non-objective art
+|   |
+|   +-- F. Concept / Language
+|   |   +-- text art
+|   |   +-- data visualization as art
+|   |   +-- system diagrams
+|   |   \-- symbolic structures
+|   |
+|   \-- G. Social Reality
+|       +-- labor
+|       +-- class
+|       +-- gender
+|       +-- race
+|       +-- migration
+|       +-- war
+|       +-- technology
+|       \-- urban life
+|
++-- VI. MODES OF REPRESENTATION
+|   |
+|   +-- A. Naturalistic
+|   +-- B. Realist
+|   +-- C. Idealized
+|   +-- D. Stylized
+|   +-- E. Symbolic
+|   +-- F. Expressionist
+|   +-- G. Abstract
+|   +-- H. Non-Representational
+|   +-- I. Surreal / Dreamlike
+|   +-- J. Schematic / Diagrammatic
+|   \-- K. Hybrid / Fragmented
+|
++-- VII. HISTORICAL PERIODS AND TRADITIONS
+|   |
+|   +-- A. Prehistoric
+|   |   +-- cave painting
+|   |   +-- carved figurines
+|   |   \-- megalithic marking
+|   |
+|   +-- B. Ancient
+|   |   +-- Egyptian
+|   |   +-- Mesopotamian
+|   |   +-- Greek
+|   |   +-- Roman
+|   |   +-- South Asian
+|   |   +-- East Asian
+|   |   +-- Mesoamerican
+|   |   \-- African ancient traditions
+|   |
+|   +-- C. Medieval
+|   |   +-- Byzantine
+|   |   +-- Romanesque
+|   |   +-- Gothic
+|   |   +-- illuminated manuscript
+|   |   \-- icon tradition
+|   |
+|   +-- D. Early Modern
+|   |   +-- Renaissance
+|   |   +-- Mannerism
+|   |   +-- Baroque
+|   |   +-- Rococo
+|   |   \-- Neoclassicism
+|   |
+|   +-- E. 19th Century
+|   |   +-- Romanticism
+|   |   +-- Realism
+|   |   +-- Academic art
+|   |   +-- Impressionism
+|   |   +-- Post-Impressionism
+|   |   +-- Symbolism
+|   |   \-- Arts and Crafts
+|   |
+|   +-- F. Early 20th Century
+|   |   +-- Fauvism
+|   |   +-- Expressionism
+|   |   +-- Cubism
+|   |   +-- Futurism
+|   |   +-- Dada
+|   |   +-- Surrealism
+|   |   +-- Suprematism
+|   |   +-- Constructivism
+|   |   +-- De Stijl
+|   |   +-- Bauhaus
+|   |   \-- Precisionism
+|   |
+|   +-- G. Mid 20th Century
+|   |   +-- Abstract Expressionism
+|   |   +-- Color Field
+|   |   +-- Pop Art
+|   |   +-- Minimalism
+|   |   +-- Op Art
+|   |   +-- Fluxus
+|   |   +-- Conceptual Art
+|   |   +-- Land Art
+|   |   \-- Arte Povera
+|   |
+|   +-- H. Late 20th Century
+|   |   +-- Postmodernism
+|   |   +-- Neo-Expressionism
+|   |   +-- Appropriation Art
+|   |   +-- Institutional Critique
+|   |   +-- Feminist Art
+|   |   +-- Identity Art
+|   |   +-- Street Art
+|   |   \-- New Media Art
+|   |
+|   \-- I. Contemporary
+|       +-- relational aesthetics
+|       +-- social practice
+|       +-- digital art
+|       +-- bio art
+|       +-- AI-assisted art
+|       +-- post-internet art
+|       +-- immersive environments
+|       \-- transdisciplinary practice
+|
++-- VIII. CULTURAL / GEOGRAPHIC FRAMES
+|   |
+|   +-- A. African Art
+|   +-- B. East Asian Art
+|   +-- C. South Asian Art
+|   +-- D. Southeast Asian Art
+|   +-- E. Middle Eastern Art
+|   +-- F. European Art
+|   +-- G. Indigenous Arts of the Americas
+|   +-- H. Latin American Art
+|   +-- I. North American Art
+|   +-- J. Oceanic / Pacific Arts
+|   \-- K. Global / Diasporic Contemporary Art
+|
++-- IX. PRODUCTION CONTEXTS
+|   |
+|   +-- A. Studio Practice
+|   +-- B. Workshop / Atelier
+|   +-- C. Collective / Collaborative Practice
+|   +-- D. Commissioned Work
+|   +-- E. Sacred / Ritual Context
+|   +-- F. State / Civic Patronage
+|   +-- G. Market / Gallery System
+|   +-- H. Museum Context
+|   +-- I. Public Art Commission
+|   +-- J. Community-Based Practice
+|   \-- K. DIY / Independent / Underground
+|
++-- X. DISPLAY CONTEXTS
+|   |
+|   +-- A. Gallery
+|   +-- B. Museum
+|   +-- C. Salon / Academy
+|   +-- D. Biennial / Fair
+|   +-- E. Public Space
+|   +-- F. Domestic Interior
+|   +-- G. Sacred Site
+|   +-- H. Printed Page
+|   +-- I. Screen / Network
+|   \-- J. Landscape / Site
+|
++-- XI. CRITICAL LENSES
+|   |
+|   +-- A. Formal Analysis
+|   +-- B. Iconography
+|   +-- C. Semiotics
+|   +-- D. Marxist Critique
+|   +-- E. Feminist Critique
+|   +-- F. Postcolonial Analysis
+|   +-- G. Psychoanalytic Reading
+|   +-- H. Queer Reading
+|   +-- I. Material Culture Approach
+|   +-- J. Institutional Critique
+|   +-- K. Ecocritical Reading
+|   \-- L. Media Archaeology
+|
++-- XII. BORDER / HYBRID ZONES
+|   |
+|   +-- A. Art + Science
+|   +-- B. Art + Code
+|   +-- C. Art + Architecture
+|   +-- D. Art + Performance
+|   +-- E. Art + Activism
+|   +-- F. Art + Craft
+|   +-- G. Art + Design
+|   +-- H. Art + Ritual
+|   +-- I. Art + Data
+|   \-- J. Art + Machine Systems
+|
+\-- XIII. CONTEMPORARY EMERGENT CATEGORIES
+    |
+    +-- A. Generative Art
+    |   +-- algorithmic drawing
+    |   +-- rule-based image systems
+    |   +-- plotter art
+    |   \-- cellular / procedural aesthetics
+    |
+    +-- B. AI-Associated Visual Art
+    |   +-- prompt-mediated image production
+    |   +-- model-collage workflows
+    |   +-- latent-space exploration
+    |   +-- synthetic photography
+    |   \-- critique of machine vision
+    |
+    +-- C. XR / Spatial Computing Art
+    |   +-- AR overlays
+    |   +-- VR environments
+    |   +-- MR sculptural interfaces
+    |   \-- virtual exhibition worlds
+    |
+    +-- D. Bio / Eco Art
+    |   +-- living systems
+    |   +-- growth-based works
+    |   +-- climate-responsive installation
+    |   \-- restoration-linked practice
+    |
+    \-- E. Networked Art
+        +-- browser-based art
+        +-- telematic collaboration
+        +-- platform-native visual practice
+        \-- distributed image culture
