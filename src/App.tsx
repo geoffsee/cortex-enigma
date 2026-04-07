@@ -1,7 +1,7 @@
 import { ThemeProvider } from 'styled-components'
 import { darkTheme } from './styles/theme'
 import { GlobalStyles } from './styles/GlobalStyles'
-import CortexEnigma from './components/CortexEnigma/CortexEnigma'
+import CortexEnigma from './presentation/components/CortexEnigma/CortexEnigma'
 
 export const App = () => {
   return (

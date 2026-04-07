@@ -1,0 +1,10 @@
+export const CATEGORIES: Record<string, string[]> = {
+  MEDIUM: ["painting", "drawing", "print", "sculpture", "photo", "video", "installation", "digital", "textile", "hybrid"],
+  METHOD: ["carve", "cast", "model", "assemble", "paint", "draw", "print", "stitch", "code", "project"],
+  SUBJECT: ["figure", "nature", "object", "narrative", "abstraction", "concept", "society"],
+  STYLE: ["naturalist", "realist", "idealized", "symbolic", "expressive", "abstract", "conceptual", "surreal"],
+  ELEMENTS: ["geometric", "organic", "chiaroscuro", "minimalist", "layered", "atmospheric", "volumetric", "planar"],
+  FUNCTION: ["ritual", "decorative", "documentary", "political", "commercial", "contemplative", "critical"],
+  CONTEXT: ["studio", "public", "sacred", "domestic", "institutional", "networked", "environmental"],
+  HISTORY: ["prehistoric", "ancient", "medieval", "early modern", "modern", "postmodern", "contemporary"]
+};

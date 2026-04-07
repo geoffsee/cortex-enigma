@@ -23,16 +23,40 @@ No test suite is configured.
 
 ## Project Structure
 
+Layered Clean Architecture — dependency flow: `presentation → application → domain`; infrastructure implements application ports.
+
 ```
 src/
-  components/CortexEnigma/
-    CortexCanvas.tsx      # WebGL 3D canvas (Three.js scene)
-    CortexEnigma.tsx      # Main app logic & state
-    EdgePanels.tsx        # UI panels on canvas edges
-    Sidebar.tsx           # Sidebar navigation
-    styled.ts             # Styled components
-  data/
-    categories.ts         # Category options (MEDIUM, METHOD, SUBJECT, etc.)
+  domain/
+    types.ts              # SelectionState, CategoryName, EMPTY_SELECTIONS
+    categories.ts         # CATEGORIES constant
+    promptBuilder.ts      # buildPrompt() pure function
+  application/
+    ports/
+      IStoragePort.ts     # storage port interface
+      ILLMPort.ts         # LLM port interface
+    SelectionService.ts   # toggle, randomize, clear, validate (named exports)
+  infrastructure/
+    LocalStorageAdapter.ts  # implements IStoragePort; owns STORAGE_KEY
+    WebLLMAdapter.ts        # implements ILLMPort; dynamic import of @mlc-ai/web-llm
+  presentation/
+    hooks/
+      useSelections.ts    # state + SelectionService + LocalStorageAdapter
+      usePromptEngine.ts  # LLM state + WebLLMAdapter
+    components/CortexEnigma/
+      CortexEnigma.tsx    # thin orchestrator (~50 lines)
+      Sidebar.tsx         # sidebar UI + styled components
+      EdgePanels.tsx      # top/right category panels + styled components
+      Canvas/
+        CortexCanvas.tsx  # Canvas wrapper + lights + controls
+        scene/
+          CortexCore.tsx       # floating sphere + CoreGlow
+          OutputPanel.tsx      # synth chassis + knob row + display
+          Knob.tsx             # individual rotary knob
+          SynthButton.tsx      # illuminated panel button
+          BackgroundStars.tsx  # 500-point star field
+          ReflectiveFloor.tsx  # mirror floor + TRON grid
+          SceneEffects.tsx     # EffectComposer (bloom/noise/vignette)
   styles/
     GlobalStyles.ts
     theme.ts              # Dark/light theme tokens
