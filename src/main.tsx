@@ -1,16 +1,12 @@
-import { StrictMode } from 'react'
 import { createRoot, hydrateRoot } from 'react-dom/client'
 import App from './App.tsx'
 
 const container = document.getElementById('root')!
-const tree = (
-  <StrictMode>
-    <App />
-  </StrictMode>
-)
+const tree = <App />
 
-// If the build pre-rendered HTML into #root, hydrate it; otherwise mount fresh.
-if (container.hasChildNodes()) {
+// In dev, mount fresh to avoid hydration mismatches during HMR.
+// In preview/prod, hydrate only when prerendered markup exists.
+if (!import.meta.env.DEV && container.hasChildNodes()) {
   hydrateRoot(container, tree)
 } else {
   createRoot(container).render(tree)

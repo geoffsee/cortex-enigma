@@ -3,6 +3,7 @@ import { useFrame } from '@react-three/fiber';
 import { Float, MeshDistortMaterial, Points, PointMaterial } from '@react-three/drei';
 import * as THREE from 'three';
 import type { SelectionState } from '../../../../../domain/types';
+import type { DJTelemetry } from '../../../../../application/djCockpit';
 
 function CoreGlow({ activeCount }: { activeCount: number }) {
   const points = useMemo(() => {
@@ -33,9 +34,15 @@ function CoreGlow({ activeCount }: { activeCount: number }) {
   );
 }
 
-export function CortexCore({ selections }: { selections: SelectionState }) {
+export function CortexCore({ selections, telemetry }: { selections: SelectionState; telemetry: DJTelemetry }) {
   const meshRef = useRef<THREE.Mesh>(null!);
   const activeCount = Object.values(selections).filter(Boolean).length;
+  const coreColor =
+    telemetry.objective === "rain"
+      ? "#d946ef"
+      : telemetry.objective === "peak"
+        ? "#c026d3"
+        : "#a020f0";
 
   useFrame((state) => {
     const time = state.clock.getElapsedTime();
@@ -50,9 +57,9 @@ export function CortexCore({ selections }: { selections: SelectionState }) {
         <mesh ref={meshRef}>
           <sphereGeometry args={[1.1, 64, 64]} />
           <MeshDistortMaterial
-            color="#a020f0"
-            emissive="#a020f0"
-            emissiveIntensity={2 + activeCount * 2}
+            color={coreColor}
+            emissive={coreColor}
+            emissiveIntensity={2 + activeCount * 2 + telemetry.crowdHeat * 0.4}
             distort={0.4}
             speed={2}
             roughness={0}
@@ -60,7 +67,7 @@ export function CortexCore({ selections }: { selections: SelectionState }) {
           />
         </mesh>
       </Float>
-      <pointLight intensity={10 + activeCount * 5} distance={20} color="#a020f0" />
+      <pointLight intensity={10 + activeCount * 5} distance={20} color={coreColor} />
       <CoreGlow activeCount={activeCount} />
     </group>
   );

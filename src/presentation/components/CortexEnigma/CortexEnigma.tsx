@@ -1,5 +1,6 @@
 import { useState, useRef, useMemo, lazy, Suspense } from 'react';
 import { buildPrompt } from '../../../domain/promptBuilder';
+import { deriveDJTelemetry } from '../../../application/djCockpit';
 import { useSelections } from '../../hooks/useSelections';
 import { usePromptEngine } from '../../hooks/usePromptEngine';
 import Sidebar from './Sidebar';
@@ -11,10 +12,17 @@ export default function CortexEnigma() {
   const { selections, handleSelect, handleFoundationChange, randomize, clearAll, mounted } = useSelections();
   const { generate, isGenerating, isModelLoading, loadProgress, error } = usePromptEngine();
   const [autoRotate, setAutoRotate] = useState(false);
-  const [effectsEnabled, setEffectsEnabled] = useState(true);
+  const [effectsEnabled, setEffectsEnabled] = useState(false);
+  const [playheadEnabled, setPlayheadEnabled] = useState(true);
   const orbitRef = useRef<{ reset: () => void } | null>(null);
 
-  const prompt = useMemo(() => buildPrompt(selections), [selections]);
+  const telemetry = useMemo(() => deriveDJTelemetry(selections), [selections]);
+  const djRichContext = useMemo(
+    () =>
+      `objective=${telemetry.objective}; intent=${telemetry.transitionIntent}; heat=${telemetry.crowdHeat}/5; risk=${telemetry.risk}/5; fatigue=${telemetry.dropFatigue}/5`,
+    [telemetry]
+  );
+  const prompt = useMemo(() => buildPrompt(selections, djRichContext), [selections, djRichContext]);
 
   const copyToClipboard = () => {
     if (prompt) navigator.clipboard.writeText(prompt);
@@ -45,9 +53,11 @@ export default function CortexEnigma() {
         onToggleAutoRotate={() => setAutoRotate(v => !v)}
         effectsEnabled={effectsEnabled}
         onToggleEffects={() => setEffectsEnabled(v => !v)}
+        playheadEnabled={playheadEnabled}
+        onTogglePlayhead={() => setPlayheadEnabled(v => !v)}
         onResetCamera={() => orbitRef.current?.reset()}
       />
-      <EdgePanels selections={selections} onSelect={handleSelect} />
+      <EdgePanels selections={selections} onSelect={handleSelect} telemetry={telemetry} playheadEnabled={playheadEnabled} />
       {mounted && (
         <Suspense fallback={null}>
           <CortexCanvas
@@ -59,6 +69,7 @@ export default function CortexEnigma() {
             autoRotate={autoRotate}
             effectsEnabled={effectsEnabled}
             orbitRef={orbitRef}
+            telemetry={telemetry}
           />
         </Suspense>
       )}

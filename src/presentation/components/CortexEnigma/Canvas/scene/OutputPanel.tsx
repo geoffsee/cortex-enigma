@@ -1,6 +1,7 @@
 import { Float, Text } from '@react-three/drei';
 import { CATEGORIES } from '../../../../../domain/categories';
 import type { SelectionState } from '../../../../../domain/types';
+import { DJ_CATEGORY_LABELS, type DJTelemetry } from '../../../../../application/djCockpit';
 import { Knob } from './Knob';
 import { SynthButton } from './SynthButton';
 
@@ -10,9 +11,10 @@ type OutputPanelProps = {
   onCopy: () => void;
   selections: SelectionState;
   onSelect: (cat: string, val: string) => void;
+  telemetry: DJTelemetry;
 };
 
-export function OutputPanel({ prompt, onRandomize, onCopy, selections, onSelect }: OutputPanelProps) {
+export function OutputPanel({ prompt, onRandomize, onCopy, selections, onSelect, telemetry }: OutputPanelProps) {
   const categoryKeys = Object.keys(CATEGORIES);
   const knobSpacing = 0.92;
   const knobStartX = -((categoryKeys.length - 1) * knobSpacing) / 2;
@@ -84,7 +86,7 @@ export function OutputPanel({ prompt, onRandomize, onCopy, selections, onSelect 
               <Knob
                 key={cat}
                 position={[x, 0, 0]}
-                label={cat}
+                label={DJ_CATEGORY_LABELS[cat] ?? cat}
                 valueLabel={value}
                 valueIndex={idx}
                 optionCount={options.length}
@@ -133,7 +135,7 @@ export function OutputPanel({ prompt, onRandomize, onCopy, selections, onSelect 
             anchorY="middle"
             letterSpacing={0.2}
           >
-            GENERATED PROMPT
+            DJ RECOMMENDATION
           </Text>
           <Text
             position={[0, -0.04, 0.01]}
@@ -144,12 +146,12 @@ export function OutputPanel({ prompt, onRandomize, onCopy, selections, onSelect 
             anchorX="center"
             anchorY="middle"
           >
-            {prompt || "— SELECT OPTIONS —"}
+            {`${telemetry.recommendation}${prompt ? ` | ${prompt}` : ''}` || "— ARM NEXT TRANSITION —"}
           </Text>
         </group>
 
         {/* Action buttons — bottom-right section */}
-        <group position={[2.75, -0.85, 0.12]}>
+        <group position={[2.75, -1.1, 0.12]}>
           <SynthButton label="RND" position={[-0.55, 0, 0]} onClick={onRandomize} />
           <SynthButton label="CPY" position={[0.55, 0, 0]} onClick={onCopy} disabled={!prompt} />
         </group>

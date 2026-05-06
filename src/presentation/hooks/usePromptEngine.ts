@@ -7,6 +7,7 @@ export function usePromptEngine() {
   const [isModelLoading, setIsModelLoading] = useState(false);
   const [loadProgress, setLoadProgress] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [degradedMode, setDegradedMode] = useState(false);
 
   // Load the model on mount; no dependency on hydrated selections.
   useEffect(() => {
@@ -18,11 +19,15 @@ export function usePromptEngine() {
         await adapterRef.current.load((text) => {
           if (!cancelled) setLoadProgress(text);
         });
-        console.log('Model loaded');
+        if (!cancelled) {
+          setDegradedMode(false);
+          setLoadProgress('Model ready');
+        }
       } catch (err: unknown) {
         if (!cancelled) {
           const msg = err instanceof Error ? err.message : 'Unknown error';
-          setError(`Failed to load model: ${msg}`);
+          setDegradedMode(true);
+          setError(`Model load failed, using local fallback expander: ${msg}`);
         }
       } finally {
         if (!cancelled) setIsModelLoading(false);
@@ -40,12 +45,19 @@ export function usePromptEngine() {
       return await adapterRef.current.generate(foundation);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Unknown error';
-      setError(`Generation failed: ${msg}`);
-      return null;
+      setDegradedMode(true);
+      setError(`Generation degraded to local fallback: ${msg}`);
+      return buildFallbackExpansion(foundation);
     } finally {
       setIsGenerating(false);
     }
   };
 
-  return { generate, isGenerating, isModelLoading, loadProgress, error };
+  return { generate, isGenerating, isModelLoading, loadProgress, error, degradedMode };
+}
+
+function buildFallbackExpansion(foundation: string) {
+  const seed = foundation.trim();
+  if (!seed) return '';
+  return `cinematic ${seed}, volumetric lighting, high-detail textures, dramatic contrast, sharp focus`;
 }
