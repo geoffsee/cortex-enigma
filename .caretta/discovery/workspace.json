@@ -1,0 +1,171 @@
+{
+  "problem": "Live DJs need to compose performance-aware prompts (genre, transition, crowd intent, set objective, FX, performance goal, venue, era) and get an AI-expanded recommendation without leaving the booth or relying on a server/API key. Existing prompt tools are generic text boxes that ignore DJ context (crowd heat, risk, drop fatigue) and don't translate selections into actionable live-set guidance.",
+  "stakeholders": "Primary: working DJs and producers (personas include DJ Jazzy Jeff — workflow/reliability lens; Brian Eno — generative/process lens; Alessandro Cortini and Kaitlyn Aurelia Smith — instrument-character lens; Trent Reznor, Max Cooper, REZZ — performance/production lenses). Secondary: solo maintainer (Geoff Seemueller), GitHub Pages visitors, the Caretta autopilot agent acting on the repo.",
+  "evidence": "README.md describes 'AR DJ copilot interface' with 8-axis composition, telemetry (objective, transitionIntent, crowdHeat, risk, dropFatigue, recommendation) and an example prompt tail. src/domain/categories.ts encodes the 8 DJ-flavored axes. src/application/djCockpit.ts owns DJ_CATEGORY_LABELS; contexts/dj/state.ts is a MobX-State-Tree DJ machine prototype with injected audio/analyzer/ai services. .caretta/personas/*.json define seven domain personas used to evaluate the tool. CLAUDE.md confirms layered Clean Architecture and deployment to GitHub Pages.",
+  "desired_outcome": "A static, zero-backend AR DJ copilot where selecting dimensions on a 3D synth-style control surface yields (a) a performance-aware prompt, (b) live telemetry that drives HUD/visuals, and (c) an LLM-expanded foundation — all running locally via WebGPU, persisted across reloads, and deployable as a static site to GitHub Pages.",
+  "constraints": "Static site only (no server, no API key); base path '/cortex-enigma/'; LLM inference requires WebGPU (Chrome/Edge 113+, excludes Firefox/Safari by default); React 19 + TS 6 + Vite 8 + Three.js stack; layered Clean Architecture (presentation→application→domain, infrastructure implements ports); no separate test files historically (now vitest+playwright added); styled-components must be SSR-bundled (noExternal) for prerender.",
+  "dependencies": "@mlc-ai/web-llm (Llama-3.2-1B-Instruct via WebGPU), @react-three/fiber + drei + postprocessing, three.js 0.183, styled-components 6, React 19, Vite 8, lucide-react, maath. Dev: vitest 4 + Playwright (browser tests), TypeScript 6, ESLint 9. CI: bun + Playwright chromium. Deploy: GitHub Actions → GitHub Pages. Optional: mobx-state-tree for the experimental DJ machine in contexts/dj.",
+  "existing_systems": "Cortex Enigma itself (src/) — useSelections + SelectionService persist to localStorage; usePromptEngine wraps WebLLMAdapter; CortexCanvas renders the 3D synth scene with knobs/HUD/effects; prerender.mjs SSR-pre-renders for /dist. Experimental contexts/dj MST machine models decks, track analysis, crowd state, transitions, rain mode. Caretta autopilot GitHub Action operates on the repo on schedule/events. references/ contains art-compatibility matrices likely fed into prompt logic.",
+  "hypotheses": "1) Translating raw selections into DJ telemetry (heat/risk/fatigue) before LLM expansion produces more useful prompts than raw category strings. 2) A tactile 3D synth surface increases creative engagement vs. checkbox UIs — but only if it stays performant on mid-range laptops. 3) In-browser WebGPU LLM is fast enough for live use; users will accept the WebGPU browser restriction. 4) Persona-driven evaluation (DJ Jazzy Jeff workflow vs Eno generative lens) will surface different blocking issues than generic usability testing.",
+  "success_metrics": "Successful SSR pre-render and Pages deploy on every push to master (CI green). All vitest suites pass (SelectionService, buildDJRichContext, categories, promptBuilder). LLM expansion completes locally without errors. Selection state survives reload. Telemetry-driven HUD/core glow responds to selection changes. Persona reviews (per .caretta/personas) flag no rejection_no_if triggers.",
+  "tradeoffs": "WebGPU-only LLM = no server cost but excludes Safari/Firefox users. Static GitHub Pages = simple deploy but no analytics/personalization. Layered Clean Architecture adds indirection (ports/adapters) for a small app, but isolates LLM and storage so they can be swapped. Heavy 3D scene + bloom/noise/vignette = visually distinctive but raises GPU baseline and complicates accessibility. Keeping the DJ MST machine in contexts/dj/ unwired preserves optionality but risks dead code.",
+  "risks": "WebGPU compatibility excludes a large share of users. Llama-3.2-1B-Instruct quality may be too weak for nuanced DJ-context expansion. 3D scene + LLM together can OOM mid-range devices. Telemetry heuristics in djCockpit.ts may feel arbitrary to working DJs (DJ Jazzy Jeff persona risk). Drift between the active djCockpit telemetry and the unused buildDJRichContext formatter / MST machine creates two sources of truth. Static hosting limits ability to ship hotfixes for runtime LLM issues. Caretta autopilot has write access to the repo — autonomous changes could regress prompt quality.",
+  "assumption_summary": "We assume DJs want a prompt-composition tool (not a deck-control tool yet), that WebGPU is acceptable as a hard requirement, that the 8 chosen axes cover the meaningful DJ-prompt dimensions, that local Llama-3.2-1B produces useful expansion, and that a 3D synth metaphor is more engaging than a form UI for this audience.",
+  "frame_notes": "Project frames itself as an 'AR DJ copilot' but currently ships a prompt composer with telemetry-driven visuals — not a deck controller. Two parallel context models exist (djCockpit live, buildDJRichContext + MST machine experimental); decide which is canonical before expanding scope. The Caretta autopilot persona-driven evaluation system is a distinctive framing layer worth preserving as a design discipline.",
+  "decision": "",
+  "decision_rationale": "",
+  "risk_accepted": false,
+  "risk_notes": "No explicit risk acceptance recorded in repo; CLAUDE.md and README acknowledge WebGPU restriction as a known limitation, not a formally accepted risk.",
+  "assumptions": [
+    {
+      "status": "unvalidated",
+      "confidence": "medium",
+      "evidence": "README claims WebGPU works in Chrome/Edge 113+; no telemetry on actual visitor browser share",
+      "owner": "maintainer",
+      "validation_next_step": "Add anonymous WebGPU-capability check on page load and log to a static counter or GH Pages-compatible analytic"
+    },
+    {
+      "status": "unvalidated",
+      "confidence": "low",
+      "evidence": "Llama-3.2-1B is the smallest practical model; no recorded eval of expansion quality on DJ prompts",
+      "owner": "maintainer",
+      "validation_next_step": "Score 20 representative selection sets through the LLM and rate against persona criteria (DJ Jazzy Jeff workflow, Eno generative)"
+    },
+    {
+      "status": "partially-validated",
+      "confidence": "medium",
+      "evidence": "Categories.ts has 8 axes; buildDJRichContext + djCockpit derive telemetry; tests exist for promptBuilder and buildDJRichContext",
+      "owner": "maintainer",
+      "validation_next_step": "Run persona reviews on sample prompts to confirm axis coverage"
+    },
+    {
+      "status": "unvalidated",
+      "confidence": "medium",
+      "evidence": "3D scene with bloom/noise/vignette is visually rich but no perf budget recorded",
+      "owner": "maintainer",
+      "validation_next_step": "Lighthouse + WebGPU+three.js perf profile on mid-range laptop and mobile-class GPU"
+    }
+  ],
+  "frame_comparisons": [
+    {
+      "frame": "Prompt composer (current)",
+      "framing": "Help DJs compose performance-aware AI prompts with telemetry-driven visuals",
+      "evidence": "src/domain/promptBuilder.ts, src/application/djCockpit.ts wired into CortexEnigma",
+      "tradeoffs": "Ships now, narrow scope; not a real performance tool",
+      "recommendation": "Keep as v1; explicitly label as composition aid"
+    },
+    {
+      "frame": "AR DJ copilot (aspirational)",
+      "framing": "Real-time assistant during a set: deck state, crowd reading, transition recommendation",
+      "evidence": "contexts/dj/state.ts MST machine models decks/crowd/transition lifecycle but is unwired",
+      "tradeoffs": "Matches README marketing; requires audio I/O, latency budget, browser audio APIs",
+      "recommendation": "Treat as v2; do not block v1 deploy"
+    },
+    {
+      "frame": "Generative art instrument (Eno lens)",
+      "framing": "A small system whose rules and constraints produce surprising outputs over long sessions",
+      "evidence": "Persona definition .caretta/personas/persona-brian-eno.json; 8-axis CATEGORIES as rule set",
+      "tradeoffs": "Drops DJ-specific framing; broadens appeal but loses sharp positioning",
+      "recommendation": "Hold; revisit if DJ framing fails persona review"
+    }
+  ],
+  "decision_log": [
+    {
+      "gate": "Static deploy via GitHub Pages",
+      "rationale": "No backend cost, simple CI; aligns with zero-API-key in-browser LLM choice",
+      "rejected_alternatives": "Server-rendered Next.js app with hosted LLM; Cloudflare Workers AI",
+      "reversibility": "Medium — can move to Workers/Pages Functions later without rewriting domain/application layers"
+    },
+    {
+      "gate": "In-browser LLM (Llama-3.2-1B via WebGPU)",
+      "rationale": "Removes API key, server cost, and per-user latency to a hosted model",
+      "rejected_alternatives": "Hosted Claude/OpenAI API; larger local model",
+      "reversibility": "High — ILLMPort abstracts the adapter"
+    },
+    {
+      "gate": "Clean Architecture layering",
+      "rationale": "Isolates domain logic from React/Three/WebLLM so adapters can be swapped",
+      "rejected_alternatives": "Flat React app with inline logic",
+      "reversibility": "Low — refactoring back would lose port boundaries"
+    }
+  ],
+  "risk_dashboard": [
+    {
+      "likelihood": "high",
+      "impact": "medium",
+      "trigger": "Visitor opens in Safari/Firefox",
+      "mitigation": "Detect WebGPU, show non-LLM mode (selections + prompt only) with clear browser guidance"
+    },
+    {
+      "likelihood": "medium",
+      "impact": "high",
+      "trigger": "LLM output quality fails persona review",
+      "mitigation": "Tune system prompt; consider larger quantized model or fallback hosted endpoint behind feature flag"
+    },
+    {
+      "likelihood": "medium",
+      "impact": "medium",
+      "trigger": "3D scene + LLM exceed GPU/RAM on mid-tier device",
+      "mitigation": "Reduce postprocessing passes; lazy-load LLM only on user action; add a 'lite' visual mode"
+    },
+    {
+      "likelihood": "medium",
+      "impact": "medium",
+      "trigger": "djCockpit telemetry and buildDJRichContext drift",
+      "mitigation": "Pick one canonical formatter; delete or clearly mark the other as experimental"
+    },
+    {
+      "likelihood": "low",
+      "impact": "high",
+      "trigger": "Caretta autopilot ships regression to master",
+      "mitigation": "Require CI green + persona-review gate before merge; keep deploy from master not directly from autopilot branches"
+    }
+  ],
+  "dependency_graph": [
+    {
+      "from": "presentation",
+      "to": "application",
+      "reason": "Hooks (useSelections, usePromptEngine) call SelectionService and djCockpit"
+    },
+    {
+      "from": "application",
+      "to": "domain",
+      "reason": "SelectionService and telemetry helpers operate on CATEGORIES, types, and buildPrompt"
+    },
+    {
+      "from": "infrastructure",
+      "to": "application",
+      "reason": "LocalStorageAdapter and WebLLMAdapter implement IStoragePort and ILLMPort"
+    },
+    {
+      "from": "presentation",
+      "to": "infrastructure",
+      "reason": "Hooks wire concrete adapters into the React tree"
+    },
+    {
+      "from": "build",
+      "to": "prerender.mjs",
+      "reason": "npm run build runs tsc then SSR-prerenders entry-server.tsx to dist/"
+    },
+    {
+      "from": "deploy.yml",
+      "to": "build",
+      "reason": "GitHub Pages workflow runs bun run build and uploads dist/"
+    },
+    {
+      "from": "CI workflow",
+      "to": "vitest + Playwright",
+      "reason": "CI runs browser tests via Playwright chromium"
+    },
+    {
+      "from": "contexts/dj MST machine",
+      "to": "injected audio/analyzer/ai services",
+      "reason": "State machine depends on environment-provided services to stay deterministic"
+    },
+    {
+      "from": "Caretta autopilot",
+      "to": "repo (issues/PRs/contents)",
+      "reason": "GitHub Action with write permissions acts on repo events on schedule"
+    }
+  ]
+}
