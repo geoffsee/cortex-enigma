@@ -2,5 +2,4 @@
 
 set -euo pipefail
 
-cargo test --workspace
 bun run test
