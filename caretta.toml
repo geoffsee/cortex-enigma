@@ -1,0 +1,10 @@
+project_name = "bevy-osc-app"
+
+[test]
+command = ["bun", "run", "test"]
+format_command = ["bun", "run", "format"]
+
+#[security_scan]
+#paths = [
+## todo
+#]
