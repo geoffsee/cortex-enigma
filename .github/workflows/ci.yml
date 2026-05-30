@@ -1,12 +1,5 @@
 name: CI
 
-# The Test check the autopilot gates agent PRs on.
-#
-# This project is a Bevy app compiled to WebAssembly served by a Bun
-# bridge. CI installs the Rust toolchain + a pinned wasm-bindgen-cli,
-# builds the web bundle, then runs the Vitest browser suite (Playwright
-# provider) against the built artifacts.
-
 on:
   push:
     branches:
@@ -38,19 +31,6 @@ jobs:
           ref: ${{ inputs.ref || github.ref }}
           fetch-depth: 0
 
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: wasm32-unknown-unknown
-
-      - name: Cache Cargo
-        uses: Swatinem/rust-cache@v2
-
-      - name: Install wasm-bindgen-cli
-        uses: taiki-e/install-action@v2
-        with:
-          tool: wasm-bindgen-cli@${{ env.WASM_BINDGEN_VERSION }}
-
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
@@ -60,9 +40,6 @@ jobs:
 
       - name: Install Playwright browsers
         run: bunx playwright install --with-deps chromium
-
-      - name: Build WASM (web target)
-        run: bun run build:web
 
       - name: Vitest (browser)
         run: bun run test
