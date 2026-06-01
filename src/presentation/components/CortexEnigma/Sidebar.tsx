@@ -19,6 +19,8 @@ type Props = {
   loadProgress?: string;
   onGenerate?: () => void;
   error?: string | null;
+  historyCount?: number;
+  onOpenHistory?: () => void;
 };
 
 export default function Sidebar({
@@ -38,6 +40,8 @@ export default function Sidebar({
   loadProgress,
   onGenerate,
   error,
+  historyCount = 0,
+  onOpenHistory,
 }: Props) {
   const categoryKeys = Object.keys(CATEGORIES);
   const activeCount = Object.values(selections).filter(Boolean).length;
@@ -120,6 +124,13 @@ export default function Sidebar({
             </Button>
             <Button onClick={onCopy} disabled={!prompt} style={{ gridColumn: 'span 2' }}>
               Copy to Clipboard
+            </Button>
+            <Button
+              onClick={onOpenHistory}
+              disabled={!onOpenHistory}
+              style={{ gridColumn: 'span 2' }}
+            >
+              History{historyCount > 0 ? ` (${historyCount})` : ''}
             </Button>
           </ButtonGrid>
         </Section>
