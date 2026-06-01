@@ -1,6 +1,7 @@
 import type { ILLMPort } from '../application/ports/ILLMPort';
 
 type ChatMessage = { role: 'system' | 'user' | 'assistant'; content: string };
+type ChatCompletionChunk = { choices: Array<{ delta: { content: string | null } }> };
 
 type MLCEngineLike = {
   chat: {
@@ -9,7 +10,11 @@ type MLCEngineLike = {
         messages: ChatMessage[];
         max_tokens: number;
         temperature: number;
-      }) => Promise<{ choices: Array<{ message: { content: string | null } }> }>;
+        stream?: boolean;
+      }) => Promise<
+        | { choices: Array<{ message: { content: string | null } }> }
+        | AsyncIterable<ChatCompletionChunk>
+      >;
     };
   };
 };
@@ -30,7 +35,7 @@ export class WebLLMAdapter implements ILLMPort {
 
   async generate(foundation: string): Promise<string> {
     if (!this.engine) throw new Error('Engine not initialized');
-    const reply = await this.engine.chat.completions.create({
+    const result = await this.engine.chat.completions.create({
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user', content: foundation },
@@ -38,7 +43,30 @@ export class WebLLMAdapter implements ILLMPort {
       max_tokens: 30,
       temperature: 0.8,
     });
+    const reply = result as { choices: Array<{ message: { content: string | null } }> };
     const text = reply.choices[0].message.content?.trim() ?? '';
     return text.replace(/^,\s*/, '');
+  }
+
+  async generateStream(foundation: string, onChunk: (partial: string) => void): Promise<string> {
+    if (!this.engine) throw new Error('Engine not initialized');
+    const result = await this.engine.chat.completions.create({
+      messages: [
+        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'user', content: foundation },
+      ],
+      max_tokens: 30,
+      temperature: 0.8,
+      stream: true,
+    });
+    let full = '';
+    for await (const chunk of result as AsyncIterable<ChatCompletionChunk>) {
+      const delta = chunk.choices[0]?.delta?.content ?? '';
+      if (delta) {
+        full += delta;
+        onChunk(full);
+      }
+    }
+    return full.replace(/^,\s*/, '');
   }
 }

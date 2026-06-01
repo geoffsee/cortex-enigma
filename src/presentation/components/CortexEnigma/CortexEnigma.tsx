@@ -9,12 +9,21 @@ const CortexCanvas = lazy(() => import('./Canvas/CortexCanvas'));
 
 export default function CortexEnigma() {
   const { selections, handleSelect, handleFoundationChange, randomize, clearAll, mounted } = useSelections();
-  const { generate, isGenerating, isModelLoading, loadProgress, error } = usePromptEngine();
+  const { generate, isGenerating, isModelLoading, loadProgress, error, streamingText } = usePromptEngine();
   const [autoRotate, setAutoRotate] = useState(false);
   const [effectsEnabled, setEffectsEnabled] = useState(true);
   const orbitRef = useRef<{ reset: () => void } | null>(null);
 
   const prompt = useMemo(() => buildPrompt(selections), [selections]);
+
+  const displayPrompt = useMemo(() => {
+    if (isModelLoading) return 'LOADING MODEL...';
+    if (streamingText !== null) {
+      if (!streamingText) return 'GENERATING...';
+      return selections.foundation ? `${selections.foundation}, ${streamingText}` : streamingText;
+    }
+    return prompt;
+  }, [isModelLoading, streamingText, selections.foundation, prompt]);
 
   const copyToClipboard = () => {
     if (prompt) navigator.clipboard.writeText(prompt);
@@ -53,7 +62,7 @@ export default function CortexEnigma() {
           <CortexCanvas
             selections={selections}
             onSelect={handleSelect}
-            prompt={prompt}
+            prompt={displayPrompt}
             onRandomize={randomize}
             onCopy={copyToClipboard}
             autoRotate={autoRotate}
