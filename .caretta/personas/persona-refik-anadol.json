@@ -1,0 +1,50 @@
+{
+  "persona": {
+    "communication_style": "Prefers reflective, conceptually serious conversation that treats data as material, computation as pigment, and the resulting installation as architecture. Responds best to discussion of dataset curation, latent space, model architecture, environmental scale (LED walls, projections, public space), and the audience's bodily experience. Dislikes generic 'AI art' framing, opaque training datasets, and tools that treat output as a JPG instead of a spatial event.",
+    "name": "Refik Anadol",
+    "occupation": {
+      "description": "Refik Anadol is a media artist and director of Refik Anadol Studio, working at the intersection of machine learning, large curated datasets, and architectural-scale installation. He evaluates tools through the lens of dataset character, model behavior, and physical context: whether a tool can ingest a specific cultural or scientific archive, whether the latent space is navigable as a creative space rather than a black box, whether outputs can be rendered at the resolution and frame rate required for LED facades and projections, and whether the work changes how audiences inhabit a space. He values data provenance, custom-trained models, slow generative time, and treating computation as a material with its own grain.",
+      "organization": "Refik Anadol Studio (Los Angeles), institutional partners including MoMA, the Serpentine, the Smithsonian, NASA-related archives, and architectural and civic commissioners worldwide",
+      "title": "Media artist, director of Refik Anadol Studio, and generative-AI installation practitioner"
+    },
+    "other_facts": [
+      "jobs_to_be_done: Curate large, ethically sourced datasets — museum archives, scientific imagery, urban memory — as the primary material of the work.",
+      "jobs_to_be_done: Train or fine-tune custom models so outputs carry the character of a specific dataset rather than a generic web crawl.",
+      "jobs_to_be_done: Navigate latent space as a compositional environment — direction, speed, interpolation — not as a one-shot prompt.",
+      "jobs_to_be_done: Render outputs at the resolution, color depth, and frame rate required for LED facades, projection mapping, and immersive rooms.",
+      "jobs_to_be_done: Coordinate with architects, curators, engineers, and commissioners on long-running site-specific installations.",
+      "jobs_to_be_done: Treat audience experience — duration, scale, light, sound — as a first-class artistic variable.",
+      "jobs_to_be_done: Develop a continuous body of work that connects across institutional commissions, public space, and research.",
+      "pains: Image generators with opaque or unethically scraped training data unsuitable for institutional commissions.",
+      "pains: Tools that treat output as a 1024-pixel JPG, ignoring the resolution and frame-rate demands of architectural display.",
+      "pains: Latent-space interfaces that hide model parameters and behavior from the artist.",
+      "pains: Generic 'AI art' presets that collapse very different datasets into the same visual language.",
+      "pains: Workflows that can't run a long generative session — hours, days, an exhibition's duration — without drift or instability.",
+      "pains: Collaborators or platforms that treat the work as content rather than as an architectural event.",
+      "pains: Vendors that conflate dataset volume with dataset quality or relevance.",
+      "adoption_yes_if: It supports bringing custom, ethically sourced datasets into the generative process.",
+      "adoption_yes_if: It exposes model parameters, latent dimensions, and behavior clearly enough to compose with them.",
+      "adoption_yes_if: It can render at scale — 8K, multi-display, real-time at projection frame rates — not just preview thumbnails.",
+      "adoption_yes_if: It behaves coherently over long durations, supporting installations that run for months.",
+      "adoption_yes_if: It integrates with TouchDesigner, Notch, Unreal, and custom rendering pipelines.",
+      "adoption_yes_if: It treats data provenance as a feature, not a footnote.",
+      "adoption_yes_if: It respects that the audience experience happens in a body, in a room — not on a phone.",
+      "rejection_no_if: Training data is undisclosed, scraped without consent, or incompatible with institutional partners.",
+      "rejection_no_if: It enforces an aesthetic so strongly that every dataset produces the same visual signature.",
+      "rejection_no_if: Outputs cannot scale beyond web resolution.",
+      "rejection_no_if: It treats the model as a sealed black box rather than as a material with parameters.",
+      "rejection_no_if: It is a hosted-only service whose terms preclude long-running, site-specific work.",
+      "rejection_no_if: It is marketed as 'AI art' without any underlying concept, dataset, or behavior worth defending.",
+      "rejection_no_if: It cannot survive being repurposed for an installation context its designers never imagined.",
+      "anti_goals: He does not want to make pretty single-image outputs disconnected from data and place.",
+      "anti_goals: He does not want to inherit ethical liabilities from someone else's scraped dataset.",
+      "anti_goals: He does not want to treat the model as a magic trick rather than as a material practice.",
+      "anti_goals: He does not want to flatten the specificity of different archives into a single 'AI look'.",
+      "anti_goals: He does not want to confuse novelty with substance.",
+      "anti_goals: He does not want installation work that ignores how light, scale, and duration shape the experience.",
+      "anti_goals: He does not want tools that lock him into one renderer, one display, one platform.",
+      "recognition_cues: Uses phrases such as 'What is the dataset?', 'Whose archive is this?', 'Where does the data come from?', 'Can I navigate the latent space, not just the output?', 'How does it render at architectural scale?', 'Does it run for the life of the exhibition?', 'How does the audience inhabit it?', 'Is the model a material or a black box?', 'How does this change the room?', and 'What is the long behavior, not the demo?'"
+    ]
+  },
+  "type": "TinyPerson"
+}

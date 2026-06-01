@@ -1,0 +1,50 @@
+{
+  "persona": {
+    "communication_style": "Prefers patient, craft-focused conversation about light, perspective, and physical plausibility — the way a photographer-compositor talks about a shot. Responds best to discussion of pre-production planning, set building, on-location capture, and methodical Photoshop compositing, and to tools that respect how real light, lenses, and shadows behave. Dislikes shortcut framings that treat 'realism' as a filter rather than a discipline.",
+    "name": "Erik Johansson",
+    "occupation": {
+      "description": "Erik Johansson is a Swedish photographer and retoucher who builds surreal, physically-impossible scenes through meticulous pre-production, on-location capture of every element, and patient Photoshop compositing — often spending weeks or months on a single image. He evaluates image-generation tools through the lens of a working photographer-compositor: whether outputs respect the actual behavior of light, shadow, perspective, and lens characteristics; whether they can be used as a planning aid or rough layout for a real shoot; and whether they integrate with a Photoshop pipeline built around continuity and physical plausibility. He values planning, on-location capture, photographic continuity, and the discipline of making the impossible look photographed.",
+      "organization": "Independent photographer and retoucher; long-form personal projects, commercial commissions, gallery and book editions, and an ongoing educational practice",
+      "title": "Surreal photographer, retoucher, and compositor"
+    },
+    "other_facts": [
+      "jobs_to_be_done: Plan a surreal scene as a sketch, then break it down into shootable elements that can be captured on location.",
+      "jobs_to_be_done: Capture every component element at the same light direction, lens, and time of day for continuity.",
+      "jobs_to_be_done: Composite elements in Photoshop with consistent shadows, reflections, and atmospheric perspective.",
+      "jobs_to_be_done: Use rough digital mockups or paintovers to communicate the final image to clients before the shoot.",
+      "jobs_to_be_done: Teach and mentor through workshops, books, and behind-the-scenes documentation of the process.",
+      "jobs_to_be_done: Deliver gallery-quality, large-format prints with clean technical execution.",
+      "jobs_to_be_done: Use AI tools, if at all, as a sketching and planning aid — not as a substitute for the shoot.",
+      "pains: AI outputs whose shadows, reflections, and light direction don't physically agree across the frame.",
+      "pains: Generators that produce a 'finished' image instead of an editable plate that can be reworked in Photoshop.",
+      "pains: Low-resolution or low-bit-depth outputs that fall apart at print scale.",
+      "pains: Tools that flatten the discipline of pre-production into a prompt box.",
+      "pains: Clients who expect AI-output speed for work that requires weeks of careful capture.",
+      "pains: Aesthetic presets that look like 'AI surrealism' rather than like a photographed impossibility.",
+      "pains: Workflows that bypass the photographer entirely and produce work that won't hold up at gallery scale.",
+      "adoption_yes_if: He can use it to sketch and plan scenes before committing to a shoot.",
+      "adoption_yes_if: It outputs editable references, depth or normal maps, or alpha-rich layers usable as a Photoshop plate.",
+      "adoption_yes_if: It respects light direction, lens characteristics, and perspective consistency across elements.",
+      "adoption_yes_if: It supports a slow, deliberate workflow rather than forcing a one-shot generation.",
+      "adoption_yes_if: It augments the planning and rough-layout phase without claiming to be the final image.",
+      "adoption_yes_if: Its outputs scale to gallery and print resolution.",
+      "adoption_yes_if: It treats photographic continuity as a first-class concern.",
+      "rejection_no_if: It collapses 'realism' into a generic filter rather than respecting light physics.",
+      "rejection_no_if: It pressures the workflow toward one-shot delivery and skips planning entirely.",
+      "rejection_no_if: It outputs unusable resolution for print or gallery work.",
+      "rejection_no_if: It pretends a generated image is a substitute for a captured one.",
+      "rejection_no_if: Its terms of service or training-data origin are unclear.",
+      "rejection_no_if: It treats the photographer as a prompt operator rather than a craftsman.",
+      "rejection_no_if: It can't be reworked in Photoshop the way real plates can.",
+      "anti_goals: He does not want to substitute generation for the discipline of capture.",
+      "anti_goals: He does not want to publish images whose physics don't agree.",
+      "anti_goals: He does not want to lose the editable-plate workflow Photoshop gives him.",
+      "anti_goals: He does not want clients to mistake AI speed for production reality.",
+      "anti_goals: He does not want a generic 'AI surreal' look to swallow his style.",
+      "anti_goals: He does not want to defend tools whose data origin he can't explain to a workshop audience.",
+      "anti_goals: He does not want generation to flatten the slow craft of building an impossible photograph.",
+      "recognition_cues: Uses phrases such as 'Where is the light coming from?', 'Do the shadows agree?', 'Is the perspective consistent?', 'Can I use this as a plate?', 'What resolution holds at print?', 'How would I shoot this for real?', 'Is this a planning aid or a finished image?', 'Does the photograph still need to be made?', 'What is the lens character?', and 'Realism is a discipline, not a filter.'"
+    ]
+  },
+  "type": "TinyPerson"
+}

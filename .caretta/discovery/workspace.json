@@ -1,72 +1,79 @@
 {
-  "problem": "Live DJs need to compose performance-aware prompts (genre, transition, crowd intent, set objective, FX, performance goal, venue, era) and get an AI-expanded recommendation without leaving the booth or relying on a server/API key. Existing prompt tools are generic text boxes that ignore DJ context (crowd heat, risk, drop fatigue) and don't translate selections into actionable live-set guidance.",
-  "stakeholders": "Primary: working DJs and producers (personas include DJ Jazzy Jeff — workflow/reliability lens; Brian Eno — generative/process lens; Alessandro Cortini and Kaitlyn Aurelia Smith — instrument-character lens; Trent Reznor, Max Cooper, REZZ — performance/production lenses). Secondary: solo maintainer (Geoff Seemueller), GitHub Pages visitors, the Caretta autopilot agent acting on the repo.",
-  "evidence": "README.md describes 'AR DJ copilot interface' with 8-axis composition, telemetry (objective, transitionIntent, crowdHeat, risk, dropFatigue, recommendation) and an example prompt tail. src/domain/categories.ts encodes the 8 DJ-flavored axes. src/application/djCockpit.ts owns DJ_CATEGORY_LABELS; contexts/dj/state.ts is a MobX-State-Tree DJ machine prototype with injected audio/analyzer/ai services. .caretta/personas/*.json define seven domain personas used to evaluate the tool. CLAUDE.md confirms layered Clean Architecture and deployment to GitHub Pages.",
-  "desired_outcome": "A static, zero-backend AR DJ copilot where selecting dimensions on a 3D synth-style control surface yields (a) a performance-aware prompt, (b) live telemetry that drives HUD/visuals, and (c) an LLM-expanded foundation — all running locally via WebGPU, persisted across reloads, and deployable as a static site to GitHub Pages.",
-  "constraints": "Static site only (no server, no API key); base path '/cortex-enigma/'; LLM inference requires WebGPU (Chrome/Edge 113+, excludes Firefox/Safari by default); React 19 + TS 6 + Vite 8 + Three.js stack; layered Clean Architecture (presentation→application→domain, infrastructure implements ports); no separate test files historically (now vitest+playwright added); styled-components must be SSR-bundled (noExternal) for prerender.",
-  "dependencies": "@mlc-ai/web-llm (Llama-3.2-1B-Instruct via WebGPU), @react-three/fiber + drei + postprocessing, three.js 0.183, styled-components 6, React 19, Vite 8, lucide-react, maath. Dev: vitest 4 + Playwright (browser tests), TypeScript 6, ESLint 9. CI: bun + Playwright chromium. Deploy: GitHub Actions → GitHub Pages. Optional: mobx-state-tree for the experimental DJ machine in contexts/dj.",
-  "existing_systems": "Cortex Enigma itself (src/) — useSelections + SelectionService persist to localStorage; usePromptEngine wraps WebLLMAdapter; CortexCanvas renders the 3D synth scene with knobs/HUD/effects; prerender.mjs SSR-pre-renders for /dist. Experimental contexts/dj MST machine models decks, track analysis, crowd state, transitions, rain mode. Caretta autopilot GitHub Action operates on the repo on schedule/events. references/ contains art-compatibility matrices likely fed into prompt logic.",
-  "hypotheses": "1) Translating raw selections into DJ telemetry (heat/risk/fatigue) before LLM expansion produces more useful prompts than raw category strings. 2) A tactile 3D synth surface increases creative engagement vs. checkbox UIs — but only if it stays performant on mid-range laptops. 3) In-browser WebGPU LLM is fast enough for live use; users will accept the WebGPU browser restriction. 4) Persona-driven evaluation (DJ Jazzy Jeff workflow vs Eno generative lens) will surface different blocking issues than generic usability testing.",
-  "success_metrics": "Successful SSR pre-render and Pages deploy on every push to master (CI green). All vitest suites pass (SelectionService, buildDJRichContext, categories, promptBuilder). LLM expansion completes locally without errors. Selection state survives reload. Telemetry-driven HUD/core glow responds to selection changes. Persona reviews (per .caretta/personas) flag no rejection_no_if triggers.",
-  "tradeoffs": "WebGPU-only LLM = no server cost but excludes Safari/Firefox users. Static GitHub Pages = simple deploy but no analytics/personalization. Layered Clean Architecture adds indirection (ports/adapters) for a small app, but isolates LLM and storage so they can be swapped. Heavy 3D scene + bloom/noise/vignette = visually distinctive but raises GPU baseline and complicates accessibility. Keeping the DJ MST machine in contexts/dj/ unwired preserves optionality but risks dead code.",
-  "risks": "WebGPU compatibility excludes a large share of users. Llama-3.2-1B-Instruct quality may be too weak for nuanced DJ-context expansion. 3D scene + LLM together can OOM mid-range devices. Telemetry heuristics in djCockpit.ts may feel arbitrary to working DJs (DJ Jazzy Jeff persona risk). Drift between the active djCockpit telemetry and the unused buildDJRichContext formatter / MST machine creates two sources of truth. Static hosting limits ability to ship hotfixes for runtime LLM issues. Caretta autopilot has write access to the repo — autonomous changes could regress prompt quality.",
-  "assumption_summary": "We assume DJs want a prompt-composition tool (not a deck-control tool yet), that WebGPU is acceptable as a hard requirement, that the 8 chosen axes cover the meaningful DJ-prompt dimensions, that local Llama-3.2-1B produces useful expansion, and that a 3D synth metaphor is more engaging than a form UI for this audience.",
-  "frame_notes": "Project frames itself as an 'AR DJ copilot' but currently ships a prompt composer with telemetry-driven visuals — not a deck controller. Two parallel context models exist (djCockpit live, buildDJRichContext + MST machine experimental); decide which is canonical before expanding scope. The Caretta autopilot persona-driven evaluation system is a distinctive framing layer worth preserving as a design discipline.",
+  "problem": "Working image-generation professionals — concept artists, illustrators, generative-installation artists, retouchers, conceptual / crypto-native creators — need to compose AI image prompts across multiple intentional dimensions (medium, method, subject, style, formal elements, function, context, era) and get an LLM-expanded recommendation without leaving their working environment or depending on a server / API key. Generic prompt boxes ignore the structure that working pros actually compose along and don't expose generation as a tactile, parameter-driven instrument.",
+  "stakeholders": "Primary: working image-generation professionals (personas include Beeple — daily-throughput pipeline lens; Refik Anadol — installation-scale and dataset-provenance lens; Maciej Kuciara — film concept-art pipeline lens; Erik Johansson — photographic-continuity lens; Pak — mechanism-as-medium / conceptual lens). Skeptic / labor lenses included by design: Greg Rutkowski — illustrator-consent lens; Karla Ortiz — labor and artist-rights lens. Secondary: solo maintainer (Geoff Seemueller), GitHub Pages visitors, the Caretta autopilot agent acting on the repo.",
+  "evidence": "README.md describes an interactive AI image prompt generator with an 8-axis composition surface and a 3D control panel. src/domain/categories.ts encodes the 8 axes (MEDIUM, METHOD, SUBJECT, STYLE, ELEMENTS, FUNCTION, CONTEXT, HISTORY). src/domain/promptBuilder.ts is the pure composition function; src/domain/promptBuilder.test.ts covers its behavior. src/application/SelectionService.ts owns toggle / randomize / clear / validate. src/application/ports/{ILLMPort,IStoragePort}.ts define the adapter contracts; src/infrastructure/{WebLLMAdapter,LocalStorageAdapter}.ts implement them. src/presentation/components/CortexEnigma renders the synth-style 3D surface. references/ holds art-compatibility and art-types reference text. .caretta/personas/*.json define seven image-generation-professional personas. CLAUDE.md confirms layered Clean Architecture and deployment to GitHub Pages.",
+  "desired_outcome": "A static, zero-backend AI image prompt composer where selecting dimensions on a 3D synth-style control surface yields (a) a structured prompt assembled by buildPrompt, (b) an LLM-expanded foundation produced locally via WebGPU, and (c) state that survives reload — deployable as a static site to GitHub Pages and usable by working image-generation pros without leaving their browser.",
+  "constraints": "Static site only (no server, no API key); base path '/cortex-enigma/'; LLM inference requires WebGPU (Chrome / Edge 113+, excludes Firefox / Safari by default); React 19 + TS 6 + Vite 8 + Three.js stack; layered Clean Architecture (presentation -> application -> domain, infrastructure implements ports); styled-components must be SSR-bundled (noExternal) for prerender; no test suite was configured historically — vitest was recently introduced for domain-layer unit tests only.",
+  "dependencies": "@mlc-ai/web-llm (Llama-3.2-1B-Instruct via WebGPU), @react-three/fiber + drei + postprocessing, three.js 0.183, styled-components 6, React 19, Vite 8, lucide-react, maath. Dev: vitest 4 (recently added), TypeScript 6, ESLint 9. CI: bun + tsc + prerender. Deploy: GitHub Actions -> GitHub Pages on push to main.",
+  "existing_systems": "Cortex Enigma itself (src/) — useSelections + SelectionService persist to localStorage; usePromptEngine wraps WebLLMAdapter; CortexCanvas renders the 3D synth scene with knobs / output panel / effects; prerender.mjs SSR-prerenders entry-server.tsx into /dist. references/ contains art-compatibility matrices and art-types index that informed the original 8-axis CATEGORIES vocabulary. Caretta autopilot GitHub Action operates on the repo on schedule / events. No DJ-flavored modules, no MST machine, no Playwright suite are present despite earlier framing — those framings were aspirational and have been dropped.",
+  "hypotheses": "1) Structured 8-axis composition produces more useful prompts for working image-gen pros than a single free-text box, because pros already think along these dimensions. 2) A tactile 3D synth surface increases creative engagement vs. checkbox UIs — but only if it stays performant on mid-range laptops. 3) In-browser WebGPU LLM expansion is good enough for ideation despite Llama-3.2-1B's quality ceiling; users will accept the WebGPU browser restriction in exchange for zero API friction. 4) Persona-driven evaluation across pro / skeptic / activist lenses (Beeple throughput vs. Ortiz labor vs. Rutkowski consent vs. Anadol scale) surfaces different blocking issues than generic usability testing.",
+  "success_metrics": "Successful SSR pre-render and Pages deploy on every push to main (CI green). Vitest domain suite passes (promptBuilder). LLM expansion completes locally without errors. Selection state survives reload. Persona reviews flag no rejection_no_if triggers across the seven image-gen-pro personas — including the consent and labor lenses (Rutkowski, Ortiz), which are the highest-bar reviewers in the cast.",
+  "tradeoffs": "WebGPU-only LLM = no server cost but excludes Safari / Firefox users. Static GitHub Pages = simple deploy but no analytics or personalization. Layered Clean Architecture adds indirection (ports / adapters) for a small app, but isolates LLM and storage so they can be swapped. Heavy 3D scene + bloom / noise / vignette = visually distinctive but raises GPU baseline and complicates accessibility. The 8 fixed axes match how working pros compose but are inflexible compared to a free-text box — adding new axes is a domain-layer change.",
+  "risks": "WebGPU compatibility excludes a large share of users. Llama-3.2-1B-Instruct quality may be too weak for nuanced image-prompt expansion (Beeple / Kuciara persona risk). 3D scene + LLM together can OOM mid-range devices. The current CATEGORIES vocabulary is art-history-flavored ('ritual', 'sacred', 'prehistoric') and may read as off-target to the production-pipeline personas (Beeple, Kuciara) — though it matches the references/art-types-index source material. Consent / training-data origin of the bundled Llama model is a live concern under the Rutkowski / Ortiz personas. Static hosting limits ability to ship hotfixes for runtime LLM issues. Caretta autopilot has write access to the repo — autonomous changes could regress prompt quality.",
+  "assumption_summary": "We assume working image-gen pros want a structured composition tool (not a generation engine), that WebGPU is acceptable as a hard requirement, that the 8 chosen axes cover the meaningful pro-prompt dimensions, that local Llama-3.2-1B produces useful expansion, and that a 3D synth metaphor is more engaging than a form UI for this audience.",
+  "frame_notes": "Project frames itself as an AI image prompt generator with a 3D control surface — a composition aid, not a generation engine. The persona cast was recently retargeted from electronic-music producers to working image-generation professionals (plus consent / labor critics), aligning personas with the README and CLAUDE.md framing. The CATEGORIES vocabulary still reflects an art-history source (references/art-types-index.txt) rather than a production-pipeline lexicon — a known mismatch worth deciding on before further work.",
   "decision": "",
   "decision_rationale": "",
   "risk_accepted": false,
-  "risk_notes": "No explicit risk acceptance recorded in repo; CLAUDE.md and README acknowledge WebGPU restriction as a known limitation, not a formally accepted risk.",
+  "risk_notes": "No explicit risk acceptance recorded in repo; CLAUDE.md and README acknowledge WebGPU restriction as a known limitation, not a formally accepted risk. The Llama model's training-data provenance has not been audited against the Rutkowski / Ortiz consent bars.",
   "assumptions": [
     {
       "status": "unvalidated",
       "confidence": "medium",
-      "evidence": "README claims WebGPU works in Chrome/Edge 113+; no telemetry on actual visitor browser share",
+      "evidence": "README claims WebGPU works in Chrome / Edge 113+; no telemetry on actual visitor browser share",
       "owner": "maintainer",
-      "validation_next_step": "Add anonymous WebGPU-capability check on page load and log to a static counter or GH Pages-compatible analytic"
+      "validation_next_step": "Add anonymous WebGPU-capability check on page load and log to a static counter or GH-Pages-compatible analytic"
     },
     {
       "status": "unvalidated",
       "confidence": "low",
-      "evidence": "Llama-3.2-1B is the smallest practical model; no recorded eval of expansion quality on DJ prompts",
+      "evidence": "Llama-3.2-1B is the smallest practical model; no recorded eval of expansion quality on image-gen prompts",
       "owner": "maintainer",
-      "validation_next_step": "Score 20 representative selection sets through the LLM and rate against persona criteria (DJ Jazzy Jeff workflow, Eno generative)"
+      "validation_next_step": "Score 20 representative selection sets through the LLM and rate against persona criteria (Beeple throughput, Kuciara pipeline fit, Anadol scale)"
     },
     {
       "status": "partially-validated",
       "confidence": "medium",
-      "evidence": "Categories.ts has 8 axes; buildDJRichContext + djCockpit derive telemetry; tests exist for promptBuilder and buildDJRichContext",
+      "evidence": "Categories.ts encodes 8 axes; buildPrompt composes them; promptBuilder.test.ts covers buildPrompt behavior",
       "owner": "maintainer",
-      "validation_next_step": "Run persona reviews on sample prompts to confirm axis coverage"
+      "validation_next_step": "Run persona reviews on sample prompts to confirm axis coverage and address the art-history-vs-production-pipeline vocabulary mismatch"
     },
     {
       "status": "unvalidated",
       "confidence": "medium",
-      "evidence": "3D scene with bloom/noise/vignette is visually rich but no perf budget recorded",
+      "evidence": "3D scene with bloom / noise / vignette is visually rich but no perf budget recorded",
       "owner": "maintainer",
-      "validation_next_step": "Lighthouse + WebGPU+three.js perf profile on mid-range laptop and mobile-class GPU"
+      "validation_next_step": "Lighthouse + WebGPU + three.js perf profile on mid-range laptop and mobile-class GPU"
+    },
+    {
+      "status": "unvalidated",
+      "confidence": "low",
+      "evidence": "Bundled Llama model's training-data provenance has not been audited against artist-consent criteria",
+      "owner": "maintainer",
+      "validation_next_step": "Document model card and training-data origin in README, or evaluate substituting a model with cleaner provenance under the Rutkowski / Ortiz bar"
     }
   ],
   "frame_comparisons": [
     {
-      "frame": "Prompt composer (current)",
-      "framing": "Help DJs compose performance-aware AI prompts with telemetry-driven visuals",
-      "evidence": "src/domain/promptBuilder.ts, src/application/djCockpit.ts wired into CortexEnigma",
-      "tradeoffs": "Ships now, narrow scope; not a real performance tool",
-      "recommendation": "Keep as v1; explicitly label as composition aid"
+      "frame": "Image prompt composer (current)",
+      "framing": "Help working image-generation pros compose structured AI prompts across 8 axes with LLM expansion",
+      "evidence": "src/domain/promptBuilder.ts, src/domain/categories.ts, src/infrastructure/WebLLMAdapter.ts wired into CortexEnigma",
+      "tradeoffs": "Ships now, narrow scope; not a generation engine, not a pipeline tool",
+      "recommendation": "Keep as v1; explicitly label as composition aid, not generation engine"
     },
     {
-      "frame": "AR DJ copilot (aspirational)",
-      "framing": "Real-time assistant during a set: deck state, crowd reading, transition recommendation",
-      "evidence": "contexts/dj/state.ts MST machine models decks/crowd/transition lifecycle but is unwired",
-      "tradeoffs": "Matches README marketing; requires audio I/O, latency budget, browser audio APIs",
+      "frame": "Pipeline-integrated ideation tool (Kuciara / Beeple aspirational)",
+      "framing": "An AI ideation surface that exports into Photoshop / C4D / Blender pipelines with batch generation",
+      "evidence": "No pipeline integration in current codebase; WebLLMAdapter generates text only, not images",
+      "tradeoffs": "Matches production-pipeline persona expectations; requires image generation, exports, batch operations, and likely loses the static-hosting constraint",
       "recommendation": "Treat as v2; do not block v1 deploy"
     },
     {
-      "frame": "Generative art instrument (Eno lens)",
-      "framing": "A small system whose rules and constraints produce surprising outputs over long sessions",
-      "evidence": "Persona definition .caretta/personas/persona-brian-eno.json; 8-axis CATEGORIES as rule set",
-      "tradeoffs": "Drops DJ-specific framing; broadens appeal but loses sharp positioning",
-      "recommendation": "Hold; revisit if DJ framing fails persona review"
+      "frame": "Generative art instrument (Anadol / Pak lens)",
+      "framing": "A small system whose rules and parameters produce surprising outputs at scale, treating the surface itself as the medium",
+      "evidence": "Persona definitions .caretta/personas/persona-refik-anadol.json and persona-pak.json; 8-axis CATEGORIES as rule set",
+      "tradeoffs": "Drops the production-pipeline framing; broadens conceptual appeal but loses sharp positioning for working pros",
+      "recommendation": "Hold; revisit if production-pipeline framing fails persona review"
     }
   ],
   "decision_log": [
@@ -74,63 +81,75 @@
       "gate": "Static deploy via GitHub Pages",
       "rationale": "No backend cost, simple CI; aligns with zero-API-key in-browser LLM choice",
       "rejected_alternatives": "Server-rendered Next.js app with hosted LLM; Cloudflare Workers AI",
-      "reversibility": "Medium — can move to Workers/Pages Functions later without rewriting domain/application layers"
+      "reversibility": "Medium — can move to Workers / Pages Functions later without rewriting domain / application layers"
     },
     {
       "gate": "In-browser LLM (Llama-3.2-1B via WebGPU)",
       "rationale": "Removes API key, server cost, and per-user latency to a hosted model",
-      "rejected_alternatives": "Hosted Claude/OpenAI API; larger local model",
+      "rejected_alternatives": "Hosted Claude / OpenAI API; larger local model",
       "reversibility": "High — ILLMPort abstracts the adapter"
     },
     {
       "gate": "Clean Architecture layering",
-      "rationale": "Isolates domain logic from React/Three/WebLLM so adapters can be swapped",
+      "rationale": "Isolates domain logic from React / Three / WebLLM so adapters can be swapped",
       "rejected_alternatives": "Flat React app with inline logic",
       "reversibility": "Low — refactoring back would lose port boundaries"
+    },
+    {
+      "gate": "Persona cast retargeted to image-generation professionals",
+      "rationale": "Align personas with the README and CLAUDE.md framing as an image prompt generator; cover production, installation, photo-composite, illustration, conceptual, and consent / labor lenses",
+      "rejected_alternatives": "Retain the original electronic-music producer cast (drifted from the actual product); use a single uniform pro persona (loses the skeptic / labor lens)",
+      "reversibility": "High — persona files are local JSON; previous cast recoverable from git"
     }
   ],
   "risk_dashboard": [
     {
       "likelihood": "high",
       "impact": "medium",
-      "trigger": "Visitor opens in Safari/Firefox",
+      "trigger": "Visitor opens in Safari / Firefox",
       "mitigation": "Detect WebGPU, show non-LLM mode (selections + prompt only) with clear browser guidance"
     },
     {
       "likelihood": "medium",
       "impact": "high",
-      "trigger": "LLM output quality fails persona review",
+      "trigger": "LLM output quality fails persona review (Beeple / Kuciara)",
       "mitigation": "Tune system prompt; consider larger quantized model or fallback hosted endpoint behind feature flag"
     },
     {
       "likelihood": "medium",
       "impact": "medium",
-      "trigger": "3D scene + LLM exceed GPU/RAM on mid-tier device",
+      "trigger": "3D scene + LLM exceed GPU / RAM on mid-tier device",
       "mitigation": "Reduce postprocessing passes; lazy-load LLM only on user action; add a 'lite' visual mode"
     },
     {
       "likelihood": "medium",
       "impact": "medium",
-      "trigger": "djCockpit telemetry and buildDJRichContext drift",
-      "mitigation": "Pick one canonical formatter; delete or clearly mark the other as experimental"
+      "trigger": "CATEGORIES vocabulary (art-history-flavored) reads as off-target to production-pipeline personas",
+      "mitigation": "Decide whether to retain the art-history lexicon (aligned with references/) or migrate to a production-pipeline lexicon, and run a persona review on the choice"
+    },
+    {
+      "likelihood": "medium",
+      "impact": "high",
+      "trigger": "Bundled Llama model's training-data origin fails the Rutkowski / Ortiz consent bar",
+      "mitigation": "Document model card and training-data origin in README; evaluate substituting a model with cleaner provenance"
     },
     {
       "likelihood": "low",
       "impact": "high",
-      "trigger": "Caretta autopilot ships regression to master",
-      "mitigation": "Require CI green + persona-review gate before merge; keep deploy from master not directly from autopilot branches"
+      "trigger": "Caretta autopilot ships regression to main",
+      "mitigation": "Require CI green + persona-review gate before merge; keep deploy from main not directly from autopilot branches"
     }
   ],
   "dependency_graph": [
     {
       "from": "presentation",
       "to": "application",
-      "reason": "Hooks (useSelections, usePromptEngine) call SelectionService and djCockpit"
+      "reason": "Hooks (useSelections, usePromptEngine) call SelectionService and the LLM port"
     },
     {
       "from": "application",
       "to": "domain",
-      "reason": "SelectionService and telemetry helpers operate on CATEGORIES, types, and buildPrompt"
+      "reason": "SelectionService operates on CATEGORIES, types, and buildPrompt"
     },
     {
       "from": "infrastructure",
@@ -150,21 +169,11 @@
     {
       "from": "deploy.yml",
       "to": "build",
-      "reason": "GitHub Pages workflow runs bun run build and uploads dist/"
-    },
-    {
-      "from": "CI workflow",
-      "to": "vitest + Playwright",
-      "reason": "CI runs browser tests via Playwright chromium"
-    },
-    {
-      "from": "contexts/dj MST machine",
-      "to": "injected audio/analyzer/ai services",
-      "reason": "State machine depends on environment-provided services to stay deterministic"
+      "reason": "GitHub Pages workflow runs bun run build on push to main and uploads dist/"
     },
     {
       "from": "Caretta autopilot",
-      "to": "repo (issues/PRs/contents)",
+      "to": "repo (issues / PRs / contents)",
       "reason": "GitHub Action with write permissions acts on repo events on schedule"
     }
   ]
