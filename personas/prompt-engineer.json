@@ -1,0 +1,20 @@
+{
+  "name": "Tariq Osei",
+  "archetype": "prompt engineer",
+  "goals": [
+    "Systematically test how category combinations affect model output quality and consistency",
+    "Share reproducible prompt configurations with teammates and document results",
+    "Understand the underlying prompt schema well enough to extend or override it programmatically"
+  ],
+  "frustrations": [
+    "No URL-based state sharing — must screenshot or copy-paste to reproduce a configuration",
+    "Prompt history is ephemeral; losing a good combination means starting over",
+    "Opaque LLM expansion step with no streaming feedback — hard to know if it's working"
+  ],
+  "relevant_behaviours": [
+    "Treats each session as an experiment: fixes most categories and varies one at a time",
+    "Wants to deep-link to a specific selection state to share with colleagues",
+    "Reads the raw expanded prompt text critically and compares it across multiple generations",
+    "Would use an export/import feature for prompt configs if it existed"
+  ]
+}
