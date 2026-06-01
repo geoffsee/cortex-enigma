@@ -103,20 +103,20 @@ const Panel = styled.div`
   flex: 1 1 0;
   min-width: 0;
   min-height: 0;
-  background: rgba(8, 8, 14, 0.82);
+  background: ${({ theme }) => theme.synth.panelBg};
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(160, 32, 240, 0.25);
+  border: 1px solid ${({ theme }) => theme.synth.accentBase};
   border-radius: 4px;
   padding: 10px 12px;
-  font-family: ui-monospace, Consolas, monospace;
+  font-family: ${({ theme }) => theme.fonts.mono};
   display: flex;
   flex-direction: column;
   overflow: hidden;
 `;
 
 const PanelHeader = styled.div`
-  border-bottom: 1px solid rgba(160, 32, 240, 0.2);
+  border-bottom: 1px solid ${({ theme }) => theme.synth.accentBorderLight};
   padding-bottom: 7px;
   margin-bottom: 7px;
   flex-shrink: 0;
@@ -124,14 +124,14 @@ const PanelHeader = styled.div`
   & .cat {
     display: block;
     font-size: 9px;
-    color: #c084fc;
+    color: ${({ theme }) => theme.synth.accent};
     letter-spacing: 0.22em;
     font-weight: 600;
   }
   & .val {
     display: block;
     font-size: 10px;
-    color: #fff;
+    color: ${({ theme }) => theme.synth.white};
     letter-spacing: 0.06em;
     margin-top: 4px;
     min-height: 12px;
@@ -156,18 +156,17 @@ const Options = styled.div`
     background: transparent;
   }
   &::-webkit-scrollbar-thumb {
-    background: rgba(160, 32, 240, 0.3);
+    background: ${({ theme }) => theme.synth.scrollbarThumb};
     border-radius: 2px;
   }
 `;
 
 const Option = styled.button<{ $active?: boolean }>`
   text-align: left;
-  background: ${({ $active }) =>
-    $active ? 'rgba(160, 32, 240, 0.28)' : 'transparent'};
+  background: ${({ $active, theme }) => ($active ? theme.synth.accentOptionBg : 'transparent')};
   border: 1px solid
-    ${({ $active }) => ($active ? 'rgba(160, 32, 240, 0.6)' : 'transparent')};
-  color: ${({ $active }) => ($active ? '#fff' : '#888')};
+    ${({ $active, theme }) => ($active ? theme.synth.accentStrong : 'transparent')};
+  color: ${({ $active, theme }) => ($active ? theme.synth.white : theme.synth.textMuted)};
   font-size: 9px;
   padding: 4px 6px;
   border-radius: 2px;
@@ -179,7 +178,7 @@ const Option = styled.button<{ $active?: boolean }>`
   flex-shrink: 0;
 
   &:hover {
-    background: rgba(160, 32, 240, 0.15);
-    color: #fff;
+    background: ${({ theme }) => theme.synth.accentHoverBg};
+    color: ${({ theme }) => theme.synth.white};
   }
 `;
