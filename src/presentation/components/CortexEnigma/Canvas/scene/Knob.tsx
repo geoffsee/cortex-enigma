@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Text } from '@react-three/drei';
 import * as THREE from 'three';
@@ -15,14 +15,36 @@ type KnobProps = {
 export function Knob({ position, label, valueLabel, valueIndex, optionCount, onClick }: KnobProps) {
   const knobRef = useRef<THREE.Group>(null!);
   const [hovered, setHovered] = useState(false);
+  const kickYRef = useRef(false);
+  const mountedRef = useRef(false);
 
   // Map -1 (off) and 0..N-1 to angles from 7 o'clock to 5 o'clock (300° sweep)
   const positionIndex = valueIndex + 1; // 0 = off, 1..N = options
   const fraction = positionIndex / optionCount;
   const targetAngle = (5 / 6 - fraction * (10 / 6)) * Math.PI;
 
+  // Signal Y-axis snap recoil whenever the selection changes (skip initial mount)
+  useEffect(() => {
+    if (!mountedRef.current) {
+      mountedRef.current = true;
+      return;
+    }
+    kickYRef.current = true;
+  }, [valueIndex]);
+
   useFrame(() => {
     if (knobRef.current) {
+      // Y-axis: brief snap recoil on value change, springs back to neutral
+      if (kickYRef.current) {
+        knobRef.current.rotation.y = 0.28;
+        kickYRef.current = false;
+      }
+      knobRef.current.rotation.y = THREE.MathUtils.lerp(
+        knobRef.current.rotation.y,
+        0,
+        0.1
+      );
+      // Z-axis: selection position along the 300° sweep
       knobRef.current.rotation.z = THREE.MathUtils.lerp(
         knobRef.current.rotation.z,
         targetAngle,
