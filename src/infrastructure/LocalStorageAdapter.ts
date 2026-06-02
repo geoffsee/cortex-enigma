@@ -10,9 +10,11 @@ export class LocalStorageAdapter implements IStoragePort {
     try {
       const raw = window.localStorage.getItem(STORAGE_KEY);
       if (!raw) return null;
-      const result = PersistedEnvelopeSchema.safeParse(JSON.parse(raw));
-      if (!result.success) return null;
-      return result.data.selections;
+      const parsed = JSON.parse(raw);
+      const result = PersistedEnvelopeSchema.safeParse(parsed);
+      if (result.success) return result.data.selections;
+      // legacy bare-object fallback (written before schema versioning)
+      return parsed as unknown;
     } catch {
       return null;
     }

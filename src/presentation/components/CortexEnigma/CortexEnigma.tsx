@@ -29,7 +29,7 @@ export default function CortexEnigma() {
 
   const handleCopy = () => {
     if (!prompt) return;
-    navigator.clipboard.writeText(prompt);
+    navigator.clipboard.writeText(prompt).catch(() => { /* permission denied */ });
     addHistoryEntry(prompt);
   };
 

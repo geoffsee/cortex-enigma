@@ -43,10 +43,11 @@ export function usePromptHistory() {
   const addEntry = useCallback((prompt: string) => {
     if (!prompt.trim()) return;
     setEntries(prev => {
+      const now = Date.now();
       const entry: HistoryEntry = {
-        id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+        id: `${now}-${Math.random().toString(36).slice(2, 7)}`,
         prompt,
-        timestamp: Date.now(),
+        timestamp: now,
       };
       return [entry, ...prev].slice(0, MAX_ENTRIES);
     });

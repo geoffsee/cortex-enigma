@@ -22,6 +22,8 @@ export function useSelections() {
   }, []);
 
   // Persist to localStorage and URL hash on every change; mounted guard prevents wiping before hydration.
+  // NOTE: when a shared URL is opened, the hash state is immediately persisted to localStorage,
+  // replacing whatever the recipient had saved — intentional for simplicity.
   useEffect(() => {
     if (!mounted) return;
     storageRef.current.save(selections);

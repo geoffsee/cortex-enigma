@@ -22,10 +22,12 @@ export default function PromptHistoryDrawer({ entries, onClear, onClose }: Props
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const handleCopy = (entry: HistoryEntry) => {
-    navigator.clipboard.writeText(entry.prompt).then(() => {
-      setCopiedId(entry.id);
-      setTimeout(() => setCopiedId(null), 1500);
-    });
+    navigator.clipboard.writeText(entry.prompt)
+      .then(() => {
+        setCopiedId(entry.id);
+        setTimeout(() => setCopiedId(null), 1500);
+      })
+      .catch(() => { /* permission denied — leave button state unchanged */ });
   };
 
   return (
