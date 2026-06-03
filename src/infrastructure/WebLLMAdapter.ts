@@ -43,6 +43,7 @@ export class WebLLMAdapter implements ILLMPort {
       max_tokens: 30,
       temperature: 0.8,
     });
+    // stream is not passed, so result is the non-streaming response shape.
     const reply = result as { choices: Array<{ message: { content: string | null } }> };
     const text = reply.choices[0].message.content?.trim() ?? '';
     return text.replace(/^,\s*/, '');
@@ -64,7 +65,7 @@ export class WebLLMAdapter implements ILLMPort {
       const delta = chunk.choices[0]?.delta?.content ?? '';
       if (delta) {
         full += delta;
-        onChunk(full);
+        onChunk(full.replace(/^,\s*/, ''));
       }
     }
     return full.replace(/^,\s*/, '');
