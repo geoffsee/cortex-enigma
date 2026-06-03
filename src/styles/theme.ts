@@ -1,6 +1,6 @@
 import type { DefaultTheme } from 'styled-components';
 
-const synthTokens: DefaultTheme['synth'] = {
+const darkSynthTokens: DefaultTheme['synth'] = {
   panelBg: 'rgba(8, 8, 14, 0.82)',
   panelHeaderBorder: 'rgba(160, 32, 240, 0.18)',
   accentBorderLight: 'rgba(160, 32, 240, 0.2)',
@@ -37,6 +37,8 @@ const synthTokens: DefaultTheme['synth'] = {
   errorBorder: 'rgba(255, 64, 129, 0.2)',
 };
 
+const lightSynthTokens: DefaultTheme['synth'] = darkSynthTokens;
+
 export const lightTheme: DefaultTheme = {
   colors: {
     background: '#fff',
@@ -55,7 +57,7 @@ export const lightTheme: DefaultTheme = {
     heading: "system-ui, 'Segoe UI', Roboto, sans-serif",
     mono: "ui-monospace, Consolas, monospace",
   },
-  synth: synthTokens,
+  synth: lightSynthTokens,
 };
 
 export const darkTheme: DefaultTheme = {
@@ -76,5 +78,5 @@ export const darkTheme: DefaultTheme = {
     heading: "system-ui, 'Segoe UI', Roboto, sans-serif",
     mono: "ui-monospace, Consolas, monospace",
   },
-  synth: synthTokens,
+  synth: darkSynthTokens,
 };

@@ -45,14 +45,14 @@ for (const k of jsdomGlobals) global[k] = dom.window[k];
 
 const axe = require('axe-core');
 
-for (const k of jsdomGlobals) global[k] = savedGlobals[k];
-
 const axeResults = await new Promise((resolve, reject) => {
   axe.run(dom.window.document, (err, results) => {
     if (err) reject(new Error(String(err)));
     else resolve(results);
   });
 });
+
+for (const k of jsdomGlobals) global[k] = savedGlobals[k];
 
 const critical = axeResults.violations.filter((v) => v.impact === 'critical');
 if (critical.length > 0) {
