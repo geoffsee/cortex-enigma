@@ -19,5 +19,41 @@ declare module 'styled-components' {
       heading: string;
       mono: string;
     };
+    synth: {
+      panelBg: string;
+      panelHeaderBorder: string;
+      accentBorderLight: string;
+
+      accent: string;
+      accentBase: string;
+      accentMed: string;
+      accentStrong: string;
+      accentHover: string;
+      accentSubtle: string;
+      accentActiveBg: string;
+      accentOptionBg: string;
+      accentHoverBg: string;
+      scrollbarThumb: string;
+
+      inputBg: string;
+
+      white: string;
+      textPrimary: string;
+      textMuted: string;
+      textDim: string;
+      textFaint: string;
+      textEmpty: string;
+      textInactive: string;
+      textToggle: string;
+
+      subtleBorder: string;
+      subtleBg: string;
+      subtleButtonBorder: string;
+      subtleBorderLight: string;
+
+      errorColor: string;
+      errorBg: string;
+      errorBorder: string;
+    };
   }
 }
