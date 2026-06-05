@@ -1,5 +1,44 @@
 import type { DefaultTheme } from 'styled-components';
 
+const darkSynthTokens: DefaultTheme['synth'] = {
+  panelBg: 'rgba(8, 8, 14, 0.82)',
+  panelHeaderBorder: 'rgba(160, 32, 240, 0.18)',
+  accentBorderLight: 'rgba(160, 32, 240, 0.2)',
+
+  accent: '#c084fc',
+  accentBase: 'rgba(160, 32, 240, 0.25)',
+  accentMed: 'rgba(160, 32, 240, 0.4)',
+  accentStrong: 'rgba(160, 32, 240, 0.6)',
+  accentHover: 'rgba(160, 32, 240, 0.8)',
+  accentSubtle: 'rgba(160, 32, 240, 0.1)',
+  accentActiveBg: 'rgba(160, 32, 240, 0.14)',
+  accentOptionBg: 'rgba(160, 32, 240, 0.28)',
+  accentHoverBg: 'rgba(160, 32, 240, 0.15)',
+  scrollbarThumb: 'rgba(160, 32, 240, 0.3)',
+
+  inputBg: 'rgba(0, 0, 0, 0.4)',
+
+  white: '#fff',
+  textPrimary: '#e5e4e7',
+  textMuted: '#888',
+  textDim: '#777',
+  textFaint: '#666',
+  textEmpty: '#555',
+  textInactive: '#444',
+  textToggle: '#ccc',
+
+  subtleBorder: 'rgba(255, 255, 255, 0.05)',
+  subtleBg: 'rgba(255, 255, 255, 0.04)',
+  subtleButtonBorder: 'rgba(255, 255, 255, 0.1)',
+  subtleBorderLight: 'rgba(255, 255, 255, 0.15)',
+
+  errorColor: '#ff4081',
+  errorBg: 'rgba(255, 64, 129, 0.1)',
+  errorBorder: 'rgba(255, 64, 129, 0.2)',
+};
+
+const lightSynthTokens: DefaultTheme['synth'] = darkSynthTokens;
+
 export const lightTheme: DefaultTheme = {
   colors: {
     background: '#fff',
@@ -18,6 +57,7 @@ export const lightTheme: DefaultTheme = {
     heading: "system-ui, 'Segoe UI', Roboto, sans-serif",
     mono: "ui-monospace, Consolas, monospace",
   },
+  synth: lightSynthTokens,
 };
 
 export const darkTheme: DefaultTheme = {
@@ -38,4 +78,5 @@ export const darkTheme: DefaultTheme = {
     heading: "system-ui, 'Segoe UI', Roboto, sans-serif",
     mono: "ui-monospace, Consolas, monospace",
   },
+  synth: darkSynthTokens,
 };

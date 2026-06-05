@@ -7,6 +7,7 @@ export function usePromptEngine() {
   const [isModelLoading, setIsModelLoading] = useState(false);
   const [loadProgress, setLoadProgress] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [streamingText, setStreamingText] = useState<string | null>(null);
 
   // Load the model on mount; no dependency on hydrated selections.
   useEffect(() => {
@@ -36,16 +37,21 @@ export function usePromptEngine() {
     if (!foundation) return null;
     setIsGenerating(true);
     setError(null);
+    setStreamingText('');
     try {
-      return await adapterRef.current.generate(foundation);
+      const result = await adapterRef.current.generateStream(foundation, (partial) => {
+        setStreamingText(partial);
+      });
+      return result;
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Unknown error';
       setError(`Generation failed: ${msg}`);
       return null;
     } finally {
       setIsGenerating(false);
+      setStreamingText(null);
     }
   };
 
-  return { generate, isGenerating, isModelLoading, loadProgress, error };
+  return { generate, isGenerating, isModelLoading, loadProgress, error, streamingText };
 }

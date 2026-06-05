@@ -58,6 +58,7 @@ export default function Sidebar({
           <SectionTitle>Foundation</SectionTitle>
           <InputGroup>
             <Input
+              aria-label="Foundation concept"
               placeholder="Enter a foundation concept..."
               value={selections.foundation}
               onChange={(e) => onFoundationChange(e.target.value)}
@@ -164,12 +165,12 @@ const Wrapper = styled.aside`
   left: 0;
   bottom: 0;
   width: 300px;
-  background: rgba(8, 8, 14, 0.82);
+  background: ${({ theme }) => theme.synth.panelBg};
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border-right: 1px solid rgba(160, 32, 240, 0.25);
-  color: #e5e4e7;
-  font-family: ui-monospace, Consolas, monospace;
+  border-right: 1px solid ${({ theme }) => theme.synth.accentBase};
+  color: ${({ theme }) => theme.synth.textPrimary};
+  font-family: ${({ theme }) => theme.fonts.mono};
   font-size: 12px;
   z-index: 10;
   display: flex;
@@ -181,19 +182,19 @@ const Wrapper = styled.aside`
     bottom: auto;
     height: 55vh;
     border-right: none;
-    border-bottom: 1px solid rgba(160, 32, 240, 0.25);
+    border-bottom: 1px solid ${({ theme }) => theme.synth.accentBase};
   }
 `;
 
 const Header = styled.div`
   padding: 20px 22px 16px;
-  border-bottom: 1px solid rgba(160, 32, 240, 0.18);
+  border-bottom: 1px solid ${({ theme }) => theme.synth.panelHeaderBorder};
 `;
 
 const Brand = styled.h1`
   font-size: 13px;
   letter-spacing: 0.32em;
-  color: #fff;
+  color: ${({ theme }) => theme.synth.white};
   margin: 0;
   font-weight: 600;
 `;
@@ -201,7 +202,7 @@ const Brand = styled.h1`
 const Tagline = styled.p`
   font-size: 9px;
   letter-spacing: 0.18em;
-  color: #777;
+  color: ${({ theme }) => theme.synth.textDim};
   margin-top: 5px;
   text-transform: uppercase;
 `;
@@ -218,7 +219,7 @@ const ScrollArea = styled.div`
     background: transparent;
   }
   &::-webkit-scrollbar-thumb {
-    background: rgba(160, 32, 240, 0.3);
+    background: ${({ theme }) => theme.synth.scrollbarThumb};
     border-radius: 3px;
   }
 `;
@@ -234,24 +235,24 @@ const InputGroup = styled.div`
 
 const Input = styled.input`
   flex: 1;
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(160, 32, 240, 0.25);
+  background: ${({ theme }) => theme.synth.inputBg};
+  border: 1px solid ${({ theme }) => theme.synth.accentBase};
   border-radius: 4px;
   padding: 8px 12px;
   font-size: 11px;
-  color: #fff;
+  color: ${({ theme }) => theme.synth.white};
   font-family: inherit;
 
   &:focus {
     outline: none;
-    border-color: rgba(160, 32, 240, 0.6);
+    border-color: ${({ theme }) => theme.synth.accentStrong};
   }
 `;
 
 const GenerateButton = styled.button`
-  background: rgba(160, 32, 240, 0.25);
-  border: 1px solid rgba(160, 32, 240, 0.6);
-  color: #fff;
+  background: ${({ theme }) => theme.synth.accentBase};
+  border: 1px solid ${({ theme }) => theme.synth.accentStrong};
+  color: ${({ theme }) => theme.synth.white};
   border-radius: 4px;
   padding: 0 10px;
   font-size: 10px;
@@ -260,8 +261,8 @@ const GenerateButton = styled.button`
   transition: all 0.15s;
 
   &:hover:not(:disabled) {
-    background: rgba(160, 32, 240, 0.4);
-    border-color: rgba(160, 32, 240, 0.8);
+    background: ${({ theme }) => theme.synth.accentMed};
+    border-color: ${({ theme }) => theme.synth.accentHover};
   }
 
   &:disabled {
@@ -271,26 +272,26 @@ const GenerateButton = styled.button`
 `;
 
 const ErrorMessage = styled.div`
-  color: #ff4081;
+  color: ${({ theme }) => theme.synth.errorColor};
   font-size: 10px;
   margin-top: 8px;
   padding: 4px 8px;
-  background: rgba(255, 64, 129, 0.1);
-  border: 1px solid rgba(255, 64, 129, 0.2);
+  background: ${({ theme }) => theme.synth.errorBg};
+  border: 1px solid ${({ theme }) => theme.synth.errorBorder};
   border-radius: 4px;
   line-height: 1.4;
 `;
 
 const LoadingProgress = styled.div`
-  color: #c084fc;
+  color: ${({ theme }) => theme.synth.accent};
   font-size: 9px;
   margin-top: 8px;
   padding: 4px 8px;
-  background: rgba(160, 32, 240, 0.1);
-  border: 1px solid rgba(160, 32, 240, 0.2);
+  background: ${({ theme }) => theme.synth.accentSubtle};
+  border: 1px solid ${({ theme }) => theme.synth.accentBorderLight};
   border-radius: 4px;
   line-height: 1.4;
-  font-family: ui-monospace, Consolas, monospace;
+  font-family: ${({ theme }) => theme.fonts.mono};
   white-space: pre-wrap;
   word-break: break-all;
 `;
@@ -299,7 +300,7 @@ const SectionTitle = styled.h2`
   font-size: 9px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: #c084fc;
+  color: ${({ theme }) => theme.synth.accent};
   margin: 0 0 10px;
   font-weight: 600;
 `;
@@ -311,18 +312,18 @@ const SelectionRow = styled.div<{ $active?: boolean }>`
   padding: 6px 9px;
   border-radius: 3px;
   margin-bottom: 3px;
-  background: ${({ $active }) => ($active ? 'rgba(160, 32, 240, 0.14)' : 'transparent')};
+  background: ${({ $active, theme }) => ($active ? theme.synth.accentActiveBg : 'transparent')};
   border: 1px solid
-    ${({ $active }) => ($active ? 'rgba(160, 32, 240, 0.4)' : 'rgba(255, 255, 255, 0.05)')};
+    ${({ $active, theme }) => ($active ? theme.synth.accentMed : theme.synth.subtleBorder)};
 
   & .label {
-    color: #888;
+    color: ${({ theme }) => theme.synth.textMuted};
     font-size: 10px;
     letter-spacing: 0.08em;
   }
 
   & .value {
-    color: ${({ $active }) => ($active ? '#fff' : '#444')};
+    color: ${({ $active, theme }) => ($active ? theme.synth.white : theme.synth.textInactive)};
     text-transform: uppercase;
     font-size: 10px;
     letter-spacing: 0.08em;
@@ -334,7 +335,7 @@ const SelectionRow = styled.div<{ $active?: boolean }>`
   & button.clear {
     background: none;
     border: none;
-    color: #888;
+    color: ${({ theme }) => theme.synth.textMuted};
     cursor: pointer;
     padding: 0;
     font-size: 14px;
@@ -346,19 +347,19 @@ const SelectionRow = styled.div<{ $active?: boolean }>`
     justify-content: center;
 
     &:hover {
-      color: #ff4081;
+      color: ${({ theme }) => theme.synth.errorColor};
     }
   }
 `;
 
 const PromptBox = styled.div<{ $empty?: boolean }>`
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(160, 32, 240, 0.25);
+  background: ${({ theme }) => theme.synth.inputBg};
+  border: 1px solid ${({ theme }) => theme.synth.accentBase};
   border-radius: 4px;
   padding: 12px;
   font-size: 11px;
   line-height: 1.6;
-  color: ${({ $empty }) => ($empty ? '#555' : '#e5e4e7')};
+  color: ${({ $empty, theme }) => ($empty ? theme.synth.textEmpty : theme.synth.textPrimary)};
   font-style: ${({ $empty }) => ($empty ? 'italic' : 'normal')};
   min-height: 60px;
   word-break: break-word;
@@ -380,15 +381,14 @@ const Button = styled.button<{ $primary?: boolean }>`
   cursor: pointer;
   font-family: inherit;
   transition: all 0.15s;
-  background: ${({ $primary }) =>
-    $primary ? 'rgba(160, 32, 240, 0.25)' : 'rgba(255, 255, 255, 0.04)'};
-  color: #fff;
+  background: ${({ $primary, theme }) => ($primary ? theme.synth.accentBase : theme.synth.subtleBg)};
+  color: ${({ theme }) => theme.synth.white};
   border: 1px solid
-    ${({ $primary }) => ($primary ? 'rgba(160, 32, 240, 0.6)' : 'rgba(255, 255, 255, 0.1)')};
+    ${({ $primary, theme }) => ($primary ? theme.synth.accentStrong : theme.synth.subtleButtonBorder)};
 
   &:hover:not(:disabled) {
-    background: rgba(160, 32, 240, 0.4);
-    border-color: rgba(160, 32, 240, 0.8);
+    background: ${({ theme }) => theme.synth.accentMed};
+    border-color: ${({ theme }) => theme.synth.accentHover};
   }
 
   &:disabled {
@@ -405,8 +405,8 @@ const ToggleRow = styled.label`
   cursor: pointer;
   font-size: 11px;
   letter-spacing: 0.08em;
-  color: #ccc;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  color: ${({ theme }) => theme.synth.textToggle};
+  border-bottom: 1px solid ${({ theme }) => theme.synth.subtleBg};
 
   &:last-of-type {
     border-bottom: none;
@@ -421,9 +421,9 @@ const Switch = styled.span<{ $on?: boolean }>`
   width: 28px;
   height: 14px;
   border-radius: 7px;
-  background: ${({ $on }) => ($on ? 'rgba(160, 32, 240, 0.6)' : 'rgba(255, 255, 255, 0.1)')};
+  background: ${({ $on, theme }) => ($on ? theme.synth.accentStrong : theme.synth.subtleButtonBorder)};
   border: 1px solid
-    ${({ $on }) => ($on ? 'rgba(160, 32, 240, 0.8)' : 'rgba(255, 255, 255, 0.15)')};
+    ${({ $on, theme }) => ($on ? theme.synth.accentHover : theme.synth.subtleBorderLight)};
   position: relative;
   transition: all 0.15s;
 
@@ -435,7 +435,7 @@ const Switch = styled.span<{ $on?: boolean }>`
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    background: #fff;
+    background: ${({ theme }) => theme.synth.white};
     transition: left 0.15s;
   }
 `;
@@ -444,7 +444,7 @@ const Stat = styled.div`
   display: flex;
   justify-content: space-between;
   font-size: 9px;
-  color: #666;
+  color: ${({ theme }) => theme.synth.textFaint};
   letter-spacing: 0.12em;
   text-transform: uppercase;
   padding: 8px 4px 0;
