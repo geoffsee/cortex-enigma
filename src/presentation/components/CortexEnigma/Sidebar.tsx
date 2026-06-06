@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { CATEGORIES } from '../../../domain/categories';
+import type { DiffSegment } from '../../../domain/promptDiff';
 import type { SelectionState } from '../../../domain/types';
 
 type Props = {
@@ -24,6 +25,10 @@ type Props = {
   webGpuAvailable?: boolean;
   llmBypassed?: boolean;
   onToggleLlmBypass?: () => void;
+  diffEnabled?: boolean;
+  onToggleDiff?: () => void;
+  canToggleDiff?: boolean;
+  diffSegments?: DiffSegment[] | null;
 };
 
 export default function Sidebar({
@@ -48,6 +53,10 @@ export default function Sidebar({
   webGpuAvailable = true,
   llmBypassed = false,
   onToggleLlmBypass,
+  diffEnabled = false,
+  onToggleDiff,
+  canToggleDiff = false,
+  diffSegments,
 }: Props) {
   const categoryKeys = Object.keys(CATEGORIES);
   const activeCount = Object.values(selections).filter(Boolean).length;
@@ -126,7 +135,15 @@ export default function Sidebar({
         <Section>
           <SectionTitle>Generated Prompt</SectionTitle>
           <PromptBox $empty={!prompt}>
-            {prompt || 'Select options to generate a prompt...'}
+            {diffEnabled && diffSegments ? (
+              diffSegments.map((seg, i) => (
+                <span key={i} style={{ color: seg.added ? '#ff9944' : undefined }}>
+                  {seg.text}
+                </span>
+              ))
+            ) : (
+              prompt || 'Select options to generate a prompt...'
+            )}
           </PromptBox>
         </Section>
 
@@ -163,6 +180,16 @@ export default function Sidebar({
               disabled={!webGpuAvailable}
             />
             <Switch $on={webGpuAvailable && !llmBypassed} />
+          </ToggleRow>
+          <ToggleRow $disabled={!canToggleDiff}>
+            <span>Expansion Diff</span>
+            <input
+              type="checkbox"
+              checked={diffEnabled && canToggleDiff}
+              onChange={onToggleDiff}
+              disabled={!canToggleDiff}
+            />
+            <Switch $on={diffEnabled && canToggleDiff} />
           </ToggleRow>
           <ToggleRow>
             <span>Auto-Rotate</span>
