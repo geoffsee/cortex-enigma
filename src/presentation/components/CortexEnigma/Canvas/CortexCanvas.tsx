@@ -1,6 +1,7 @@
 import type { MutableRefObject, Ref } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, Environment } from '@react-three/drei';
+import type { DiffSegment } from '../../../../domain/promptDiff';
 import type { SelectionState } from '../../../../domain/types';
 import { CortexCore } from './scene/CortexCore';
 import { OutputPanel } from './scene/OutputPanel';
@@ -19,6 +20,9 @@ type Props = {
   autoRotate: boolean;
   effectsEnabled: boolean;
   orbitRef: MutableRefObject<OrbitHandle>;
+  diffEnabled?: boolean;
+  onToggleDiff?: () => void;
+  diffSegments?: DiffSegment[] | null;
 };
 
 export default function CortexCanvas({
@@ -30,6 +34,9 @@ export default function CortexCanvas({
   autoRotate,
   effectsEnabled,
   orbitRef,
+  diffEnabled,
+  onToggleDiff,
+  diffSegments,
 }: Props) {
   return (
     <div style={{ position: 'fixed', inset: 0, background: '#030308' }}>
@@ -55,6 +62,9 @@ export default function CortexCanvas({
           onCopy={onCopy}
           selections={selections}
           onSelect={onSelect}
+          diffEnabled={diffEnabled}
+          onToggleDiff={onToggleDiff}
+          diffSegments={diffSegments}
         />
         <BackgroundStars />
         <ReflectiveFloor />

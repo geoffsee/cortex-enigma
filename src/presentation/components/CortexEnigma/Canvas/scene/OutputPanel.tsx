@@ -1,5 +1,6 @@
 import { Float, Text } from '@react-three/drei';
 import { CATEGORIES } from '../../../../../domain/categories';
+import type { DiffSegment } from '../../../../../domain/promptDiff';
 import type { SelectionState } from '../../../../../domain/types';
 import { Knob } from './Knob';
 import { SynthButton } from './SynthButton';
@@ -10,15 +11,37 @@ type OutputPanelProps = {
   onCopy: () => void;
   selections: SelectionState;
   onSelect: (cat: string, val: string) => void;
+  diffEnabled?: boolean;
+  onToggleDiff?: () => void;
+  diffSegments?: DiffSegment[] | null;
 };
 
-export function OutputPanel({ prompt, onRandomize, onCopy, selections, onSelect }: OutputPanelProps) {
+export function OutputPanel({
+  prompt,
+  onRandomize,
+  onCopy,
+  selections,
+  onSelect,
+  diffEnabled = false,
+  onToggleDiff,
+  diffSegments,
+}: OutputPanelProps) {
   const categoryKeys = Object.keys(CATEGORIES);
   const knobSpacing = 0.92;
   const knobStartX = -((categoryKeys.length - 1) * knobSpacing) / 2;
 
   const W = 8.6;
   const H = 2.5;
+
+  const hasDiff = diffSegments != null;
+  const showDiff = diffEnabled && hasDiff;
+
+  const baseText = showDiff
+    ? diffSegments.filter(s => !s.added).map(s => s.text).join('').replace(/^[,\s]+|[,\s]+$/g, '')
+    : '';
+  const addedText = showDiff
+    ? diffSegments.filter(s => s.added).map(s => s.text).join('').replace(/^[,\s]+|[,\s]+$/g, '')
+    : '';
 
   return (
     <group position={[0, -2.4, 3.2]} rotation={[-Math.PI / 9, 0, 0]}>
@@ -125,31 +148,93 @@ export function OutputPanel({ prompt, onRandomize, onCopy, selections, onSelect 
             <planeGeometry args={[4.15, 0.58]} />
             <meshBasicMaterial color="#0088ff" transparent opacity={0.06} />
           </mesh>
-          <Text
-            position={[-2.0, 0.21, 0.01]}
-            fontSize={0.055}
-            color="#0aa6ff"
-            anchorX="left"
-            anchorY="middle"
-            letterSpacing={0.2}
-          >
-            GENERATED PROMPT
-          </Text>
-          <Text
-            position={[0, -0.04, 0.01]}
-            fontSize={0.085}
-            maxWidth={3.95}
-            textAlign="center"
-            color="#7fd0ff"
-            anchorX="center"
-            anchorY="middle"
-          >
-            {prompt || "— SELECT OPTIONS —"}
-          </Text>
+
+          {showDiff ? (
+            <>
+              {/* Diff mode: base section label */}
+              <Text
+                position={[-2.0, 0.21, 0.01]}
+                fontSize={0.055}
+                color="#4a8090"
+                anchorX="left"
+                anchorY="middle"
+                letterSpacing={0.2}
+              >
+                BASE
+              </Text>
+              {/* Base text (not added) */}
+              <Text
+                position={[0, 0.07, 0.01]}
+                fontSize={0.068}
+                maxWidth={3.95}
+                textAlign="center"
+                color="#7fd0ff"
+                anchorX="center"
+                anchorY="middle"
+              >
+                {baseText || '—'}
+              </Text>
+              {/* LLM additions label */}
+              <Text
+                position={[-2.0, -0.1, 0.01]}
+                fontSize={0.055}
+                color="#996030"
+                anchorX="left"
+                anchorY="middle"
+                letterSpacing={0.2}
+              >
+                LLM+
+              </Text>
+              {/* Added text */}
+              <Text
+                position={[0, -0.21, 0.01]}
+                fontSize={0.068}
+                maxWidth={3.95}
+                textAlign="center"
+                color="#ff9944"
+                anchorX="center"
+                anchorY="middle"
+              >
+                {addedText || '(no additions)'}
+              </Text>
+            </>
+          ) : (
+            <>
+              <Text
+                position={[-2.0, 0.21, 0.01]}
+                fontSize={0.055}
+                color="#0aa6ff"
+                anchorX="left"
+                anchorY="middle"
+                letterSpacing={0.2}
+              >
+                GENERATED PROMPT
+              </Text>
+              <Text
+                position={[0, -0.04, 0.01]}
+                fontSize={0.085}
+                maxWidth={3.95}
+                textAlign="center"
+                color="#7fd0ff"
+                anchorX="center"
+                anchorY="middle"
+              >
+                {prompt || "— SELECT OPTIONS —"}
+              </Text>
+            </>
+          )}
         </group>
 
         {/* Action buttons — bottom-right section */}
         <group position={[2.75, -0.85, 0.12]}>
+          {hasDiff && (
+            <SynthButton
+              label="DIFF"
+              position={[-1.65, 0, 0]}
+              onClick={onToggleDiff ?? (() => undefined)}
+              active={diffEnabled}
+            />
+          )}
           <SynthButton label="RND" position={[-0.55, 0, 0]} onClick={onRandomize} />
           <SynthButton label="CPY" position={[0.55, 0, 0]} onClick={onCopy} disabled={!prompt} />
         </group>
