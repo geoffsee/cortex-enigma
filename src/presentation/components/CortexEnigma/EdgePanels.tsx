@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import { CATEGORIES, CATEGORY_TOOLTIPS } from '../../../domain/categories';
 import type { SelectionState } from '../../../domain/types';
@@ -13,31 +13,45 @@ const RIGHT_CATS = ['ELEMENTS', 'FUNCTION', 'CONTEXT', 'HISTORY'];
 
 export default function EdgePanels({ selections, onSelect }: Props) {
   const [openTooltip, setOpenTooltip] = useState<string | null>(null);
-  const touchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const touchTimerRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
+  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => () => {
+    touchTimerRef.current.forEach(clearTimeout);
+    if (hideTimerRef.current !== null) clearTimeout(hideTimerRef.current);
+  }, []);
 
   const showTooltip = (cat: string) => setOpenTooltip(cat);
   const hideTooltip = () => setOpenTooltip(null);
 
   const handleTouchStart = (cat: string) => {
-    touchTimerRef.current = setTimeout(() => {
+    const existing = touchTimerRef.current.get(cat);
+    if (existing !== undefined) clearTimeout(existing);
+    touchTimerRef.current.set(cat, setTimeout(() => {
       setOpenTooltip(cat);
-      touchTimerRef.current = null;
-    }, 400);
+      touchTimerRef.current.delete(cat);
+    }, 400));
   };
 
-  const handleTouchEnd = () => {
-    if (touchTimerRef.current !== null) {
-      clearTimeout(touchTimerRef.current);
-      touchTimerRef.current = null;
+  const handleTouchEnd = (cat: string) => {
+    const timerId = touchTimerRef.current.get(cat);
+    if (timerId !== undefined) {
+      clearTimeout(timerId);
+      touchTimerRef.current.delete(cat);
     } else {
-      setTimeout(() => setOpenTooltip(null), 2000);
+      if (hideTimerRef.current !== null) clearTimeout(hideTimerRef.current);
+      hideTimerRef.current = setTimeout(() => {
+        setOpenTooltip(null);
+        hideTimerRef.current = null;
+      }, 2000);
     }
   };
 
-  const handleTouchCancel = () => {
-    if (touchTimerRef.current !== null) {
-      clearTimeout(touchTimerRef.current);
-      touchTimerRef.current = null;
+  const handleTouchCancel = (cat: string) => {
+    const timerId = touchTimerRef.current.get(cat);
+    if (timerId !== undefined) {
+      clearTimeout(timerId);
+      touchTimerRef.current.delete(cat);
     }
     setOpenTooltip(null);
   };
@@ -51,16 +65,17 @@ export default function EdgePanels({ selections, onSelect }: Props) {
           <TooltipWrapper>
             <span
               className="cat"
+              aria-describedby={tooltipVisible ? `tooltip-${cat}` : undefined}
               onMouseEnter={() => showTooltip(cat)}
               onMouseLeave={hideTooltip}
               onTouchStart={() => handleTouchStart(cat)}
-              onTouchEnd={handleTouchEnd}
-              onTouchCancel={handleTouchCancel}
+              onTouchEnd={() => handleTouchEnd(cat)}
+              onTouchCancel={() => handleTouchCancel(cat)}
             >
               {cat}
             </span>
             {tooltipVisible && (
-              <TooltipBubble role="tooltip">{CATEGORY_TOOLTIPS[cat]}</TooltipBubble>
+              <TooltipBubble id={`tooltip-${cat}`} role="tooltip">{CATEGORY_TOOLTIPS[cat]}</TooltipBubble>
             )}
           </TooltipWrapper>
           <span className="val">{value ? value.toUpperCase() : '—'}</span>
