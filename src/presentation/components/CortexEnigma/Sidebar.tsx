@@ -21,6 +21,8 @@ type Props = {
   error?: string | null;
   historyCount?: number;
   onOpenHistory?: () => void;
+  templateCount?: number;
+  onOpenTemplates?: () => void;
 };
 
 export default function Sidebar({
@@ -42,6 +44,8 @@ export default function Sidebar({
   error,
   historyCount = 0,
   onOpenHistory,
+  templateCount = 0,
+  onOpenTemplates,
 }: Props) {
   const categoryKeys = Object.keys(CATEGORIES);
   const activeCount = Object.values(selections).filter(Boolean).length;
@@ -132,6 +136,13 @@ export default function Sidebar({
               style={{ gridColumn: 'span 2' }}
             >
               History{historyCount > 0 ? ` (${historyCount})` : ''}
+            </Button>
+            <Button
+              onClick={onOpenTemplates}
+              disabled={!onOpenTemplates}
+              style={{ gridColumn: 'span 2' }}
+            >
+              Templates{templateCount > 0 ? ` (${templateCount})` : ''}
             </Button>
           </ButtonGrid>
         </Section>

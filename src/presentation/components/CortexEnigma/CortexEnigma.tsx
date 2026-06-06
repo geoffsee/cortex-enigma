@@ -3,19 +3,23 @@ import { buildPrompt } from '../../../domain/promptBuilder';
 import { useSelections } from '../../hooks/useSelections';
 import { usePromptEngine } from '../../hooks/usePromptEngine';
 import { usePromptHistory } from '../../hooks/usePromptHistory';
+import { usePresetTemplates } from '../../hooks/usePresetTemplates';
 import Sidebar from './Sidebar';
 import EdgePanels from './EdgePanels';
 import PromptHistoryDrawer from './PromptHistoryDrawer';
+import PresetPaletteDrawer from './PresetPaletteDrawer';
 
 const CortexCanvas = lazy(() => import('./Canvas/CortexCanvas'));
 
 export default function CortexEnigma() {
-  const { selections, handleSelect, handleFoundationChange, randomize, clearAll, mounted } = useSelections();
+  const { selections, handleSelect, handleFoundationChange, randomize, clearAll, applySelections, mounted } = useSelections();
   const { generate, isGenerating, isModelLoading, loadProgress, error, streamingText } = usePromptEngine();
   const { entries: historyEntries, addEntry: addHistoryEntry, clearHistory } = usePromptHistory();
+  const { templates, saveTemplate, deleteTemplate } = usePresetTemplates();
   const [autoRotate, setAutoRotate] = useState(false);
   const [effectsEnabled, setEffectsEnabled] = useState(true);
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [templatesOpen, setTemplatesOpen] = useState(false);
   const orbitRef = useRef<{ reset: () => void } | null>(null);
 
   const prompt = useMemo(() => buildPrompt(selections), [selections]);
@@ -64,6 +68,8 @@ export default function CortexEnigma() {
         onResetCamera={() => orbitRef.current?.reset()}
         historyCount={historyEntries.length}
         onOpenHistory={() => setHistoryOpen(true)}
+        templateCount={templates.length}
+        onOpenTemplates={() => setTemplatesOpen(true)}
       />
       <EdgePanels selections={selections} onSelect={handleSelect} />
       {mounted && (
@@ -85,6 +91,16 @@ export default function CortexEnigma() {
           entries={historyEntries}
           onClear={clearHistory}
           onClose={() => setHistoryOpen(false)}
+        />
+      )}
+      {templatesOpen && (
+        <PresetPaletteDrawer
+          templates={templates}
+          currentSelections={selections}
+          onSave={name => saveTemplate(name, selections)}
+          onApply={template => applySelections(template.selections)}
+          onDelete={deleteTemplate}
+          onClose={() => setTemplatesOpen(false)}
         />
       )}
     </>

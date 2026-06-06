@@ -3,6 +3,8 @@ import { CATEGORIES } from '../domain/categories';
 
 export const SCHEMA_VERSION = 1;
 export const HISTORY_SCHEMA_VERSION = 1;
+export const TEMPLATES_SCHEMA_VERSION = 1;
+export const MAX_TEMPLATES = 20;
 
 const categoryValue = (options: string[]) =>
   z.string().refine(v => v === '' || options.includes(v));
@@ -35,4 +37,18 @@ export type HistoryEntry = z.infer<typeof HistoryEntrySchema>;
 export const HistoryEnvelopeSchema = z.object({
   version: z.literal(HISTORY_SCHEMA_VERSION),
   entries: z.array(HistoryEntrySchema),
+});
+
+export const TemplateRecordSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  selections: SelectionStateSchema,
+  timestamp: z.number(),
+});
+
+export type TemplateRecord = z.infer<typeof TemplateRecordSchema>;
+
+export const TemplatesEnvelopeSchema = z.object({
+  version: z.literal(TEMPLATES_SCHEMA_VERSION),
+  templates: z.array(TemplateRecordSchema),
 });

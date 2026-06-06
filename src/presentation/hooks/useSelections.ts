@@ -40,5 +40,8 @@ export function useSelections() {
 
   const clearAll = () => setSelections(clear());
 
-  return { selections, handleSelect, handleFoundationChange, randomize, clearAll, mounted };
+  const applySelections = (state: SelectionState) =>
+    setSelections(validate(state));
+
+  return { selections, handleSelect, handleFoundationChange, randomize, clearAll, applySelections, mounted };
 }
