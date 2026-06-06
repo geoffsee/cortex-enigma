@@ -25,6 +25,10 @@ const SYSTEM_PROMPT =
 export class WebLLMAdapter implements ILLMPort {
   private engine: MLCEngineLike | null = null;
 
+  static isWebGPUAvailable(): boolean {
+    return typeof navigator !== 'undefined' && 'gpu' in navigator;
+  }
+
   async load(onProgress: (text: string) => void): Promise<void> {
     // Dynamic import keeps web-llm out of the SSR bundle.
     const webllm = await import('@mlc-ai/web-llm');

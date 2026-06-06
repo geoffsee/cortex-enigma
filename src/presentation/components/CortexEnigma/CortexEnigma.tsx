@@ -11,7 +11,7 @@ const CortexCanvas = lazy(() => import('./Canvas/CortexCanvas'));
 
 export default function CortexEnigma() {
   const { selections, handleSelect, handleFoundationChange, randomize, clearAll, mounted } = useSelections();
-  const { generate, isGenerating, isModelLoading, loadProgress, error, streamingText } = usePromptEngine();
+  const { generate, isGenerating, isModelLoading, loadProgress, error, streamingText, webGpuAvailable, llmBypassed, setLlmBypassed } = usePromptEngine();
   const { entries: historyEntries, addEntry: addHistoryEntry, clearHistory } = usePromptHistory();
   const [autoRotate, setAutoRotate] = useState(false);
   const [effectsEnabled, setEffectsEnabled] = useState(true);
@@ -21,13 +21,13 @@ export default function CortexEnigma() {
   const prompt = useMemo(() => buildPrompt(selections), [selections]);
 
   const displayPrompt = useMemo(() => {
-    if (isModelLoading) return 'LOADING MODEL...';
+    if (!llmBypassed && isModelLoading) return 'LOADING MODEL...';
     if (streamingText !== null) {
       if (!streamingText) return 'GENERATING...';
       return selections.foundation ? `${selections.foundation}, ${streamingText}` : streamingText;
     }
     return prompt;
-  }, [isModelLoading, streamingText, selections.foundation, prompt]);
+  }, [llmBypassed, isModelLoading, streamingText, selections.foundation, prompt]);
 
 
   const handleGenerate = async () => {
@@ -64,6 +64,9 @@ export default function CortexEnigma() {
         onResetCamera={() => orbitRef.current?.reset()}
         historyCount={historyEntries.length}
         onOpenHistory={() => setHistoryOpen(true)}
+        webGpuAvailable={webGpuAvailable}
+        llmBypassed={llmBypassed}
+        onToggleLlmBypass={() => setLlmBypassed(v => !v)}
       />
       <EdgePanels selections={selections} onSelect={handleSelect} />
       {mounted && (
