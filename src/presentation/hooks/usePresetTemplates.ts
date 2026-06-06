@@ -1,13 +1,12 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import type { SelectionState } from '../../domain/types';
 import {
+  TEMPLATES_KEY,
   TEMPLATES_SCHEMA_VERSION,
   TemplatesEnvelopeSchema,
   MAX_TEMPLATES,
   type TemplateRecord,
 } from '../../infrastructure/storageSchema';
-
-const TEMPLATES_KEY = 'cortex-enigma:preset-templates-v1';
 
 function loadFromStorage(): TemplateRecord[] {
   if (typeof window === 'undefined') return [];
@@ -36,8 +35,10 @@ function saveToStorage(templates: TemplateRecord[]): void {
 
 export function usePresetTemplates() {
   const [templates, setTemplates] = useState<TemplateRecord[]>(() => loadFromStorage());
+  const isFirstRender = useRef(true);
 
   useEffect(() => {
+    if (isFirstRender.current) { isFirstRender.current = false; return; }
     saveToStorage(templates);
   }, [templates]);
 

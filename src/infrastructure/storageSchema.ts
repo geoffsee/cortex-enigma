@@ -5,6 +5,7 @@ export const SCHEMA_VERSION = 1;
 export const HISTORY_SCHEMA_VERSION = 1;
 export const TEMPLATES_SCHEMA_VERSION = 1;
 export const MAX_TEMPLATES = 20;
+export const TEMPLATES_KEY = 'cortex-enigma:preset-templates-v1';
 
 const categoryValue = (options: string[]) =>
   z.string().refine(v => v === '' || options.includes(v));

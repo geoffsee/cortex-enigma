@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import styled, { keyframes } from 'styled-components';
+import { MAX_TEMPLATES } from '../../../infrastructure/storageSchema';
 import type { TemplateRecord } from '../../../infrastructure/storageSchema';
 import type { SelectionState } from '../../../domain/types';
 
@@ -117,13 +118,11 @@ export default function PresetPaletteDrawer({
 
         <DrawerFooter>
           <FooterNote>
-            {templates.length}/20 templates · oldest evicted at limit
+            {templates.length}/{MAX_TEMPLATES} templates · oldest evicted at limit
           </FooterNote>
-          {currentSelections && (
-            <FooterNote>
-              Current: {selectionSummary(currentSelections)}
-            </FooterNote>
-          )}
+          <FooterNote>
+            Current: {selectionSummary(currentSelections)}
+          </FooterNote>
         </DrawerFooter>
       </Drawer>
     </Overlay>
