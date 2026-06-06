@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { Lock, Unlock } from 'lucide-react';
 import { CATEGORIES } from '../../../domain/categories';
 import type { SelectionState } from '../../../domain/types';
 
@@ -23,6 +24,9 @@ type Props = {
   onOpenHistory?: () => void;
   templateCount?: number;
   onOpenTemplates?: () => void;
+  lockedAxes?: ReadonlySet<string>;
+  onToggleLock?: (axis: string) => void;
+  lockedCount?: number;
 };
 
 export default function Sidebar({
@@ -46,6 +50,9 @@ export default function Sidebar({
   onOpenHistory,
   templateCount = 0,
   onOpenTemplates,
+  lockedAxes,
+  onToggleLock,
+  lockedCount = 0,
 }: Props) {
   const categoryKeys = Object.keys(CATEGORIES);
   const activeCount = Object.values(selections).filter(Boolean).length;
@@ -84,9 +91,23 @@ export default function Sidebar({
           <SectionTitle>Active Selections</SectionTitle>
           {categoryKeys.map((cat) => {
             const value = selections[cat];
+            const locked = lockedAxes?.has(cat) ?? false;
             return (
-              <SelectionRow key={cat} $active={!!value}>
-                <span className="label">{cat}</span>
+              <SelectionRow key={cat} $active={!!value} $locked={locked}>
+                <span className="label">
+                  {cat}
+                  {onToggleLock && (
+                    <LockBtn
+                      type="button"
+                      $locked={locked}
+                      onClick={() => onToggleLock(cat)}
+                      aria-label={locked ? `Unlock ${cat} axis` : `Lock ${cat} axis`}
+                      title={locked ? `Unlock ${cat} axis` : `Lock ${cat} axis`}
+                    >
+                      {locked ? <Lock size={9} /> : <Unlock size={9} />}
+                    </LockBtn>
+                  )}
+                </span>
                 <span className="value">
                   {value || '—'}
                   {value && (
@@ -121,8 +142,8 @@ export default function Sidebar({
         <Section>
           <SectionTitle>Actions</SectionTitle>
           <ButtonGrid>
-            <Button $primary onClick={onRandomize}>
-              Randomize
+            <Button $primary onClick={onRandomize} title={lockedCount > 0 ? `${lockedCount} axis${lockedCount === 1 ? '' : 'es'} locked` : undefined}>
+              {lockedCount > 0 ? `Randomize (${lockedCount} locked)` : 'Randomize'}
             </Button>
             <Button onClick={onClear} disabled={activeCount === 0}>
               Clear All
@@ -316,21 +337,26 @@ const SectionTitle = styled.h2`
   font-weight: 600;
 `;
 
-const SelectionRow = styled.div<{ $active?: boolean }>`
+const SelectionRow = styled.div<{ $active?: boolean; $locked?: boolean }>`
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 6px 9px;
   border-radius: 3px;
   margin-bottom: 3px;
-  background: ${({ $active, theme }) => ($active ? theme.synth.accentActiveBg : 'transparent')};
+  background: ${({ $active, $locked, theme }) =>
+    $locked ? theme.synth.lockBg : $active ? theme.synth.accentActiveBg : 'transparent'};
   border: 1px solid
-    ${({ $active, theme }) => ($active ? theme.synth.accentMed : theme.synth.subtleBorder)};
+    ${({ $active, $locked, theme }) =>
+      $locked ? theme.synth.lockBorder : $active ? theme.synth.accentMed : theme.synth.subtleBorder};
 
   & .label {
     color: ${({ theme }) => theme.synth.textMuted};
     font-size: 10px;
     letter-spacing: 0.08em;
+    display: flex;
+    align-items: center;
+    gap: 5px;
   }
 
   & .value {
@@ -360,6 +386,23 @@ const SelectionRow = styled.div<{ $active?: boolean }>`
     &:hover {
       color: ${({ theme }) => theme.synth.errorColor};
     }
+  }
+`;
+
+const LockBtn = styled.button<{ $locked?: boolean }>`
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: ${({ $locked, theme }) => ($locked ? theme.synth.lockIcon : theme.synth.textFaint)};
+  transition: color 0.12s;
+  line-height: 1;
+
+  &:hover {
+    color: ${({ $locked, theme }) => ($locked ? theme.synth.lockIconHover : theme.synth.textMuted)};
   }
 `;
 

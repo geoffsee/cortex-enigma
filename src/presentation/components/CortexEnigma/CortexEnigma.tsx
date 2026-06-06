@@ -4,6 +4,7 @@ import { useSelections } from '../../hooks/useSelections';
 import { usePromptEngine } from '../../hooks/usePromptEngine';
 import { usePromptHistory } from '../../hooks/usePromptHistory';
 import { usePresetTemplates } from '../../hooks/usePresetTemplates';
+import { useLockAxes } from '../../hooks/useLockAxes';
 import Sidebar from './Sidebar';
 import EdgePanels from './EdgePanels';
 import PromptHistoryDrawer from './PromptHistoryDrawer';
@@ -16,6 +17,8 @@ export default function CortexEnigma() {
   const { generate, isGenerating, isModelLoading, loadProgress, error, streamingText } = usePromptEngine();
   const { entries: historyEntries, addEntry: addHistoryEntry, clearHistory } = usePromptHistory();
   const { templates, saveTemplate, deleteTemplate } = usePresetTemplates();
+  const { lockedAxes, toggleLock, lockedCount } = useLockAxes();
+  const handleRandomize = () => randomize(lockedAxes);
   const [autoRotate, setAutoRotate] = useState(false);
   const [effectsEnabled, setEffectsEnabled] = useState(true);
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -58,7 +61,7 @@ export default function CortexEnigma() {
         loadProgress={loadProgress}
         onGenerate={handleGenerate}
         error={error}
-        onRandomize={randomize}
+        onRandomize={handleRandomize}
         onClear={clearAll}
         onCopy={handleCopy}
         autoRotate={autoRotate}
@@ -70,15 +73,18 @@ export default function CortexEnigma() {
         onOpenHistory={() => setHistoryOpen(true)}
         templateCount={templates.length}
         onOpenTemplates={() => setTemplatesOpen(true)}
+        lockedAxes={lockedAxes}
+        onToggleLock={toggleLock}
+        lockedCount={lockedCount}
       />
-      <EdgePanels selections={selections} onSelect={handleSelect} />
+      <EdgePanels selections={selections} onSelect={handleSelect} lockedAxes={lockedAxes} onToggleLock={toggleLock} />
       {mounted && (
         <Suspense fallback={null}>
           <CortexCanvas
             selections={selections}
             onSelect={handleSelect}
             prompt={displayPrompt}
-            onRandomize={randomize}
+            onRandomize={handleRandomize}
             onCopy={handleCopy}
             autoRotate={autoRotate}
             effectsEnabled={effectsEnabled}

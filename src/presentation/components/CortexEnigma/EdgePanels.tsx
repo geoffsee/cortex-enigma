@@ -1,22 +1,39 @@
 import styled from 'styled-components';
+import { Lock, Unlock } from 'lucide-react';
 import { CATEGORIES } from '../../../domain/categories';
 import type { SelectionState } from '../../../domain/types';
 
 type Props = {
   selections: SelectionState;
   onSelect: (cat: string, val: string) => void;
+  lockedAxes?: ReadonlySet<string>;
+  onToggleLock?: (axis: string) => void;
 };
 
 const TOP_CATS = ['MEDIUM', 'METHOD', 'SUBJECT', 'STYLE'];
 const RIGHT_CATS = ['ELEMENTS', 'FUNCTION', 'CONTEXT', 'HISTORY'];
 
-export default function EdgePanels({ selections, onSelect }: Props) {
+export default function EdgePanels({ selections, onSelect, lockedAxes, onToggleLock }: Props) {
   const renderPanel = (cat: string) => {
     const value = selections[cat];
+    const locked = lockedAxes?.has(cat) ?? false;
     return (
-      <Panel key={cat}>
+      <Panel key={cat} $locked={locked}>
         <PanelHeader>
-          <span className="cat">{cat}</span>
+          <CatRow>
+            <span className="cat">{cat}</span>
+            {onToggleLock && (
+              <EdgeLockBtn
+                type="button"
+                $locked={locked}
+                onClick={() => onToggleLock(cat)}
+                aria-label={locked ? `Unlock ${cat} axis` : `Lock ${cat} axis`}
+                title={locked ? `Unlock ${cat} axis` : `Lock ${cat} axis`}
+              >
+                {locked ? <Lock size={8} /> : <Unlock size={8} />}
+              </EdgeLockBtn>
+            )}
+          </CatRow>
           <span className="val">{value ? value.toUpperCase() : '—'}</span>
         </PanelHeader>
         <Options>
@@ -99,20 +116,44 @@ const RightRail = styled.div`
   }
 `;
 
-const Panel = styled.div`
+const Panel = styled.div<{ $locked?: boolean }>`
   flex: 1 1 0;
   min-width: 0;
   min-height: 0;
   background: ${({ theme }) => theme.synth.panelBg};
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border: 1px solid ${({ theme }) => theme.synth.accentBase};
+  border: 1px solid
+    ${({ $locked, theme }) => ($locked ? theme.synth.lockBorder : theme.synth.accentBase)};
   border-radius: 4px;
   padding: 10px 12px;
   font-family: ${({ theme }) => theme.fonts.mono};
   display: flex;
   flex-direction: column;
   overflow: hidden;
+`;
+
+const CatRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 5px;
+`;
+
+const EdgeLockBtn = styled.button<{ $locked?: boolean }>`
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: ${({ $locked, theme }) => ($locked ? theme.synth.lockIcon : theme.synth.textFaint)};
+  transition: color 0.12s;
+  line-height: 1;
+
+  &:hover {
+    color: ${({ $locked, theme }) => ($locked ? theme.synth.lockIconHover : theme.synth.textMuted)};
+  }
 `;
 
 const PanelHeader = styled.div`
