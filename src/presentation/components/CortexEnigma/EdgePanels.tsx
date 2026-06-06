@@ -181,4 +181,13 @@ const Option = styled.button<{ $active?: boolean }>`
     background: ${({ theme }) => theme.synth.accentHoverBg};
     color: ${({ theme }) => theme.synth.white};
   }
+
+  &:focus {
+    outline: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.synth.accentStrong};
+    outline-offset: 2px;
+  }
 `;
