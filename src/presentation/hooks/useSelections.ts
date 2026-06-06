@@ -36,7 +36,8 @@ export function useSelections() {
   const handleFoundationChange = (value: string) =>
     setSelections(prev => ({ ...prev, foundation: value }));
 
-  const randomize = () => setSelections(randomizeSelections());
+  const randomize = (lockedAxes?: ReadonlySet<string>) =>
+    setSelections(prev => randomizeSelections(prev, lockedAxes));
 
   const clearAll = () => setSelections(clear());
 

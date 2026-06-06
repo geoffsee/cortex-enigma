@@ -54,6 +54,11 @@ declare module 'styled-components' {
       errorColor: string;
       errorBg: string;
       errorBorder: string;
+
+      lockBg: string;
+      lockBorder: string;
+      lockIcon: string;
+      lockIconHover: string;
     };
   }
 }

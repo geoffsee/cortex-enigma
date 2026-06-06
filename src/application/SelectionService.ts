@@ -6,11 +6,15 @@ export function toggle(state: SelectionState, category: string, value: string): 
   return { ...state, [category]: state[category] === value ? '' : value };
 }
 
-export function randomize(): SelectionState {
+export function randomize(currentState: SelectionState = EMPTY_SELECTIONS, lockedAxes?: ReadonlySet<string>): SelectionState {
   const result: SelectionState = { ...EMPTY_SELECTIONS };
   for (const cat of Object.keys(CATEGORIES)) {
-    const options = CATEGORIES[cat];
-    result[cat] = options[Math.floor(Math.random() * options.length)];
+    if (lockedAxes?.has(cat)) {
+      result[cat] = currentState[cat];
+    } else {
+      const options = CATEGORIES[cat];
+      result[cat] = options[Math.floor(Math.random() * options.length)];
+    }
   }
   return result;
 }

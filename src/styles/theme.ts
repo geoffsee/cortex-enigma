@@ -35,6 +35,11 @@ const darkSynthTokens: DefaultTheme['synth'] = {
   errorColor: '#ff4081',
   errorBg: 'rgba(255, 64, 129, 0.1)',
   errorBorder: 'rgba(255, 64, 129, 0.2)',
+
+  lockBg: 'rgba(255, 180, 0, 0.08)',
+  lockBorder: 'rgba(255, 180, 0, 0.35)',
+  lockIcon: '#f0a800',
+  lockIconHover: '#ffc400',
 };
 
 const lightSynthTokens: DefaultTheme['synth'] = darkSynthTokens;
