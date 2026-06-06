@@ -26,7 +26,7 @@ export class WebLLMAdapter implements ILLMPort {
   private engine: MLCEngineLike | null = null;
 
   static isWebGPUAvailable(): boolean {
-    return typeof navigator !== 'undefined' && 'gpu' in navigator;
+    return typeof navigator !== 'undefined' && navigator.gpu != null;
   }
 
   async load(onProgress: (text: string) => void): Promise<void> {

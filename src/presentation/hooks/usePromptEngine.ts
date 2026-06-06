@@ -3,8 +3,9 @@ import { WebLLMAdapter } from '../../infrastructure/WebLLMAdapter';
 
 export function usePromptEngine() {
   const adapterRef = useRef(new WebLLMAdapter());
-  const [webGpuAvailable] = useState(() => WebLLMAdapter.isWebGPUAvailable());
-  const [llmBypassed, setLlmBypassed] = useState(() => !WebLLMAdapter.isWebGPUAvailable());
+  const gpuAvailable = WebLLMAdapter.isWebGPUAvailable();
+  const [webGpuAvailable] = useState(gpuAvailable);
+  const [llmBypassed, setLlmBypassed] = useState(!gpuAvailable);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isModelLoading, setIsModelLoading] = useState(false);
   const [loadProgress, setLoadProgress] = useState('');
