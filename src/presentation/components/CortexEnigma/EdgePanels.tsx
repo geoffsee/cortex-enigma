@@ -1,5 +1,6 @@
+import { useState, useRef } from 'react';
 import styled from 'styled-components';
-import { CATEGORIES } from '../../../domain/categories';
+import { CATEGORIES, CATEGORY_TOOLTIPS } from '../../../domain/categories';
 import type { SelectionState } from '../../../domain/types';
 
 type Props = {
@@ -11,12 +12,57 @@ const TOP_CATS = ['MEDIUM', 'METHOD', 'SUBJECT', 'STYLE'];
 const RIGHT_CATS = ['ELEMENTS', 'FUNCTION', 'CONTEXT', 'HISTORY'];
 
 export default function EdgePanels({ selections, onSelect }: Props) {
+  const [openTooltip, setOpenTooltip] = useState<string | null>(null);
+  const touchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const showTooltip = (cat: string) => setOpenTooltip(cat);
+  const hideTooltip = () => setOpenTooltip(null);
+
+  const handleTouchStart = (cat: string) => {
+    touchTimerRef.current = setTimeout(() => {
+      setOpenTooltip(cat);
+      touchTimerRef.current = null;
+    }, 400);
+  };
+
+  const handleTouchEnd = () => {
+    if (touchTimerRef.current !== null) {
+      clearTimeout(touchTimerRef.current);
+      touchTimerRef.current = null;
+    } else {
+      setTimeout(() => setOpenTooltip(null), 2000);
+    }
+  };
+
+  const handleTouchCancel = () => {
+    if (touchTimerRef.current !== null) {
+      clearTimeout(touchTimerRef.current);
+      touchTimerRef.current = null;
+    }
+    setOpenTooltip(null);
+  };
+
   const renderPanel = (cat: string) => {
     const value = selections[cat];
+    const tooltipVisible = openTooltip === cat;
     return (
       <Panel key={cat}>
         <PanelHeader>
-          <span className="cat">{cat}</span>
+          <TooltipWrapper>
+            <span
+              className="cat"
+              onMouseEnter={() => showTooltip(cat)}
+              onMouseLeave={hideTooltip}
+              onTouchStart={() => handleTouchStart(cat)}
+              onTouchEnd={handleTouchEnd}
+              onTouchCancel={handleTouchCancel}
+            >
+              {cat}
+            </span>
+            {tooltipVisible && (
+              <TooltipBubble role="tooltip">{CATEGORY_TOOLTIPS[cat]}</TooltipBubble>
+            )}
+          </TooltipWrapper>
           <span className="val">{value ? value.toUpperCase() : '—'}</span>
         </PanelHeader>
         <Options>
@@ -127,6 +173,8 @@ const PanelHeader = styled.div`
     color: ${({ theme }) => theme.synth.accent};
     letter-spacing: 0.22em;
     font-weight: 600;
+    cursor: default;
+    user-select: none;
   }
   & .val {
     display: block;
@@ -139,6 +187,30 @@ const PanelHeader = styled.div`
     overflow: hidden;
     white-space: nowrap;
   }
+`;
+
+const TooltipWrapper = styled.div`
+  position: relative;
+  display: block;
+`;
+
+const TooltipBubble = styled.div`
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 20;
+  width: 180px;
+  background: ${({ theme }) => theme.synth.panelBg};
+  border: 1px solid ${({ theme }) => theme.synth.accentMed};
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-size: 9px;
+  line-height: 1.5;
+  color: ${({ theme }) => theme.synth.textPrimary};
+  pointer-events: none;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  letter-spacing: 0.04em;
 `;
 
 const Options = styled.div`
