@@ -276,8 +276,12 @@ const Input = styled.input`
   font-family: inherit;
 
   &:focus {
-    outline: none;
     border-color: ${({ theme }) => theme.synth.accentStrong};
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.synth.accentStrong};
+    outline-offset: 2px;
   }
 `;
 
@@ -300,6 +304,15 @@ const GenerateButton = styled.button`
   &:disabled {
     opacity: 0.3;
     cursor: not-allowed;
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.synth.accentStrong};
+    outline-offset: 2px;
   }
 `;
 
@@ -386,6 +399,16 @@ const SelectionRow = styled.div<{ $active?: boolean; $locked?: boolean }>`
     &:hover {
       color: ${({ theme }) => theme.synth.errorColor};
     }
+
+    &:focus {
+      outline: none;
+    }
+
+    &:focus-visible {
+      outline: 2px solid ${({ theme }) => theme.synth.accentStrong};
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
   }
 `;
 
@@ -449,9 +472,19 @@ const Button = styled.button<{ $primary?: boolean }>`
     opacity: 0.3;
     cursor: not-allowed;
   }
+
+  &:focus {
+    outline: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.synth.accentStrong};
+    outline-offset: 2px;
+  }
 `;
 
 const ToggleRow = styled.label`
+  position: relative;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -466,8 +499,22 @@ const ToggleRow = styled.label`
     border-bottom: none;
   }
 
+  &:focus-within {
+    outline: 2px solid ${({ theme }) => theme.synth.accentStrong};
+    outline-offset: 3px;
+    border-radius: 3px;
+  }
+
   & input {
-    display: none;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
 `;
 
