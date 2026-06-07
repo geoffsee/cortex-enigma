@@ -1,5 +1,6 @@
+import { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
-import { CATEGORIES } from '../../../domain/categories';
+import { CATEGORIES, CATEGORY_TOOLTIPS } from '../../../domain/categories';
 import type { SelectionState } from '../../../domain/types';
 
 type Props = {
@@ -9,14 +10,94 @@ type Props = {
 
 const TOP_CATS = ['MEDIUM', 'METHOD', 'SUBJECT', 'STYLE'];
 const RIGHT_CATS = ['ELEMENTS', 'FUNCTION', 'CONTEXT', 'HISTORY'];
+const DISCLOSURE_KEY = 'cortex-twister:advanced-expanded';
+
+function loadDisclosure(): boolean {
+  if (typeof window === 'undefined') return false;
+  try {
+    return window.localStorage.getItem(DISCLOSURE_KEY) === 'true';
+  } catch {
+    return false;
+  }
+}
 
 export default function EdgePanels({ selections, onSelect }: Props) {
+  const [advancedExpanded, setAdvancedExpanded] = useState<boolean>(loadDisclosure);
+  const [openTooltip, setOpenTooltip] = useState<string | null>(null);
+  const touchTimerRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
+  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      window.localStorage.setItem(DISCLOSURE_KEY, String(advancedExpanded));
+    } catch {
+      // ignore quota / privacy-mode errors
+    }
+  }, [advancedExpanded]);
+
+  useEffect(() => () => {
+    touchTimerRef.current.forEach(clearTimeout);
+    if (hideTimerRef.current !== null) clearTimeout(hideTimerRef.current);
+  }, []);
+
+  const showTooltip = (cat: string) => setOpenTooltip(cat);
+  const hideTooltip = () => setOpenTooltip(null);
+
+  const handleTouchStart = (cat: string) => {
+    const existing = touchTimerRef.current.get(cat);
+    if (existing !== undefined) clearTimeout(existing);
+    touchTimerRef.current.set(cat, setTimeout(() => {
+      setOpenTooltip(cat);
+      touchTimerRef.current.delete(cat);
+    }, 400));
+  };
+
+  const handleTouchEnd = (cat: string) => {
+    const timerId = touchTimerRef.current.get(cat);
+    if (timerId !== undefined) {
+      clearTimeout(timerId);
+      touchTimerRef.current.delete(cat);
+    } else {
+      if (hideTimerRef.current !== null) clearTimeout(hideTimerRef.current);
+      hideTimerRef.current = setTimeout(() => {
+        setOpenTooltip(null);
+        hideTimerRef.current = null;
+      }, 2000);
+    }
+  };
+
+  const handleTouchCancel = (cat: string) => {
+    const timerId = touchTimerRef.current.get(cat);
+    if (timerId !== undefined) {
+      clearTimeout(timerId);
+      touchTimerRef.current.delete(cat);
+    }
+    setOpenTooltip(null);
+  };
+
   const renderPanel = (cat: string) => {
     const value = selections[cat];
+    const tooltipVisible = openTooltip === cat;
     return (
       <Panel key={cat}>
         <PanelHeader>
-          <span className="cat">{cat}</span>
+          <TooltipWrapper>
+            <span
+              className="cat"
+              aria-describedby={tooltipVisible ? `tooltip-${cat}` : undefined}
+              onMouseEnter={() => showTooltip(cat)}
+              onMouseLeave={hideTooltip}
+              onTouchStart={() => handleTouchStart(cat)}
+              onTouchEnd={() => handleTouchEnd(cat)}
+              onTouchCancel={() => handleTouchCancel(cat)}
+            >
+              {cat}
+            </span>
+            {tooltipVisible && (
+              <TooltipBubble id={`tooltip-${cat}`} role="tooltip">{CATEGORY_TOOLTIPS[cat]}</TooltipBubble>
+            )}
+          </TooltipWrapper>
           <span className="val">{value ? value.toUpperCase() : '—'}</span>
         </PanelHeader>
         <Options>
@@ -40,7 +121,17 @@ export default function EdgePanels({ selections, onSelect }: Props) {
   return (
     <>
       <TopRail>{TOP_CATS.map(renderPanel)}</TopRail>
-      <RightRail>{RIGHT_CATS.map(renderPanel)}</RightRail>
+      <RightRail>
+        <DisclosureToggle
+          onClick={() => setAdvancedExpanded(prev => !prev)}
+          aria-expanded={advancedExpanded}
+          aria-label={advancedExpanded ? 'Collapse advanced axes' : 'Expand advanced axes'}
+        >
+          <span>ADVANCED</span>
+          <span aria-hidden="true">{advancedExpanded ? '▲' : '▼'}</span>
+        </DisclosureToggle>
+        {advancedExpanded && RIGHT_CATS.map(renderPanel)}
+      </RightRail>
     </>
   );
 }
@@ -87,6 +178,11 @@ const RightRail = styled.div`
   padding: 12px;
   z-index: 9;
   box-sizing: border-box;
+  pointer-events: none;
+
+  & > * {
+    pointer-events: auto;
+  }
 
   @media (max-width: 1100px) {
     top: 232px;
@@ -96,6 +192,38 @@ const RightRail = styled.div`
 
   @media (max-width: 768px) {
     display: none;
+  }
+`;
+
+const DisclosureToggle = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: ${({ theme }) => theme.synth.panelBg};
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid ${({ theme }) => theme.synth.accentBase};
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-family: ${({ theme }) => theme.fonts.mono};
+  font-size: 9px;
+  color: ${({ theme }) => theme.synth.accent};
+  letter-spacing: 0.22em;
+  font-weight: 600;
+  cursor: pointer;
+  text-transform: uppercase;
+  flex-shrink: 0;
+  transition: all 0.12s;
+
+  &:hover {
+    background: ${({ theme }) => theme.synth.accentHoverBg};
+    color: ${({ theme }) => theme.synth.white};
+  }
+
+  &:focus-visible {
+    outline: 1px solid ${({ theme }) => theme.synth.accent};
+    outline-offset: 2px;
   }
 `;
 
@@ -127,6 +255,8 @@ const PanelHeader = styled.div`
     color: ${({ theme }) => theme.synth.accent};
     letter-spacing: 0.22em;
     font-weight: 600;
+    cursor: default;
+    user-select: none;
   }
   & .val {
     display: block;
@@ -139,6 +269,30 @@ const PanelHeader = styled.div`
     overflow: hidden;
     white-space: nowrap;
   }
+`;
+
+const TooltipWrapper = styled.div`
+  position: relative;
+  display: block;
+`;
+
+const TooltipBubble = styled.div`
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 20;
+  width: 180px;
+  background: ${({ theme }) => theme.synth.panelBg};
+  border: 1px solid ${({ theme }) => theme.synth.accentMed};
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-size: 9px;
+  line-height: 1.5;
+  color: ${({ theme }) => theme.synth.textPrimary};
+  pointer-events: none;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  letter-spacing: 0.04em;
 `;
 
 const Options = styled.div`
