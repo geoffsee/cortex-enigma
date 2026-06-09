@@ -4,6 +4,9 @@ project_name = "bevy-osc-app"
 command = ["bun", "run", "test"]
 format_command = ["bun", "run", "format"]
 
+[agent_models]
+claude  = "claude-fable-5"
+
 #[security_scan]
 #paths = [
 ## todo
