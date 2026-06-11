@@ -39,7 +39,9 @@ export default function CortexCanvas({
   diffSegments,
 }: Props) {
   return (
-    <div style={{ position: 'fixed', inset: 0, background: '#030308' }}>
+    // Decorative: every 3D control duplicates a DOM control in Sidebar/EdgePanels,
+    // which are the canonical accessible route (see README § Accessibility, issue #71).
+    <div aria-hidden="true" style={{ position: 'fixed', inset: 0, background: '#030308' }}>
       <Canvas shadows gl={{ antialias: false, stencil: false, depth: true }}>
         <PerspectiveCamera makeDefault position={[0, 0.4, 10]} fov={55} />
         <OrbitControls
