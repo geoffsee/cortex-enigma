@@ -1,0 +1,101 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "id": "neon-reliquary",
+      "title": "Neon Reliquary",
+      "description": "Sacred geometry meets synthwave — a glowing devotional object for the networked age.",
+      "selections": {
+        "MEDIUM": "digital",
+        "METHOD": "code",
+        "SUBJECT": "concept",
+        "STYLE": "symbolic",
+        "ELEMENTS": "geometric",
+        "FUNCTION": "ritual",
+        "CONTEXT": "networked",
+        "HISTORY": "contemporary",
+        "foundation": "a luminous reliquary of impossible geometry, suspended in a void of neon haze"
+      }
+    },
+    {
+      "id": "tidal-memory",
+      "title": "Tidal Memory",
+      "description": "Soft atmospheric seascape painted in the language of remembrance.",
+      "selections": {
+        "MEDIUM": "painting",
+        "METHOD": "paint",
+        "SUBJECT": "nature",
+        "STYLE": "expressive",
+        "ELEMENTS": "atmospheric",
+        "FUNCTION": "contemplative",
+        "CONTEXT": "domestic",
+        "HISTORY": "modern",
+        "foundation": "a fading shoreline at dusk, waves dissolving into mist and half-remembered light"
+      }
+    },
+    {
+      "id": "agora-static",
+      "title": "Agora Static",
+      "description": "A protest poster cut from the noise of the public square.",
+      "selections": {
+        "MEDIUM": "print",
+        "METHOD": "print",
+        "SUBJECT": "society",
+        "STYLE": "abstract",
+        "ELEMENTS": "planar",
+        "FUNCTION": "political",
+        "CONTEXT": "public",
+        "HISTORY": "postmodern",
+        "foundation": "bold interference patterns and torn typography colliding across a city wall"
+      }
+    },
+    {
+      "id": "bone-orchard",
+      "title": "Bone Orchard",
+      "description": "Carved organic forms with the weight of prehistoric ritual.",
+      "selections": {
+        "MEDIUM": "sculpture",
+        "METHOD": "carve",
+        "SUBJECT": "figure",
+        "STYLE": "idealized",
+        "ELEMENTS": "organic",
+        "FUNCTION": "ritual",
+        "CONTEXT": "sacred",
+        "HISTORY": "prehistoric",
+        "foundation": "weathered figures emerging from ancient bone and root, gathered in a silent grove"
+      }
+    },
+    {
+      "id": "threadbare-archive",
+      "title": "Threadbare Archive",
+      "description": "Stitched textile documentary — domestic histories recorded in cloth.",
+      "selections": {
+        "MEDIUM": "textile",
+        "METHOD": "stitch",
+        "SUBJECT": "narrative",
+        "STYLE": "naturalist",
+        "ELEMENTS": "layered",
+        "FUNCTION": "documentary",
+        "CONTEXT": "domestic",
+        "HISTORY": "early modern",
+        "foundation": "an embroidered tapestry of everyday rituals, threads fraying into unfinished stories"
+      }
+    },
+    {
+      "id": "chiaroscuro-engine",
+      "title": "Chiaroscuro Engine",
+      "description": "Dramatic light and shadow projected onto an institutional machine dream.",
+      "selections": {
+        "MEDIUM": "installation",
+        "METHOD": "project",
+        "SUBJECT": "object",
+        "STYLE": "surreal",
+        "ELEMENTS": "chiaroscuro",
+        "FUNCTION": "critical",
+        "CONTEXT": "institutional",
+        "HISTORY": "contemporary",
+        "foundation": "a vast mechanical heart projected in stark light and shadow across a museum atrium"
+      }
+    }
+  ]
+}
