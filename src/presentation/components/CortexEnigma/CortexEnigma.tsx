@@ -8,6 +8,7 @@ import { usePromptHistory } from '../../hooks/usePromptHistory';
 import { usePresetTemplates } from '../../hooks/usePresetTemplates';
 import { useLockAxes } from '../../hooks/useLockAxes';
 import { useExpansionIntensity } from '../../hooks/useExpansionIntensity';
+import type { RandomizeBias } from '../../../application/SelectionService';
 import Sidebar from './Sidebar';
 import EdgePanels from './EdgePanels';
 import PromptHistoryDrawer from './PromptHistoryDrawer';
@@ -24,7 +25,9 @@ export default function CortexEnigma() {
   const { templates, saveTemplate, deleteTemplate } = usePresetTemplates();
   const { lockedAxes, toggleLock, lockedCount } = useLockAxes();
   const { intensity, setIntensity } = useExpansionIntensity();
-  const handleRandomize = () => randomize(lockedAxes);
+  const [randomizeBias, setRandomizeBias] = useState<RandomizeBias>('uniform');
+  const handleRandomize = () =>
+    randomize(lockedAxes, randomizeBias, historyEntries.map(e => e.prompt));
   const [autoRotate, setAutoRotate] = useState(false);
   const [effectsEnabled, setEffectsEnabled] = useState(true);
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -104,6 +107,8 @@ export default function CortexEnigma() {
         lockedAxes={lockedAxes}
         onToggleLock={toggleLock}
         lockedCount={lockedCount}
+        randomizeBias={randomizeBias}
+        onToggleRandomizeBias={() => setRandomizeBias(b => (b === 'uniform' ? 'history' : 'uniform'))}
         webGpuAvailable={webGpuAvailable}
         llmBypassed={llmBypassed}
         onToggleLlmBypass={() => setLlmBypassed(v => !v)}
