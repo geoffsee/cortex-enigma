@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { Lock, Unlock } from 'lucide-react';
+import { Lock, MessageSquare, Unlock } from 'lucide-react';
 import { CATEGORIES } from '../../../domain/categories';
 import {
   DEFAULT_EXPANSION_INTENSITY,
@@ -10,6 +10,20 @@ import {
 } from '../../../domain/expansionIntensity';
 import type { DiffSegment } from '../../../domain/promptDiff';
 import type { SelectionState } from '../../../domain/types';
+
+const FEEDBACK_URL = `https://github.com/geoffsee/cortex-enigma/issues/new?${new URLSearchParams({
+  title: '[Feedback] ',
+  body: [
+    '**What were you doing?**',
+    '',
+    '',
+    '**What worked well / what got in the way?**',
+    '',
+    '',
+    '**Which feature is this about?** (e.g. history, templates, axis locks, LLM expansion, diff view, sharing)',
+    '',
+  ].join('\n'),
+}).toString()}`;
 
 type Props = {
   selections: SelectionState;
@@ -281,6 +295,18 @@ export default function Sidebar({
           </ButtonGrid>
         </Section>
       </ScrollArea>
+
+      <Footer>
+        <FeedbackLink
+          href={FEEDBACK_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Send feedback (opens GitHub issue form in a new tab)"
+        >
+          <MessageSquare size={10} aria-hidden="true" />
+          Feedback
+        </FeedbackLink>
+      </Footer>
     </Wrapper>
   );
 }
@@ -705,6 +731,39 @@ const Switch = styled.span<{ $on?: boolean }>`
     border-radius: 50%;
     background: ${({ theme }) => theme.synth.white};
     transition: left 0.15s;
+  }
+`;
+
+const Footer = styled.footer`
+  padding: 8px 22px;
+  border-top: 1px solid ${({ theme }) => theme.synth.panelHeaderBorder};
+  display: flex;
+  justify-content: flex-end;
+`;
+
+const FeedbackLink = styled.a`
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: ${({ theme }) => theme.synth.textDim};
+  transition: color 0.15s;
+
+  &:hover {
+    color: ${({ theme }) => theme.synth.accent};
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.synth.accentStrong};
+    outline-offset: 2px;
+    border-radius: 2px;
   }
 `;
 
