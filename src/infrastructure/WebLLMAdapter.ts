@@ -38,22 +38,6 @@ export class WebLLMAdapter implements ILLMPort {
     }) as unknown as MLCEngineLike;
   }
 
-  async generate(foundation: string, profile: ExpansionProfile): Promise<string> {
-    if (!this.engine) throw new Error('Engine not initialized');
-    const result = await this.engine.chat.completions.create({
-      messages: [
-        { role: 'system', content: systemPrompt(profile.maxWords) },
-        { role: 'user', content: foundation },
-      ],
-      max_tokens: profile.maxTokens,
-      temperature: 0.8,
-    });
-    // stream is not passed, so result is the non-streaming response shape.
-    const reply = result as { choices: Array<{ message: { content: string | null } }> };
-    const text = reply.choices[0].message.content?.trim() ?? '';
-    return text.replace(/^,\s*/, '');
-  }
-
   async generateStream(
     foundation: string,
     profile: ExpansionProfile,

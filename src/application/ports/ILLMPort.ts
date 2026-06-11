@@ -2,7 +2,6 @@ import type { ExpansionProfile } from '../../domain/expansionIntensity';
 
 export interface ILLMPort {
   load(onProgress: (text: string) => void): Promise<void>;
-  generate(foundation: string, profile: ExpansionProfile): Promise<string>;
   generateStream(
     foundation: string,
     profile: ExpansionProfile,

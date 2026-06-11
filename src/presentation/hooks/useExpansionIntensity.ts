@@ -36,11 +36,19 @@ function saveToStorage(intensity: ExpansionIntensity): void {
 }
 
 export function useExpansionIntensity() {
-  const [intensity, setIntensityState] = useState<ExpansionIntensity>(() => loadFromStorage());
+  const [intensity, setIntensityState] = useState<ExpansionIntensity>(DEFAULT_EXPANSION_INTENSITY);
+  const [mounted, setMounted] = useState(false);
+
+  // Hydrate from storage after mount so SSR markup (default intensity) matches the first render.
+  useEffect(() => {
+    setIntensityState(loadFromStorage());
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
+    if (!mounted) return;
     saveToStorage(intensity);
-  }, [intensity]);
+  }, [intensity, mounted]);
 
   const setIntensity = useCallback((value: number) => {
     setIntensityState(clampIntensity(value));
