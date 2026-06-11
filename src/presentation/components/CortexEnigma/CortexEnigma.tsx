@@ -11,6 +11,7 @@ import Sidebar from './Sidebar';
 import EdgePanels from './EdgePanels';
 import PromptHistoryDrawer from './PromptHistoryDrawer';
 import PresetPaletteDrawer from './PresetPaletteDrawer';
+import ConfigTransferDrawer from './ConfigTransferDrawer';
 
 const CortexCanvas = lazy(() => import('./Canvas/CortexCanvas'));
 
@@ -27,6 +28,7 @@ export default function CortexEnigma() {
   const [effectsEnabled, setEffectsEnabled] = useState(true);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [templatesOpen, setTemplatesOpen] = useState(false);
+  const [transferOpen, setTransferOpen] = useState(false);
   const [diffEnabled, setDiffEnabled] = useState(false);
   const [expansionInfo, setExpansionInfo] = useState<ExpansionInfo | null>(null);
   const orbitRef = useRef<{ reset: () => void } | null>(null);
@@ -99,6 +101,7 @@ export default function CortexEnigma() {
         onOpenHistory={() => setHistoryOpen(true)}
         templateCount={templates.length}
         onOpenTemplates={() => setTemplatesOpen(true)}
+        onOpenTransfer={() => setTransferOpen(true)}
         lockedAxes={lockedAxes}
         onToggleLock={toggleLock}
         lockedCount={lockedCount}
@@ -143,6 +146,13 @@ export default function CortexEnigma() {
           onApply={template => applySelections(template.selections)}
           onDelete={deleteTemplate}
           onClose={() => setTemplatesOpen(false)}
+        />
+      )}
+      {transferOpen && (
+        <ConfigTransferDrawer
+          selections={selections}
+          onImport={applySelections}
+          onClose={() => setTransferOpen(false)}
         />
       )}
     </>

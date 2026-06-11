@@ -1,4 +1,7 @@
-import { z } from 'zod';
+// Namespace import: zod's `z` named export is a re-exported namespace that the
+// Bun-based vitest runtime resolves to undefined; `import * as z` works in both
+// the Vite build and tests.
+import * as z from 'zod';
 import { CATEGORIES } from '../domain/categories';
 
 export const SCHEMA_VERSION = 1;

@@ -25,6 +25,7 @@ type Props = {
   onOpenHistory?: () => void;
   templateCount?: number;
   onOpenTemplates?: () => void;
+  onOpenTransfer?: () => void;
   lockedAxes?: ReadonlySet<string>;
   onToggleLock?: (axis: string) => void;
   lockedCount?: number;
@@ -58,6 +59,7 @@ export default function Sidebar({
   onOpenHistory,
   templateCount = 0,
   onOpenTemplates,
+  onOpenTransfer,
   lockedAxes,
   onToggleLock,
   lockedCount = 0,
@@ -197,6 +199,13 @@ export default function Sidebar({
               style={{ gridColumn: 'span 2' }}
             >
               Templates{templateCount > 0 ? ` (${templateCount})` : ''}
+            </Button>
+            <Button
+              onClick={onOpenTransfer}
+              disabled={!onOpenTransfer}
+              style={{ gridColumn: 'span 2' }}
+            >
+              Export / Import
             </Button>
           </ButtonGrid>
         </Section>
