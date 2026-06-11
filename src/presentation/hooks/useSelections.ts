@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { EMPTY_SELECTIONS } from '../../domain/types';
 import type { SelectionState } from '../../domain/types';
 import { toggle, randomize as randomizeSelections, clear, validate } from '../../application/SelectionService';
+import type { RandomizeBias } from '../../application/SelectionService';
 import { LocalStorageAdapter } from '../../infrastructure/LocalStorageAdapter';
 import { UrlHashAdapter } from '../../infrastructure/UrlHashAdapter';
 
@@ -39,8 +40,8 @@ export function useSelections() {
   const handleNegativeChange = (value: string) =>
     setSelections(prev => ({ ...prev, negative: value }));
 
-  const randomize = (lockedAxes?: ReadonlySet<string>) =>
-    setSelections(prev => randomizeSelections(prev, lockedAxes));
+  const randomize = (lockedAxes?: ReadonlySet<string>, bias?: RandomizeBias, historyPrompts?: readonly string[]) =>
+    setSelections(prev => randomizeSelections(prev, lockedAxes, bias, historyPrompts));
 
   const clearAll = () => setSelections(clear());
 

@@ -3,6 +3,7 @@ import { Lock, MessageSquare, Unlock } from 'lucide-react';
 import { CATEGORIES } from '../../../domain/categories';
 import type { DiffSegment } from '../../../domain/promptDiff';
 import type { SelectionState } from '../../../domain/types';
+import type { RandomizeBias } from '../../../application/SelectionService';
 
 const FEEDBACK_URL = `https://github.com/geoffsee/cortex-enigma/issues/new?${new URLSearchParams({
   title: '[Feedback] ',
@@ -47,6 +48,8 @@ type Props = {
   lockedAxes?: ReadonlySet<string>;
   onToggleLock?: (axis: string) => void;
   lockedCount?: number;
+  randomizeBias?: RandomizeBias;
+  onToggleRandomizeBias?: () => void;
   webGpuAvailable?: boolean;
   llmBypassed?: boolean;
   onToggleLlmBypass?: () => void;
@@ -85,6 +88,8 @@ export default function Sidebar({
   lockedAxes,
   onToggleLock,
   lockedCount = 0,
+  randomizeBias = 'uniform',
+  onToggleRandomizeBias,
   webGpuAvailable = true,
   llmBypassed = false,
   onToggleLlmBypass,
@@ -260,6 +265,24 @@ export default function Sidebar({
               Gallery
             </Button>
           </ButtonGrid>
+          {onToggleRandomizeBias && (
+            <ToggleRow
+              style={{ marginTop: 4 }}
+              title={
+                historyCount > 0
+                  ? 'Weight randomize toward options that appear in your recent prompt history'
+                  : 'Copy prompts to history to give this bias something to work from; until then it behaves like uniform random'
+              }
+            >
+              <span>History Bias</span>
+              <input
+                type="checkbox"
+                checked={randomizeBias === 'history'}
+                onChange={onToggleRandomizeBias}
+              />
+              <Switch $on={randomizeBias === 'history'} />
+            </ToggleRow>
+          )}
         </Section>
 
         <Section>

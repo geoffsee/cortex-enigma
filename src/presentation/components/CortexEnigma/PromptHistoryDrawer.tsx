@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import type { HistoryEntry } from '../../../infrastructure/storageSchema';
+import PromptComparePanel from './PromptComparePanel';
 
 type Props = {
   entries: HistoryEntry[];
@@ -20,6 +21,8 @@ function formatTimestamp(ms: number): string {
 
 export default function PromptHistoryDrawer({ entries, onClear, onClose }: Props) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [compareIds, setCompareIds] = useState<string[]>([]);
+  const [comparing, setComparing] = useState(false);
 
   const handleCopy = (entry: HistoryEntry) => {
     navigator.clipboard.writeText(entry.prompt)
@@ -30,14 +33,43 @@ export default function PromptHistoryDrawer({ entries, onClear, onClose }: Props
       .catch(() => { /* permission denied — leave button state unchanged */ });
   };
 
+  const toggleCompare = (id: string) => {
+    setCompareIds(prev => {
+      if (prev.includes(id)) return prev.filter(x => x !== id);
+      if (prev.length >= 2) return [prev[1], id];
+      return [...prev, id];
+    });
+  };
+
+  // Resolve ids against current entries so cleared history can't leave dangling picks.
+  const compareEntries = compareIds
+    .map(id => entries.find(e => e.id === id))
+    .filter((e): e is HistoryEntry => e !== undefined);
+  const canCompare = compareEntries.length === 2;
+
+  const handleClear = () => {
+    setCompareIds([]);
+    setComparing(false);
+    onClear();
+  };
+
   return (
     <Overlay onClick={onClose}>
       <Drawer onClick={e => e.stopPropagation()}>
         <DrawerHeader>
           <DrawerTitle>Prompt History</DrawerTitle>
           <HeaderActions>
+            {compareIds.length > 0 && (
+              <CompareButton
+                onClick={() => setComparing(true)}
+                disabled={!canCompare}
+                aria-label="Compare selected prompts"
+              >
+                Compare ({compareEntries.length}/2)
+              </CompareButton>
+            )}
             {entries.length > 0 && (
-              <ClearButton onClick={onClear}>Clear All</ClearButton>
+              <ClearButton onClick={handleClear}>Clear All</ClearButton>
             )}
             <CloseButton onClick={onClose} aria-label="Close history">×</CloseButton>
           </HeaderActions>
@@ -51,13 +83,23 @@ export default function PromptHistoryDrawer({ entries, onClear, onClose }: Props
               <HistoryItem key={entry.id}>
                 <ItemMeta>
                   <Timestamp>{formatTimestamp(entry.timestamp)}</Timestamp>
-                  <CopyButton
-                    onClick={() => handleCopy(entry)}
-                    $copied={copiedId === entry.id}
-                    aria-label="Copy prompt"
-                  >
-                    {copiedId === entry.id ? 'Copied!' : 'Copy'}
-                  </CopyButton>
+                  <ItemActions>
+                    <SelectButton
+                      onClick={() => toggleCompare(entry.id)}
+                      $selected={compareIds.includes(entry.id)}
+                      aria-pressed={compareIds.includes(entry.id)}
+                      aria-label="Select for comparison"
+                    >
+                      {compareIds.includes(entry.id) ? 'Selected' : 'Select'}
+                    </SelectButton>
+                    <CopyButton
+                      onClick={() => handleCopy(entry)}
+                      $copied={copiedId === entry.id}
+                      aria-label="Copy prompt"
+                    >
+                      {copiedId === entry.id ? 'Copied!' : 'Copy'}
+                    </CopyButton>
+                  </ItemActions>
                 </ItemMeta>
                 <PromptText>{entry.prompt}</PromptText>
               </HistoryItem>
@@ -65,6 +107,13 @@ export default function PromptHistoryDrawer({ entries, onClear, onClose }: Props
           )}
         </DrawerBody>
       </Drawer>
+      {comparing && canCompare && (
+        <PromptComparePanel
+          left={compareEntries[0]}
+          right={compareEntries[1]}
+          onClose={() => setComparing(false)}
+        />
+      )}
     </Overlay>
   );
 }
@@ -206,6 +255,58 @@ const Timestamp = styled.span`
   font-size: 9px;
   color: #666;
   letter-spacing: 0.08em;
+`;
+
+const ItemActions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+`;
+
+const CompareButton = styled.button`
+  background: rgba(160, 32, 240, 0.15);
+  border: 1px solid rgba(160, 32, 240, 0.5);
+  color: #c084fc;
+  border-radius: 3px;
+  padding: 3px 8px;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: default;
+  }
+
+  &:hover:not(:disabled) {
+    border-color: rgba(160, 32, 240, 0.9);
+    background: rgba(160, 32, 240, 0.25);
+  }
+`;
+
+const SelectButton = styled.button<{ $selected: boolean }>`
+  background: ${({ $selected }) =>
+    $selected ? 'rgba(160, 32, 240, 0.3)' : 'rgba(255, 255, 255, 0.04)'};
+  border: 1px solid
+    ${({ $selected }) =>
+    $selected ? 'rgba(160, 32, 240, 0.7)' : 'rgba(255, 255, 255, 0.12)'};
+  color: ${({ $selected }) => ($selected ? '#c084fc' : '#888')};
+  border-radius: 3px;
+  padding: 2px 8px;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+
+  &:hover {
+    border-color: rgba(160, 32, 240, 0.6);
+    color: #c084fc;
+  }
 `;
 
 const CopyButton = styled.button<{ $copied: boolean }>`
