@@ -1,5 +1,7 @@
 import { useState, useRef, useMemo, lazy, Suspense } from 'react';
 import { buildPrompt } from '../../../domain/promptBuilder';
+import { wordBoundaryDiff } from '../../../domain/promptDiff';
+import type { DiffSegment } from '../../../domain/promptDiff';
 import { useSelections } from '../../hooks/useSelections';
 import { usePromptEngine } from '../../hooks/usePromptEngine';
 import { usePromptHistory } from '../../hooks/usePromptHistory';
@@ -9,32 +11,54 @@ import PromptHistoryDrawer from './PromptHistoryDrawer';
 
 const CortexCanvas = lazy(() => import('./Canvas/CortexCanvas'));
 
+type ExpansionInfo = { base: string; expanded: string };
+
 export default function CortexEnigma() {
   const { selections, handleSelect, handleFoundationChange, randomize, clearAll, mounted } = useSelections();
-  const { generate, isGenerating, isModelLoading, loadProgress, error, streamingText } = usePromptEngine();
+  const { generate, isGenerating, isModelLoading, loadProgress, error, streamingText, webGpuAvailable, llmBypassed, setLlmBypassed } = usePromptEngine();
   const { entries: historyEntries, addEntry: addHistoryEntry, clearHistory } = usePromptHistory();
   const [autoRotate, setAutoRotate] = useState(false);
   const [effectsEnabled, setEffectsEnabled] = useState(true);
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [diffEnabled, setDiffEnabled] = useState(false);
+  const [expansionInfo, setExpansionInfo] = useState<ExpansionInfo | null>(null);
   const orbitRef = useRef<{ reset: () => void } | null>(null);
 
   const prompt = useMemo(() => buildPrompt(selections), [selections]);
 
   const displayPrompt = useMemo(() => {
-    if (isModelLoading) return 'LOADING MODEL...';
+    if (!llmBypassed && isModelLoading) return 'LOADING MODEL...';
     if (streamingText !== null) {
       if (!streamingText) return 'GENERATING...';
       return selections.foundation ? `${selections.foundation}, ${streamingText}` : streamingText;
     }
     return prompt;
-  }, [isModelLoading, streamingText, selections.foundation, prompt]);
+  }, [llmBypassed, isModelLoading, streamingText, selections.foundation, prompt]);
 
+  const diffSegments = useMemo((): DiffSegment[] | null => {
+    if (!diffEnabled || llmBypassed || !expansionInfo) return null;
+    return wordBoundaryDiff(expansionInfo.base, expansionInfo.expanded);
+  }, [diffEnabled, llmBypassed, expansionInfo]);
 
   const handleGenerate = async () => {
+    const snapBase = prompt;
     const expansion = await generate(selections.foundation);
     if (expansion) {
-      handleFoundationChange(`${selections.foundation}, ${expansion}`);
+      const newFoundation = `${selections.foundation}, ${expansion}`;
+      handleFoundationChange(newFoundation);
+      const expandedPrompt = buildPrompt({ ...selections, foundation: newFoundation });
+      setExpansionInfo({ base: snapBase, expanded: expandedPrompt });
     }
+  };
+
+  const handleFoundationInput = (val: string) => {
+    setExpansionInfo(null);
+    handleFoundationChange(val);
+  };
+
+  const handleClearAll = () => {
+    setExpansionInfo(null);
+    clearAll();
   };
 
   const handleCopy = () => {
@@ -43,19 +67,21 @@ export default function CortexEnigma() {
     addHistoryEntry(prompt);
   };
 
+  const canToggleDiff = !llmBypassed && expansionInfo !== null;
+
   return (
     <>
       <Sidebar
         selections={selections}
         prompt={prompt}
         onSelect={handleSelect}
-        onFoundationChange={handleFoundationChange}
+        onFoundationChange={handleFoundationInput}
         isGenerating={isGenerating || isModelLoading}
         loadProgress={loadProgress}
         onGenerate={handleGenerate}
         error={error}
         onRandomize={randomize}
-        onClear={clearAll}
+        onClear={handleClearAll}
         onCopy={handleCopy}
         autoRotate={autoRotate}
         onToggleAutoRotate={() => setAutoRotate(v => !v)}
@@ -64,6 +90,13 @@ export default function CortexEnigma() {
         onResetCamera={() => orbitRef.current?.reset()}
         historyCount={historyEntries.length}
         onOpenHistory={() => setHistoryOpen(true)}
+        webGpuAvailable={webGpuAvailable}
+        llmBypassed={llmBypassed}
+        onToggleLlmBypass={() => setLlmBypassed(v => !v)}
+        diffEnabled={diffEnabled}
+        onToggleDiff={() => setDiffEnabled(v => !v)}
+        canToggleDiff={canToggleDiff}
+        diffSegments={diffSegments}
       />
       <EdgePanels selections={selections} onSelect={handleSelect} />
       {mounted && (
@@ -77,6 +110,9 @@ export default function CortexEnigma() {
             autoRotate={autoRotate}
             effectsEnabled={effectsEnabled}
             orbitRef={orbitRef}
+            diffEnabled={diffEnabled}
+            onToggleDiff={() => setDiffEnabled(v => !v)}
+            diffSegments={diffSegments}
           />
         </Suspense>
       )}

@@ -6,11 +6,14 @@ type SynthButtonProps = {
   position: [number, number, number];
   onClick: () => void;
   disabled?: boolean;
+  active?: boolean;
 };
 
-export function SynthButton({ label, position, onClick, disabled }: SynthButtonProps) {
+export function SynthButton({ label, position, onClick, disabled, active }: SynthButtonProps) {
   const [hovered, setHovered] = useState(false);
   const [pressed, setPressed] = useState(false);
+
+  const emissiveColor = active ? '#ff9944' : '#a020f0';
 
   return (
     <group position={position}>
@@ -32,8 +35,8 @@ export function SynthButton({ label, position, onClick, disabled }: SynthButtonP
         <boxGeometry args={[0.88, 0.44, 0.1]} />
         <meshStandardMaterial
           color={disabled ? "#222" : (hovered ? "#3a2045" : "#1a0a22")}
-          emissive={disabled ? "#000" : "#a020f0"}
-          emissiveIntensity={disabled ? 0 : (hovered ? 1.2 : 0.4)}
+          emissive={disabled ? "#000" : emissiveColor}
+          emissiveIntensity={disabled ? 0 : (active || hovered ? 1.2 : 0.4)}
           metalness={0.7}
           roughness={0.35}
         />
@@ -41,7 +44,7 @@ export function SynthButton({ label, position, onClick, disabled }: SynthButtonP
       <Text
         position={[0, 0, pressed ? 0.1 : 0.13]}
         fontSize={0.11}
-        color={disabled ? "#444" : "white"}
+        color={disabled ? "#444" : (active ? "#ffcc88" : "white")}
         anchorX="center"
         anchorY="middle"
         letterSpacing={0.18}
