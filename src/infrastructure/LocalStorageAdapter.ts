@@ -1,6 +1,9 @@
 import type { IStoragePort } from '../application/ports/IStoragePort';
 import type { SelectionState } from '../domain/types';
-import { SCHEMA_VERSION, PersistedEnvelopeSchema } from './storageSchema';
+import {
+  SCHEMA_VERSION,
+  PersistedEnvelopeSchema,
+} from './storageSchema';
 
 const STORAGE_KEY = 'cortex-twister:selections-v2';
 
@@ -31,4 +34,5 @@ export class LocalStorageAdapter implements IStoragePort {
       // ignore quota / privacy-mode errors
     }
   }
+
 }

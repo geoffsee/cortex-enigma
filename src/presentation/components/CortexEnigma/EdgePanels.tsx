@@ -1,11 +1,14 @@
 import { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
+import { Lock, Unlock } from 'lucide-react';
 import { CATEGORIES, CATEGORY_TOOLTIPS } from '../../../domain/categories';
 import type { SelectionState } from '../../../domain/types';
 
 type Props = {
   selections: SelectionState;
   onSelect: (cat: string, val: string) => void;
+  lockedAxes?: ReadonlySet<string>;
+  onToggleLock?: (axis: string) => void;
 };
 
 const TOP_CATS = ['MEDIUM', 'METHOD', 'SUBJECT', 'STYLE'];
@@ -21,7 +24,7 @@ function loadDisclosure(): boolean {
   }
 }
 
-export default function EdgePanels({ selections, onSelect }: Props) {
+export default function EdgePanels({ selections, onSelect, lockedAxes, onToggleLock }: Props) {
   const [advancedExpanded, setAdvancedExpanded] = useState<boolean>(loadDisclosure);
   const [openTooltip, setOpenTooltip] = useState<string | null>(null);
   const touchTimerRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
@@ -78,26 +81,40 @@ export default function EdgePanels({ selections, onSelect }: Props) {
 
   const renderPanel = (cat: string) => {
     const value = selections[cat];
+    const locked = lockedAxes?.has(cat) ?? false;
     const tooltipVisible = openTooltip === cat;
     return (
-      <Panel key={cat}>
+      <Panel key={cat} $locked={locked}>
         <PanelHeader>
-          <TooltipWrapper>
-            <span
-              className="cat"
-              aria-describedby={tooltipVisible ? `tooltip-${cat}` : undefined}
-              onMouseEnter={() => showTooltip(cat)}
-              onMouseLeave={hideTooltip}
-              onTouchStart={() => handleTouchStart(cat)}
-              onTouchEnd={() => handleTouchEnd(cat)}
-              onTouchCancel={() => handleTouchCancel(cat)}
-            >
-              {cat}
-            </span>
-            {tooltipVisible && (
-              <TooltipBubble id={`tooltip-${cat}`} role="tooltip">{CATEGORY_TOOLTIPS[cat]}</TooltipBubble>
+          <CatRow>
+            <TooltipWrapper>
+              <span
+                className="cat"
+                aria-describedby={tooltipVisible ? `tooltip-${cat}` : undefined}
+                onMouseEnter={() => showTooltip(cat)}
+                onMouseLeave={hideTooltip}
+                onTouchStart={() => handleTouchStart(cat)}
+                onTouchEnd={() => handleTouchEnd(cat)}
+                onTouchCancel={() => handleTouchCancel(cat)}
+              >
+                {cat}
+              </span>
+              {tooltipVisible && (
+                <TooltipBubble id={`tooltip-${cat}`} role="tooltip">{CATEGORY_TOOLTIPS[cat]}</TooltipBubble>
+              )}
+            </TooltipWrapper>
+            {onToggleLock && (
+              <EdgeLockBtn
+                type="button"
+                $locked={locked}
+                onClick={() => onToggleLock(cat)}
+                aria-label={locked ? `Unlock ${cat} axis` : `Lock ${cat} axis`}
+                title={locked ? `Unlock ${cat} axis` : `Lock ${cat} axis`}
+              >
+                {locked ? <Lock size={8} /> : <Unlock size={8} />}
+              </EdgeLockBtn>
             )}
-          </TooltipWrapper>
+          </CatRow>
           <span className="val">{value ? value.toUpperCase() : '—'}</span>
         </PanelHeader>
         <Options>
@@ -227,20 +244,44 @@ const DisclosureToggle = styled.button`
   }
 `;
 
-const Panel = styled.div`
+const Panel = styled.div<{ $locked?: boolean }>`
   flex: 1 1 0;
   min-width: 0;
   min-height: 0;
   background: ${({ theme }) => theme.synth.panelBg};
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border: 1px solid ${({ theme }) => theme.synth.accentBase};
+  border: 1px solid
+    ${({ $locked, theme }) => ($locked ? theme.synth.lockBorder : theme.synth.accentBase)};
   border-radius: 4px;
   padding: 10px 12px;
   font-family: ${({ theme }) => theme.fonts.mono};
   display: flex;
   flex-direction: column;
   overflow: hidden;
+`;
+
+const CatRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 5px;
+`;
+
+const EdgeLockBtn = styled.button<{ $locked?: boolean }>`
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: ${({ $locked, theme }) => ($locked ? theme.synth.lockIcon : theme.synth.textFaint)};
+  transition: color 0.12s;
+  line-height: 1;
+
+  &:hover {
+    color: ${({ $locked, theme }) => ($locked ? theme.synth.lockIconHover : theme.synth.textMuted)};
+  }
 `;
 
 const PanelHeader = styled.div`
