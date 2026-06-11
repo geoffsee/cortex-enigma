@@ -59,6 +59,19 @@ Dependency flow: `presentation → application → domain`; infrastructure imple
 
 Pushes to `master` trigger a GitHub Actions workflow that builds the static site and deploys it to GitHub Pages at `/cortex-enigma/`.
 
+## Accessibility
+
+The 3D synth scene is **decorative**: every control it renders (rotary knobs, randomize/copy buttons, the prompt display) has a DOM equivalent in the sidebar or edge panels. The canvas container is marked `aria-hidden="true"`, so assistive technology skips it entirely — the DOM controls are the canonical accessible route.
+
+A keyboard-only user can complete the full flow without a pointer:
+
+1. **Select** — Tab to the category panels along the top and right edges (right-rail axes sit behind the ADVANCED disclosure) and activate options with Enter/Space. Active selections can be cleared per-axis from the sidebar.
+2. **Randomize** — sidebar → Actions → Randomize.
+3. **Generate** — sidebar → Foundation input + GEN button (requires WebGPU).
+4. **Copy** — sidebar → Actions → Copy to Clipboard.
+
+**Decision record (issue #71):** rather than giving the Three.js meshes synthetic focus and ARIA semantics, the DOM path is documented as the supported accessible route and the canvas is hidden from the accessibility tree. The 3D surface duplicates — never extends — the DOM controls, so keeping it pointer-only loses no functionality. Future accessibility reviews should treat this as settled unless the canvas gains a control with no DOM equivalent.
+
 ## Browser Requirements
 
 The in-browser LLM requires **WebGPU** support. Chrome 113+ and Edge 113+ work out of the box. Firefox and Safari do not yet support WebGPU by default. The rest of the app (3D canvas, selection UI) works in any modern browser.
