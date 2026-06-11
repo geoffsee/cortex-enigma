@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { WebLLMAdapter } from '../../infrastructure/WebLLMAdapter';
+import { expansionProfile, type ExpansionIntensity } from '../../domain/expansionIntensity';
 
 export function usePromptEngine() {
   const adapterRef = useRef(new WebLLMAdapter());
@@ -36,13 +37,15 @@ export function usePromptEngine() {
     return () => { cancelled = true; };
   }, [webGpuAvailable]);
 
-  const generate = async (foundation: string): Promise<string | null> => {
+  const generate = async (foundation: string, intensity: ExpansionIntensity): Promise<string | null> => {
     if (llmBypassed || !webGpuAvailable || !foundation) return null;
+    const profile = expansionProfile(intensity);
+    if (!profile) return null; // preserve: skip expansion entirely, same as skip mode
     setIsGenerating(true);
     setError(null);
     setStreamingText('');
     try {
-      const result = await adapterRef.current.generateStream(foundation, (partial) => {
+      const result = await adapterRef.current.generateStream(foundation, profile, (partial) => {
         setStreamingText(partial);
       });
       return result;

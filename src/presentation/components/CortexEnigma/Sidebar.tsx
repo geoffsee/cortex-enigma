@@ -1,6 +1,13 @@
 import styled from 'styled-components';
 import { Lock, Unlock } from 'lucide-react';
 import { CATEGORIES } from '../../../domain/categories';
+import {
+  DEFAULT_EXPANSION_INTENSITY,
+  EXPANSION_INTENSITY_LABELS,
+  EXPANSION_INTENSITY_MAX,
+  EXPANSION_INTENSITY_MIN,
+  type ExpansionIntensity,
+} from '../../../domain/expansionIntensity';
 import type { DiffSegment } from '../../../domain/promptDiff';
 import type { SelectionState } from '../../../domain/types';
 
@@ -31,6 +38,8 @@ type Props = {
   webGpuAvailable?: boolean;
   llmBypassed?: boolean;
   onToggleLlmBypass?: () => void;
+  intensity?: ExpansionIntensity;
+  onIntensityChange?: (value: number) => void;
   diffEnabled?: boolean;
   onToggleDiff?: () => void;
   canToggleDiff?: boolean;
@@ -64,6 +73,8 @@ export default function Sidebar({
   webGpuAvailable = true,
   llmBypassed = false,
   onToggleLlmBypass,
+  intensity = DEFAULT_EXPANSION_INTENSITY,
+  onIntensityChange,
   diffEnabled = false,
   onToggleDiff,
   canToggleDiff = false,
@@ -71,6 +82,8 @@ export default function Sidebar({
 }: Props) {
   const categoryKeys = Object.keys(CATEGORIES);
   const activeCount = Object.values(selections).filter(Boolean).length;
+  const dialEnabled = webGpuAvailable && !llmBypassed && !!onIntensityChange;
+  const preserveActive = dialEnabled && intensity === 0;
 
   return (
     <Wrapper>
@@ -91,11 +104,34 @@ export default function Sidebar({
             />
             <GenerateButton
               onClick={onGenerate}
-              disabled={!selections.foundation || isGenerating || llmBypassed || !webGpuAvailable}
+              disabled={!selections.foundation || isGenerating || llmBypassed || !webGpuAvailable || preserveActive}
             >
               {isGenerating ? '...' : 'GEN'}
             </GenerateButton>
           </InputGroup>
+          {onIntensityChange && (
+            <IntensityGroup $disabled={!dialEnabled}>
+              <IntensityHeader>
+                <span>Expansion Intensity</span>
+                <IntensityValue>{EXPANSION_INTENSITY_LABELS[intensity]}</IntensityValue>
+              </IntensityHeader>
+              <IntensitySlider
+                type="range"
+                min={EXPANSION_INTENSITY_MIN}
+                max={EXPANSION_INTENSITY_MAX}
+                step={1}
+                value={intensity}
+                disabled={!dialEnabled}
+                onChange={(e) => onIntensityChange(Number(e.target.value))}
+                aria-label="Expansion intensity"
+                aria-valuetext={EXPANSION_INTENSITY_LABELS[intensity]}
+              />
+              <IntensityEnds>
+                <span>Preserve</span>
+                <span>Elaborate</span>
+              </IntensityEnds>
+            </IntensityGroup>
+          )}
           {!webGpuAvailable && (
             <LlmStatusBadge $variant="unavailable">
               ⚠ LLM UNAVAILABLE — WEBGPU NOT SUPPORTED
@@ -104,6 +140,11 @@ export default function Sidebar({
           {webGpuAvailable && llmBypassed && (
             <LlmStatusBadge $variant="bypassed">
               LLM EXPANSION BYPASSED
+            </LlmStatusBadge>
+          )}
+          {preserveActive && (
+            <LlmStatusBadge $variant="bypassed">
+              EXPANSION PRESERVED — DIAL AT MINIMUM
             </LlmStatusBadge>
           )}
           {loadProgress && isGenerating && !error && (
@@ -367,6 +408,57 @@ const GenerateButton = styled.button`
     outline: 2px solid ${({ theme }) => theme.synth.accentStrong};
     outline-offset: 2px;
   }
+`;
+
+const IntensityGroup = styled.div<{ $disabled?: boolean }>`
+  margin-top: 10px;
+  opacity: ${({ $disabled }) => ($disabled ? 0.4 : 1)};
+`;
+
+const IntensityHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: ${({ theme }) => theme.synth.textMuted};
+  margin-bottom: 6px;
+`;
+
+const IntensityValue = styled.span`
+  color: ${({ theme }) => theme.synth.accent};
+  font-weight: 600;
+`;
+
+const IntensitySlider = styled.input`
+  width: 100%;
+  margin: 0;
+  accent-color: ${({ theme }) => theme.synth.accentStrong};
+  cursor: pointer;
+
+  &:disabled {
+    cursor: not-allowed;
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.synth.accentStrong};
+    outline-offset: 2px;
+  }
+`;
+
+const IntensityEnds = styled.div`
+  display: flex;
+  justify-content: space-between;
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: ${({ theme }) => theme.synth.textFaint};
+  margin-top: 2px;
 `;
 
 const ErrorMessage = styled.div`

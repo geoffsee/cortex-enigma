@@ -53,3 +53,11 @@ export const TemplatesEnvelopeSchema = z.object({
   version: z.literal(TEMPLATES_SCHEMA_VERSION),
   templates: z.array(TemplateRecordSchema),
 });
+
+export const INTENSITY_SCHEMA_VERSION = 1;
+export const INTENSITY_KEY = 'cortex-enigma:expansion-intensity-v1';
+
+export const IntensityEnvelopeSchema = z.object({
+  version: z.literal(INTENSITY_SCHEMA_VERSION),
+  intensity: z.number().int().min(0).max(3),
+});
