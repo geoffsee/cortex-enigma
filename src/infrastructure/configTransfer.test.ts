@@ -11,11 +11,20 @@ describe('serializeConfig / parseConfig', () => {
       MEDIUM: CATEGORIES.MEDIUM[0],
       SUBJECT: CATEGORIES.SUBJECT[0],
       foundation: 'a misty harbor',
+      negative: 'blurry, watermark',
     };
     const json = serializeConfig(selections);
     expect(JSON.parse(json).version).toBe(SCHEMA_VERSION);
     const result = parseConfig(json);
     expect(result).toEqual({ ok: true, selections });
+  });
+
+  it('imports a pre-negative-layer payload by defaulting negative to empty', () => {
+    const legacySelections: Record<string, string> = { ...EMPTY_SELECTIONS };
+    delete legacySelections.negative;
+    const json = JSON.stringify({ version: SCHEMA_VERSION, selections: legacySelections });
+    const result = parseConfig(json);
+    expect(result).toEqual({ ok: true, selections: EMPTY_SELECTIONS });
   });
 
   it('rejects text that is not JSON', () => {

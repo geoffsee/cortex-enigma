@@ -23,6 +23,8 @@ export const SelectionStateSchema = z.object({
   CONTEXT: categoryValue(CATEGORIES.CONTEXT),
   HISTORY: categoryValue(CATEGORIES.HISTORY),
   foundation: z.string(),
+  // Default keeps pre-negative-layer payloads (storage, hashes, exports) importable.
+  negative: z.string().default(''),
 });
 
 export const PersistedEnvelopeSchema = z.object({
