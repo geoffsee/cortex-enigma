@@ -7,8 +7,11 @@ import type { SelectionState } from '../../../domain/types';
 type Props = {
   selections: SelectionState;
   prompt: string;
+  negativePrompt: string;
   onSelect: (cat: string, val: string) => void;
   onFoundationChange: (val: string) => void;
+  onNegativeChange: (val: string) => void;
+  onCopyNegative: () => void;
   onRandomize: () => void;
   onClear: () => void;
   onCopy: () => void;
@@ -42,8 +45,11 @@ type Props = {
 export default function Sidebar({
   selections,
   prompt,
+  negativePrompt,
   onSelect,
   onFoundationChange,
+  onNegativeChange,
+  onCopyNegative,
   onRandomize,
   onClear,
   onCopy,
@@ -74,7 +80,8 @@ export default function Sidebar({
   diffSegments,
 }: Props) {
   const categoryKeys = Object.keys(CATEGORIES);
-  const activeCount = Object.values(selections).filter(Boolean).length;
+  const activeCount = categoryKeys.filter((cat) => selections[cat]).length;
+  const hasAnyValue = Object.values(selections).some(Boolean);
 
   return (
     <Wrapper>
@@ -114,6 +121,16 @@ export default function Sidebar({
             <LoadingProgress>{loadProgress}</LoadingProgress>
           )}
           {error && <ErrorMessage>{error}</ErrorMessage>}
+        </Section>
+
+        <Section>
+          <SectionTitle>Negative Prompt</SectionTitle>
+          <Input
+            aria-label="Negative prompt terms"
+            placeholder="Terms to exclude (e.g. blurry, watermark)..."
+            value={selections.negative}
+            onChange={(e) => onNegativeChange(e.target.value)}
+          />
         </Section>
 
         <Section>
@@ -174,6 +191,18 @@ export default function Sidebar({
               prompt || 'Select options to generate a prompt...'
             )}
           </PromptBox>
+          {negativePrompt && (
+            <>
+              <NegativeLabel>Negative</NegativeLabel>
+              <NegativePromptBox>{negativePrompt}</NegativePromptBox>
+              <Button
+                onClick={onCopyNegative}
+                style={{ width: '100%', marginTop: 6 }}
+              >
+                Copy Negative
+              </Button>
+            </>
+          )}
         </Section>
 
         <Section>
@@ -182,7 +211,7 @@ export default function Sidebar({
             <Button $primary onClick={onRandomize} title={lockedCount > 0 ? `${lockedCount} axis${lockedCount === 1 ? '' : 'es'} locked` : undefined}>
               {lockedCount > 0 ? `Randomize (${lockedCount} locked)` : 'Randomize'}
             </Button>
-            <Button onClick={onClear} disabled={activeCount === 0}>
+            <Button onClick={onClear} disabled={!hasAnyValue}>
               Clear All
             </Button>
             <Button onClick={onCopy} disabled={!prompt} style={{ gridColumn: 'span 2' }}>
@@ -510,6 +539,27 @@ const PromptBox = styled.div<{ $empty?: boolean }>`
   color: ${({ $empty, theme }) => ($empty ? theme.synth.textEmpty : theme.synth.textPrimary)};
   font-style: ${({ $empty }) => ($empty ? 'italic' : 'normal')};
   min-height: 60px;
+  word-break: break-word;
+  white-space: pre-wrap;
+`;
+
+const NegativeLabel = styled.h3`
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: ${({ theme }) => theme.synth.errorColor};
+  margin: 10px 0 6px;
+  font-weight: 600;
+`;
+
+const NegativePromptBox = styled.div`
+  background: ${({ theme }) => theme.synth.errorBg};
+  border: 1px solid ${({ theme }) => theme.synth.errorBorder};
+  border-radius: 4px;
+  padding: 12px;
+  font-size: 11px;
+  line-height: 1.6;
+  color: ${({ theme }) => theme.synth.textPrimary};
   word-break: break-word;
   white-space: pre-wrap;
 `;

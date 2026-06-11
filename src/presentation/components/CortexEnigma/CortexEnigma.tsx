@@ -1,5 +1,5 @@
 import { useState, useRef, useMemo, lazy, Suspense } from 'react';
-import { buildPrompt } from '../../../domain/promptBuilder';
+import { buildPrompt, buildNegativePrompt } from '../../../domain/promptBuilder';
 import { wordBoundaryDiff } from '../../../domain/promptDiff';
 import type { DiffSegment } from '../../../domain/promptDiff';
 import { useSelections } from '../../hooks/useSelections';
@@ -20,7 +20,7 @@ const CortexCanvas = lazy(() => import('./Canvas/CortexCanvas'));
 type ExpansionInfo = { base: string; expanded: string };
 
 export default function CortexEnigma() {
-  const { selections, handleSelect, handleFoundationChange, randomize, clearAll, applySelections, mounted } = useSelections();
+  const { selections, handleSelect, handleFoundationChange, handleNegativeChange, randomize, clearAll, applySelections, mounted } = useSelections();
   const { generate, isGenerating, isModelLoading, loadProgress, error, streamingText, webGpuAvailable, llmBypassed, setLlmBypassed } = usePromptEngine();
   const { entries: historyEntries, addEntry: addHistoryEntry, clearHistory } = usePromptHistory();
   const { templates, saveTemplate, deleteTemplate } = usePresetTemplates();
@@ -37,6 +37,7 @@ export default function CortexEnigma() {
   const orbitRef = useRef<{ reset: () => void } | null>(null);
 
   const prompt = useMemo(() => buildPrompt(selections), [selections]);
+  const negativePrompt = useMemo(() => buildNegativePrompt(selections), [selections]);
 
   const displayPrompt = useMemo(() => {
     if (!llmBypassed && isModelLoading) return 'LOADING MODEL...';
@@ -79,6 +80,11 @@ export default function CortexEnigma() {
     addHistoryEntry(prompt);
   };
 
+  const handleCopyNegative = () => {
+    if (!negativePrompt) return;
+    navigator.clipboard.writeText(negativePrompt).catch(() => { /* permission denied */ });
+  };
+
   const canToggleDiff = !llmBypassed && expansionInfo !== null;
 
   return (
@@ -88,6 +94,9 @@ export default function CortexEnigma() {
         prompt={prompt}
         onSelect={handleSelect}
         onFoundationChange={handleFoundationInput}
+        negativePrompt={negativePrompt}
+        onNegativeChange={handleNegativeChange}
+        onCopyNegative={handleCopyNegative}
         isGenerating={isGenerating || isModelLoading}
         loadProgress={loadProgress}
         onGenerate={handleGenerate}

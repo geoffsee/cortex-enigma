@@ -24,10 +24,12 @@ export interface SelectionState {
   CONTEXT: string;
   HISTORY: string;
   foundation: string;
+  negative: string;
 }
 
 export const EMPTY_SELECTIONS: SelectionState = {
   MEDIUM: '', METHOD: '', SUBJECT: '', STYLE: '',
   ELEMENTS: '', FUNCTION: '', CONTEXT: '', HISTORY: '',
   foundation: '',
+  negative: '',
 };

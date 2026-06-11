@@ -14,3 +14,7 @@ export function buildPrompt(selections: SelectionState): string {
   ].filter(Boolean);
   return parts.join(', ');
 }
+
+export function buildNegativePrompt(selections: SelectionState): string {
+  return selections.negative.trim();
+}

@@ -25,7 +25,7 @@ function formatTimestamp(ms: number): string {
 
 function selectionSummary(selections: SelectionState): string {
   const active = Object.entries(selections)
-    .filter(([k, v]) => k !== 'foundation' && v)
+    .filter(([k, v]) => k !== 'foundation' && k !== 'negative' && v)
     .map(([, v]) => v);
   if (active.length === 0) return 'No axes selected';
   return active.join(', ');
