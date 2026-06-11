@@ -90,9 +90,18 @@ export default function EdgePanels({ selections, onSelect, lockedAxes, onToggleL
             <TooltipWrapper>
               <span
                 className="cat"
+                tabIndex={0}
                 aria-describedby={tooltipVisible ? `tooltip-${cat}` : undefined}
                 onMouseEnter={() => showTooltip(cat)}
                 onMouseLeave={hideTooltip}
+                onFocus={(e) => {
+                  // only show for keyboard focus, preserving the touch long-press behavior
+                  if (e.target.matches(':focus-visible')) showTooltip(cat);
+                }}
+                onBlur={hideTooltip}
+                onKeyDown={(e) => {
+                  if (e.key === 'Escape') hideTooltip();
+                }}
                 onTouchStart={() => handleTouchStart(cat)}
                 onTouchEnd={() => handleTouchEnd(cat)}
                 onTouchCancel={() => handleTouchCancel(cat)}
@@ -124,6 +133,7 @@ export default function EdgePanels({ selections, onSelect, lockedAxes, onToggleL
               <Option
                 key={opt}
                 $active={active}
+                aria-pressed={active}
                 onClick={() => onSelect(cat, opt)}
               >
                 {opt}
@@ -282,6 +292,16 @@ const EdgeLockBtn = styled.button<{ $locked?: boolean }>`
   &:hover {
     color: ${({ $locked, theme }) => ($locked ? theme.synth.lockIconHover : theme.synth.textMuted)};
   }
+
+  &:focus {
+    outline: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.synth.accentStrong};
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
 `;
 
 const PanelHeader = styled.div`
@@ -298,6 +318,16 @@ const PanelHeader = styled.div`
     font-weight: 600;
     cursor: default;
     user-select: none;
+
+    &:focus {
+      outline: none;
+    }
+
+    &:focus-visible {
+      outline: 2px solid ${({ theme }) => theme.synth.accentStrong};
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
   }
   & .val {
     display: block;

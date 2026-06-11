@@ -480,6 +480,16 @@ const LockBtn = styled.button<{ $locked?: boolean }>`
   &:hover {
     color: ${({ $locked, theme }) => ($locked ? theme.synth.lockIconHover : theme.synth.textMuted)};
   }
+
+  &:focus {
+    outline: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.synth.accentStrong};
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
 `;
 
 const PromptBox = styled.div<{ $empty?: boolean }>`
