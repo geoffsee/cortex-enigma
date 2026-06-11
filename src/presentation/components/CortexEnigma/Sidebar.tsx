@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import { Lock, Unlock } from 'lucide-react';
 import { CATEGORIES } from '../../../domain/categories';
+import type { DiffSegment } from '../../../domain/promptDiff';
 import type { SelectionState } from '../../../domain/types';
 
 type Props = {
@@ -27,6 +28,13 @@ type Props = {
   lockedAxes?: ReadonlySet<string>;
   onToggleLock?: (axis: string) => void;
   lockedCount?: number;
+  webGpuAvailable?: boolean;
+  llmBypassed?: boolean;
+  onToggleLlmBypass?: () => void;
+  diffEnabled?: boolean;
+  onToggleDiff?: () => void;
+  canToggleDiff?: boolean;
+  diffSegments?: DiffSegment[] | null;
 };
 
 export default function Sidebar({
@@ -53,6 +61,13 @@ export default function Sidebar({
   lockedAxes,
   onToggleLock,
   lockedCount = 0,
+  webGpuAvailable = true,
+  llmBypassed = false,
+  onToggleLlmBypass,
+  diffEnabled = false,
+  onToggleDiff,
+  canToggleDiff = false,
+  diffSegments,
 }: Props) {
   const categoryKeys = Object.keys(CATEGORIES);
   const activeCount = Object.values(selections).filter(Boolean).length;
@@ -76,11 +91,21 @@ export default function Sidebar({
             />
             <GenerateButton
               onClick={onGenerate}
-              disabled={!selections.foundation || isGenerating}
+              disabled={!selections.foundation || isGenerating || llmBypassed || !webGpuAvailable}
             >
               {isGenerating ? '...' : 'GEN'}
             </GenerateButton>
           </InputGroup>
+          {!webGpuAvailable && (
+            <LlmStatusBadge $variant="unavailable">
+              ⚠ LLM UNAVAILABLE — WEBGPU NOT SUPPORTED
+            </LlmStatusBadge>
+          )}
+          {webGpuAvailable && llmBypassed && (
+            <LlmStatusBadge $variant="bypassed">
+              LLM EXPANSION BYPASSED
+            </LlmStatusBadge>
+          )}
           {loadProgress && isGenerating && !error && (
             <LoadingProgress>{loadProgress}</LoadingProgress>
           )}
@@ -135,7 +160,15 @@ export default function Sidebar({
         <Section>
           <SectionTitle>Generated Prompt</SectionTitle>
           <PromptBox $empty={!prompt}>
-            {prompt || 'Select options to generate a prompt...'}
+            {diffEnabled && diffSegments ? (
+              diffSegments.map((seg, i) => (
+                <span key={i} style={{ color: seg.added ? '#ff9944' : undefined }}>
+                  {seg.text}
+                </span>
+              ))
+            ) : (
+              prompt || 'Select options to generate a prompt...'
+            )}
           </PromptBox>
         </Section>
 
@@ -170,6 +203,26 @@ export default function Sidebar({
 
         <Section>
           <SectionTitle>View</SectionTitle>
+          <ToggleRow $disabled={!webGpuAvailable}>
+            <span>LLM Expansion</span>
+            <input
+              type="checkbox"
+              checked={webGpuAvailable && !llmBypassed}
+              onChange={onToggleLlmBypass}
+              disabled={!webGpuAvailable}
+            />
+            <Switch $on={webGpuAvailable && !llmBypassed} />
+          </ToggleRow>
+          <ToggleRow $disabled={!canToggleDiff}>
+            <span>Expansion Diff</span>
+            <input
+              type="checkbox"
+              checked={diffEnabled && canToggleDiff}
+              onChange={onToggleDiff}
+              disabled={!canToggleDiff}
+            />
+            <Switch $on={diffEnabled && canToggleDiff} />
+          </ToggleRow>
           <ToggleRow>
             <span>Auto-Rotate</span>
             <input type="checkbox" checked={autoRotate} onChange={onToggleAutoRotate} />
@@ -483,17 +536,39 @@ const Button = styled.button<{ $primary?: boolean }>`
   }
 `;
 
-const ToggleRow = styled.label`
+const LlmStatusBadge = styled.div<{ $variant: 'unavailable' | 'bypassed' }>`
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-top: 8px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  line-height: 1.4;
+  background: ${({ $variant, theme }) =>
+    $variant === 'unavailable'
+      ? 'rgba(255, 160, 0, 0.1)'
+      : theme.synth.accentSubtle};
+  color: ${({ $variant }) =>
+    $variant === 'unavailable' ? '#ffa000' : '#c084fc'};
+  border: 1px solid
+    ${({ $variant }) =>
+      $variant === 'unavailable'
+        ? 'rgba(255, 160, 0, 0.3)'
+        : 'rgba(192, 132, 252, 0.3)'};
+`;
+
+const ToggleRow = styled.label<{ $disabled?: boolean }>`
   position: relative;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 8px 0;
-  cursor: pointer;
+  cursor: ${({ $disabled }) => ($disabled ? 'not-allowed' : 'pointer')};
   font-size: 11px;
   letter-spacing: 0.08em;
-  color: ${({ theme }) => theme.synth.textToggle};
+  color: ${({ $disabled, theme }) => ($disabled ? theme.synth.textInactive : theme.synth.textToggle)};
   border-bottom: 1px solid ${({ theme }) => theme.synth.subtleBg};
+  opacity: ${({ $disabled }) => ($disabled ? 0.5 : 1)};
 
   &:last-of-type {
     border-bottom: none;

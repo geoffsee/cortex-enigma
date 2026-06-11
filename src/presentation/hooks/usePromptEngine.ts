@@ -3,14 +3,17 @@ import { WebLLMAdapter } from '../../infrastructure/WebLLMAdapter';
 
 export function usePromptEngine() {
   const adapterRef = useRef(new WebLLMAdapter());
+  const gpuAvailable = WebLLMAdapter.isWebGPUAvailable();
+  const [webGpuAvailable] = useState(gpuAvailable);
+  const [llmBypassed, setLlmBypassed] = useState(!gpuAvailable);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isModelLoading, setIsModelLoading] = useState(false);
   const [loadProgress, setLoadProgress] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [streamingText, setStreamingText] = useState<string | null>(null);
 
-  // Load the model on mount; no dependency on hydrated selections.
   useEffect(() => {
+    if (!webGpuAvailable) return;
     let cancelled = false;
     const loadModel = async () => {
       setIsModelLoading(true);
@@ -31,10 +34,10 @@ export function usePromptEngine() {
     };
     loadModel();
     return () => { cancelled = true; };
-  }, []);
+  }, [webGpuAvailable]);
 
   const generate = async (foundation: string): Promise<string | null> => {
-    if (!foundation) return null;
+    if (llmBypassed || !webGpuAvailable || !foundation) return null;
     setIsGenerating(true);
     setError(null);
     setStreamingText('');
@@ -53,5 +56,15 @@ export function usePromptEngine() {
     }
   };
 
-  return { generate, isGenerating, isModelLoading, loadProgress, error, streamingText };
+  return {
+    generate,
+    isGenerating,
+    isModelLoading,
+    loadProgress,
+    error,
+    streamingText,
+    webGpuAvailable,
+    llmBypassed,
+    setLlmBypassed,
+  };
 }
