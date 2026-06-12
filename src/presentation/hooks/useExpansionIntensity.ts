@@ -40,7 +40,9 @@ export function useExpansionIntensity() {
   const [mounted, setMounted] = useState(false);
 
   // Hydrate from storage after mount so SSR markup (default intensity) matches the first render.
+  // localStorage is unavailable during SSR, so a lazy useState initializer would cause a hydration mismatch.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional post-mount hydration, same pattern as useSelections
     setIntensityState(loadFromStorage());
     setMounted(true);
   }, []);
