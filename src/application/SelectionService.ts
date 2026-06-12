@@ -40,7 +40,9 @@ export function randomize(
   historyPrompts: readonly string[] = [],
   rng: () => number = Math.random,
 ): SelectionState {
-  const result: SelectionState = { ...EMPTY_SELECTIONS };
+  // Negative terms are quality constraints orthogonal to the creative axes,
+  // so randomizing must not wipe them.
+  const result: SelectionState = { ...EMPTY_SELECTIONS, negative: currentState.negative };
   const useHistory = bias === 'history' && historyPrompts.length > 0;
   for (const cat of Object.keys(CATEGORIES)) {
     if (lockedAxes?.has(cat)) {

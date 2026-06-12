@@ -18,6 +18,8 @@ import { loadGalleryEntries } from '../../../infrastructure/gallery';
 
 const CortexCanvas = lazy(() => import('./Canvas/CortexCanvas'));
 
+const GALLERY_ENTRIES = loadGalleryEntries();
+
 type ExpansionInfo = { base: string; expanded: string };
 
 export default function CortexEnigma() {
@@ -175,7 +177,7 @@ export default function CortexEnigma() {
       )}
       {galleryOpen && (
         <PromptGalleryDrawer
-          entries={loadGalleryEntries()}
+          entries={GALLERY_ENTRIES}
           onApply={applySelections}
           onClose={() => setGalleryOpen(false)}
         />

@@ -25,7 +25,7 @@ export default function ConfigTransferDrawer({ selections, onImport, onClose }: 
     a.href = url;
     a.download = EXPORT_FILENAME;
     a.click();
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), 0);
   };
 
   const applyText = (text: string) => {
@@ -50,7 +50,7 @@ export default function ConfigTransferDrawer({ selections, onImport, onClose }: 
 
   return (
     <Overlay onClick={onClose}>
-      <Drawer onClick={e => e.stopPropagation()}>
+      <Drawer onClick={e => e.stopPropagation()} aria-label="Export and import">
         <DrawerHeader>
           <DrawerTitle>Export / Import</DrawerTitle>
           <CloseButton onClick={onClose} aria-label="Close export and import">×</CloseButton>

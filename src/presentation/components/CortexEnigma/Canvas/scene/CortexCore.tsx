@@ -2,6 +2,7 @@ import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Float, MeshDistortMaterial, Points, PointMaterial } from '@react-three/drei';
 import * as THREE from 'three';
+import { CATEGORIES } from '../../../../../domain/categories';
 import type { SelectionState } from '../../../../../domain/types';
 
 function CoreGlow({ activeCount }: { activeCount: number }) {
@@ -35,7 +36,7 @@ function CoreGlow({ activeCount }: { activeCount: number }) {
 
 export function CortexCore({ selections }: { selections: SelectionState }) {
   const meshRef = useRef<THREE.Mesh>(null!);
-  const activeCount = Object.values(selections).filter(Boolean).length;
+  const activeCount = Object.keys(CATEGORIES).filter(cat => selections[cat]).length;
 
   useFrame((state) => {
     const time = state.clock.getElapsedTime();
