@@ -7,6 +7,7 @@ import { usePromptEngine } from '../../hooks/usePromptEngine';
 import { usePromptHistory } from '../../hooks/usePromptHistory';
 import { usePresetTemplates } from '../../hooks/usePresetTemplates';
 import { useLockAxes } from '../../hooks/useLockAxes';
+import { useExpansionIntensity } from '../../hooks/useExpansionIntensity';
 import type { RandomizeBias } from '../../../application/SelectionService';
 import Sidebar from './Sidebar';
 import EdgePanels from './EdgePanels';
@@ -23,6 +24,7 @@ export default function CortexEnigma() {
   const { entries: historyEntries, addEntry: addHistoryEntry, clearHistory } = usePromptHistory();
   const { templates, saveTemplate, deleteTemplate } = usePresetTemplates();
   const { lockedAxes, toggleLock, lockedCount } = useLockAxes();
+  const { intensity, setIntensity } = useExpansionIntensity();
   const [randomizeBias, setRandomizeBias] = useState<RandomizeBias>('uniform');
   const handleRandomize = () =>
     randomize(lockedAxes, randomizeBias, historyEntries.map(e => e.prompt));
@@ -52,7 +54,7 @@ export default function CortexEnigma() {
 
   const handleGenerate = async () => {
     const snapBase = prompt;
-    const expansion = await generate(selections.foundation);
+    const expansion = await generate(selections.foundation, intensity);
     if (expansion) {
       const newFoundation = `${selections.foundation}, ${expansion}`;
       handleFoundationChange(newFoundation);
@@ -110,6 +112,8 @@ export default function CortexEnigma() {
         webGpuAvailable={webGpuAvailable}
         llmBypassed={llmBypassed}
         onToggleLlmBypass={() => setLlmBypassed(v => !v)}
+        intensity={intensity}
+        onIntensityChange={setIntensity}
         diffEnabled={diffEnabled}
         onToggleDiff={() => setDiffEnabled(v => !v)}
         canToggleDiff={canToggleDiff}
