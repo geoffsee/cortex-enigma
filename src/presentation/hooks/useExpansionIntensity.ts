@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import {
   clampIntensity,
   DEFAULT_EXPANSION_INTENSITY,
@@ -36,21 +36,18 @@ function saveToStorage(intensity: ExpansionIntensity): void {
 }
 
 export function useExpansionIntensity() {
-  // Adapter-behind-ref mirrors useSelections; storage is an external system the
-  // effects synchronize with, not derivable render state.
-  const storageRef = useRef({ load: loadFromStorage, save: saveToStorage });
   const [intensity, setIntensityState] = useState<ExpansionIntensity>(DEFAULT_EXPANSION_INTENSITY);
   const [mounted, setMounted] = useState(false);
 
   // Hydrate from storage after mount so SSR markup (default intensity) matches the first render.
   useEffect(() => {
-    setIntensityState(storageRef.current.load());
+    setIntensityState(loadFromStorage());
     setMounted(true);
   }, []);
 
   useEffect(() => {
     if (!mounted) return;
-    storageRef.current.save(intensity);
+    saveToStorage(intensity);
   }, [intensity, mounted]);
 
   const setIntensity = useCallback((value: number) => {
