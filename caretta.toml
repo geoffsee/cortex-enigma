@@ -5,7 +5,7 @@ command = ["bun", "run", "test"]
 format_command = ["bun", "run", "format"]
 
 [agent_models]
-claude  = "claude-fable-5"
+claude  = "claude-opus-4-8"
 
 #[security_scan]
 #paths = [
