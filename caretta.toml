@@ -1,10 +1,12 @@
 project_name = "bevy-osc-app"
 
+geodynamo-url = "https://geoffsee.github.io/geodynamo/"
+
 [test]
 command = ["bun", "run", "test"]
 format_command = ["bun", "run", "format"]
 
-geodynamo-url = "https://geoffsee.github.io/geodynamo/"
+
 
 [agent_models]
 claude  = "claude-opus-4-8"
