@@ -13,10 +13,10 @@ Interactive AI image prompt generator with a 3D visual interface. Deployed as a 
 ## Commands
 
 ```bash
-npm run dev       # dev server with HMR
-npm run build     # tsc + SSR pre-render (node prerender.mjs)
-npm run lint      # ESLint
-npm run preview   # preview production build
+bun run dev       # dev server with HMR
+bun run build     # tsc + SSR pre-render (node prerender.mjs)
+bun run lint      # ESLint
+bun run preview   # preview production build
 ```
 
 No test suite is configured.
