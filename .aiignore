@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+
+# Build artifacts
+dist/
+dist-ssr/
+
+# Tool caches and incremental outputs
+.vite/
+.cache/
+.eslintcache
+*.tsbuildinfo
+
+# Logs and temp files
+logs/
+*.log
+tmp/
+temp/
+
+# OS/editor noise
+.DS_Store
+.idea/
+.vscode/
