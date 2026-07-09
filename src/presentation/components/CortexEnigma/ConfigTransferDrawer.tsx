@@ -120,15 +120,15 @@ const Drawer = styled.aside`
   width: 360px;
   max-width: 90vw;
   height: 100%;
-  background: rgba(8, 8, 14, 0.96);
+  background: ${({ theme }) => theme.synth.panelBg};
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border-left: 1px solid rgba(160, 32, 240, 0.3);
+  border-left: 1px solid ${({ theme }) => theme.synth.accentBase};
   display: flex;
   flex-direction: column;
-  font-family: ui-monospace, Consolas, monospace;
+  font-family: ${({ theme }) => theme.fonts.mono};
   font-size: 12px;
-  color: #e5e4e7;
+  color: ${({ theme }) => theme.synth.textPrimary};
   animation: ${slideIn} 0.2s ease-out;
 `;
 
@@ -137,7 +137,7 @@ const DrawerHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 18px 20px;
-  border-bottom: 1px solid rgba(160, 32, 240, 0.2);
+  border-bottom: 1px solid ${({ theme }) => theme.synth.panelHeaderBorder};
   flex-shrink: 0;
 `;
 
@@ -145,7 +145,7 @@ const DrawerTitle = styled.h2`
   font-size: 11px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: #c084fc;
+  color: ${({ theme }) => theme.synth.accent};
   margin: 0;
   font-weight: 600;
 `;
@@ -153,7 +153,7 @@ const DrawerTitle = styled.h2`
 const CloseButton = styled.button`
   background: none;
   border: none;
-  color: #888;
+  color: ${({ theme }) => theme.synth.textMuted};
   font-size: 20px;
   line-height: 1;
   cursor: pointer;
@@ -165,7 +165,7 @@ const CloseButton = styled.button`
   justify-content: center;
 
   &:hover {
-    color: #fff;
+    color: ${({ theme }) => theme.synth.white};
   }
 `;
 
@@ -184,7 +184,7 @@ const DrawerBody = styled.div`
     background: transparent;
   }
   &::-webkit-scrollbar-thumb {
-    background: rgba(160, 32, 240, 0.3);
+    background: ${({ theme }) => theme.synth.scrollbarThumb};
     border-radius: 3px;
   }
 `;
@@ -193,7 +193,7 @@ const SectionLabel = styled.h3`
   font-size: 9px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: #c084fc;
+  color: ${({ theme }) => theme.synth.accent};
   margin: 0;
   font-weight: 600;
 `;
@@ -201,14 +201,14 @@ const SectionLabel = styled.h3`
 const Hint = styled.p`
   margin: 0;
   font-size: 10px;
-  color: #888;
+  color: ${({ theme }) => theme.synth.textMuted};
   line-height: 1.5;
 `;
 
 const ActionButton = styled.button`
-  background: rgba(160, 32, 240, 0.25);
-  border: 1px solid rgba(160, 32, 240, 0.5);
-  color: #c084fc;
+  background: ${({ theme }) => theme.synth.accentBase};
+  border: 1px solid ${({ theme }) => theme.synth.accentStrong};
+  color: ${({ theme }) => theme.synth.accent};
   border-radius: 4px;
   padding: 8px 14px;
   font-size: 10px;
@@ -220,8 +220,8 @@ const ActionButton = styled.button`
   transition: all 0.15s;
 
   &:hover:not(:disabled) {
-    background: rgba(160, 32, 240, 0.4);
-    border-color: rgba(160, 32, 240, 0.8);
+    background: ${({ theme }) => theme.synth.accentMed};
+    border-color: ${({ theme }) => theme.synth.accentHover};
   }
 
   &:disabled {
@@ -235,39 +235,39 @@ const HiddenFileInput = styled.input`
 `;
 
 const PasteArea = styled.textarea`
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(160, 32, 240, 0.3);
+  background: ${({ theme }) => theme.synth.inputBg};
+  border: 1px solid ${({ theme }) => theme.synth.accentBase};
   border-radius: 4px;
   padding: 8px 10px;
   font-size: 10px;
-  color: #e5e4e7;
+  color: ${({ theme }) => theme.synth.textPrimary};
   font-family: inherit;
   resize: vertical;
   line-height: 1.5;
 
   &::placeholder {
-    color: #555;
+    color: ${({ theme }) => theme.synth.textEmpty};
   }
 
   &:focus {
     outline: none;
-    border-color: rgba(160, 32, 240, 0.7);
+    border-color: ${({ theme }) => theme.synth.accentStrong};
   }
 `;
 
 const ErrorMessage = styled.div`
-  color: #ff4081;
+  color: ${({ theme }) => theme.synth.errorColor};
   font-size: 10px;
   padding: 6px 10px;
-  background: rgba(255, 64, 129, 0.08);
-  border: 1px solid rgba(255, 64, 129, 0.4);
+  background: ${({ theme }) => theme.synth.errorBg};
+  border: 1px solid ${({ theme }) => theme.synth.errorBorder};
   border-radius: 4px;
   line-height: 1.5;
 `;
 
 const Divider = styled.hr`
   border: none;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid ${({ theme }) => theme.synth.subtleBorder};
   margin: 8px 0;
   width: 100%;
 `;
