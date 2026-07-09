@@ -1,0 +1,63 @@
+import { describe, it, expect } from 'vitest';
+import { serializeConfig, parseConfig } from './configTransfer';
+import { SCHEMA_VERSION } from './storageSchema';
+import { CATEGORIES } from '../domain/categories';
+import { EMPTY_SELECTIONS } from '../domain/types';
+
+describe('serializeConfig / parseConfig', () => {
+  it('round-trips the selection state through a versioned envelope', () => {
+    const selections = {
+      ...EMPTY_SELECTIONS,
+      MEDIUM: CATEGORIES.MEDIUM[0],
+      SUBJECT: CATEGORIES.SUBJECT[0],
+      foundation: 'a misty harbor',
+    };
+    const json = serializeConfig(selections);
+    expect(JSON.parse(json).version).toBe(SCHEMA_VERSION);
+    const result = parseConfig(json);
+    expect(result).toEqual({ ok: true, selections });
+  });
+
+  it('rejects text that is not JSON', () => {
+    const result = parseConfig('not json at all');
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error).toMatch(/config file/i);
+  });
+
+  it('rejects JSON that is not an object', () => {
+    expect(parseConfig('42').ok).toBe(false);
+    expect(parseConfig('"hello"').ok).toBe(false);
+    expect(parseConfig('null').ok).toBe(false);
+  });
+
+  it('rejects a payload from a newer schema version with a distinct message', () => {
+    const json = JSON.stringify({
+      version: SCHEMA_VERSION + 1,
+      selections: EMPTY_SELECTIONS,
+    });
+    const result = parseConfig(json);
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error).toMatch(/newer version/i);
+  });
+
+  it('rejects an envelope missing the version field', () => {
+    const result = parseConfig(JSON.stringify({ selections: EMPTY_SELECTIONS }));
+    expect(result.ok).toBe(false);
+  });
+
+  it('rejects selections with values outside the known categories', () => {
+    const json = JSON.stringify({
+      version: SCHEMA_VERSION,
+      selections: { ...EMPTY_SELECTIONS, MEDIUM: 'NOT_A_REAL_OPTION' },
+    });
+    expect(parseConfig(json).ok).toBe(false);
+  });
+
+  it('rejects an envelope with missing selection keys', () => {
+    const json = JSON.stringify({
+      version: SCHEMA_VERSION,
+      selections: { MEDIUM: '' },
+    });
+    expect(parseConfig(json).ok).toBe(false);
+  });
+});
