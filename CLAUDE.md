@@ -66,7 +66,32 @@ src/
   main.tsx
   entry-server.tsx        # SSR entry point
 prerender.mjs             # Builds client + SSR bundles, generates static HTML
+.agents/skills/           # OpenAI-compatible agent skills (art domain knowledge)
 ```
+
+## Agent Skills
+
+Domain knowledge for prompt composition lives in `.agents/skills/` as [Agent Skills](https://agentskills.io/specification) (OpenAI Codex–compatible). Each skill is a directory with a `SKILL.md` and optional `references/`.
+
+### How to use
+
+1. **Match the task** — read a skill's `SKILL.md` only when the work touches that skill's scope (see table below). Do not preload all skills or reference files into context.
+2. **Progressive disclosure** — `SKILL.md` holds instructions and navigation; load `references/` files inside a skill only when you need the full taxonomy or matrix.
+3. **Authority order** — for UI knob values and tooltips, `src/domain/categories.ts` wins. Skills explain *why* and *what else exists*; they are not a drop-in replacement for `CATEGORIES`.
+4. **Cross-skill order** — start with `cortex-prompt-axes` for code changes; use `visual-art-framework` for conceptual framing; use `art-types-taxonomy` when expanding vocabulary beyond the curated axes.
+
+### When to load which skill
+
+| Skill | Path | Load when |
+|-------|------|-----------|
+| `cortex-prompt-axes` | `.agents/skills/cortex-prompt-axes/` | Editing `categories.ts`, `promptBuilder.ts`, `CATEGORY_TOOLTIPS`, LLM expansion prompts, or reviewing composed prompt quality |
+| `art-types-taxonomy` | `.agents/skills/art-types-taxonomy/` | Proposing new axis values, mapping user terms to axes, or evaluating art-history vs production-pipeline vocabulary |
+| `visual-art-framework` | `.agents/skills/visual-art-framework/` | Reasoning about why the eight axes exist, validating dimensional coverage, or analyzing artwork/prompt structure at a conceptual level |
+
+### Reference files (load on demand)
+
+- `.agents/skills/art-types-taxonomy/references/art-types-index.txt` — full art classification tree
+- `.agents/skills/cortex-prompt-axes/references/compatibility-matrix.txt` — per-axis allowed values (baseline; `categories.ts` may extend STYLE and ELEMENTS)
 
 ## Deployment
 

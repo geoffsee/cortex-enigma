@@ -3,8 +3,8 @@ project_name = "cortex-enigma"
 geodynamo-url = "https://geoffsee.github.io/geodynamo/"
 
 [test]
-command = ["bun", "run", "test"]
-format_command = ["bun", "run", "format"]
+command = ["sh", "-c", "bun install && bun run test"]
+format_command = ["sh", "-c", "bun install && bun run format"]
 
 
 
