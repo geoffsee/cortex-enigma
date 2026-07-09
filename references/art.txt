@@ -1,1 +1,0 @@
-VISUAL ART = media + form + subject + method + context + history + display + interpretation
