@@ -48,6 +48,7 @@ type Props = {
   templateCount?: number;
   onOpenTemplates?: () => void;
   onOpenTransfer?: () => void;
+  onOpenSweep?: () => void;
   lockedAxes?: ReadonlySet<string>;
   onToggleLock?: (axis: string) => void;
   lockedCount?: number;
@@ -86,6 +87,7 @@ export default function Sidebar({
   templateCount = 0,
   onOpenTemplates,
   onOpenTransfer,
+  onOpenSweep,
   lockedAxes,
   onToggleLock,
   lockedCount = 0,
@@ -266,6 +268,14 @@ export default function Sidebar({
               style={{ gridColumn: 'span 2' }}
             >
               Export / Import
+            </Button>
+            <Button
+              onClick={onOpenSweep}
+              disabled={!onOpenSweep}
+              style={{ gridColumn: 'span 2' }}
+              title="Emit one prompt per value of a chosen axis, holding all other selections fixed"
+            >
+              Axis Sweep
             </Button>
           </ButtonGrid>
           {onToggleRandomizeBias && (

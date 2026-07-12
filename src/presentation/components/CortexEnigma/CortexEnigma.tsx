@@ -14,6 +14,7 @@ import EdgePanels from './EdgePanels';
 import PromptHistoryDrawer from './PromptHistoryDrawer';
 import PresetPaletteDrawer from './PresetPaletteDrawer';
 import ConfigTransferDrawer from './ConfigTransferDrawer';
+import PromptSweepPanel from './PromptSweepPanel';
 
 const CortexCanvas = lazy(() => import('./Canvas/CortexCanvas'));
 
@@ -34,6 +35,7 @@ export default function CortexEnigma() {
   const [historyOpen, setHistoryOpen] = useState(false);
   const [templatesOpen, setTemplatesOpen] = useState(false);
   const [transferOpen, setTransferOpen] = useState(false);
+  const [sweepOpen, setSweepOpen] = useState(false);
   const [diffEnabled, setDiffEnabled] = useState(false);
   const [expansionInfo, setExpansionInfo] = useState<ExpansionInfo | null>(null);
   const orbitRef = useRef<{ reset: () => void } | null>(null);
@@ -107,6 +109,7 @@ export default function CortexEnigma() {
         templateCount={templates.length}
         onOpenTemplates={() => setTemplatesOpen(true)}
         onOpenTransfer={() => setTransferOpen(true)}
+        onOpenSweep={() => setSweepOpen(true)}
         lockedAxes={lockedAxes}
         onToggleLock={toggleLock}
         lockedCount={lockedCount}
@@ -162,6 +165,12 @@ export default function CortexEnigma() {
           selections={selections}
           onImport={applySelections}
           onClose={() => setTransferOpen(false)}
+        />
+      )}
+      {sweepOpen && (
+        <PromptSweepPanel
+          selections={selections}
+          onClose={() => setSweepOpen(false)}
         />
       )}
     </>
