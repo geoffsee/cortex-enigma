@@ -64,3 +64,11 @@ export const IntensityEnvelopeSchema = z.object({
   version: z.literal(INTENSITY_SCHEMA_VERSION),
   intensity: z.number().int().min(0).max(3),
 });
+
+export const DIALECT_SCHEMA_VERSION = 1;
+export const DIALECT_KEY = 'cortex-enigma:prompt-dialect-v1';
+
+export const DialectEnvelopeSchema = z.object({
+  version: z.literal(DIALECT_SCHEMA_VERSION),
+  dialect: z.string(),
+});

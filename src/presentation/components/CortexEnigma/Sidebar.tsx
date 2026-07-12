@@ -10,6 +10,12 @@ import {
   type ExpansionIntensity,
 } from '../../../domain/expansionIntensity';
 import type { DiffSegment } from '../../../domain/promptDiff';
+import {
+  DEFAULT_DIALECT,
+  PROMPT_DIALECTS,
+  dialectDescription,
+  type DialectId,
+} from '../../../domain/promptDialects';
 import type { SelectionState } from '../../../domain/types';
 import type { RandomizeBias } from '../../../application/SelectionService';
 
@@ -60,6 +66,8 @@ type Props = {
   onToggleLlmBypass?: () => void;
   intensity?: ExpansionIntensity;
   onIntensityChange?: (value: number) => void;
+  dialect?: DialectId;
+  onDialectChange?: (value: string) => void;
   diffEnabled?: boolean;
   onToggleDiff?: () => void;
   canToggleDiff?: boolean;
@@ -99,6 +107,8 @@ export default function Sidebar({
   onToggleLlmBypass,
   intensity = DEFAULT_EXPANSION_INTENSITY,
   onIntensityChange,
+  dialect = DEFAULT_DIALECT,
+  onDialectChange,
   diffEnabled = false,
   onToggleDiff,
   canToggleDiff = false,
@@ -108,6 +118,8 @@ export default function Sidebar({
   const activeCount = Object.values(selections).filter(Boolean).length;
   const [negativeOpen, setNegativeOpen] = useState(false);
   const showNegative = negativeOpen || !!selections.negative;
+  const [dialectOpen, setDialectOpen] = useState(false);
+  const showDialect = dialectOpen || dialect !== DEFAULT_DIALECT;
   const dialEnabled = webGpuAvailable && !llmBypassed && !!onIntensityChange;
   const preserveActive = dialEnabled && intensity === 0;
 
@@ -259,6 +271,37 @@ export default function Sidebar({
               prompt || 'Select options to generate a prompt...'
             )}
           </PromptBox>
+          {onDialectChange && (
+            <>
+              <DisclosureButton
+                type="button"
+                onClick={() => setDialectOpen((o) => !o)}
+                aria-expanded={showDialect}
+                aria-controls="dialect-select"
+                style={{ marginTop: 10 }}
+              >
+                <SectionTitle as="span">Output Dialect</SectionTitle>
+                <DisclosureIcon>{showDialect ? '−' : '+'}</DisclosureIcon>
+              </DisclosureButton>
+              {showDialect && (
+                <>
+                  <DialectSelect
+                    id="dialect-select"
+                    aria-label="Output dialect"
+                    value={dialect}
+                    onChange={(e) => onDialectChange(e.target.value)}
+                  >
+                    {PROMPT_DIALECTS.map((d) => (
+                      <option key={d.id} value={d.id}>
+                        {d.label}
+                      </option>
+                    ))}
+                  </DialectSelect>
+                  <DialectHint>{dialectDescription(dialect)}</DialectHint>
+                </>
+              )}
+            </>
+          )}
         </Section>
 
         <Section>
@@ -516,6 +559,35 @@ const NegativeInput = styled.textarea`
     outline: 2px solid ${({ theme }) => theme.synth.accentStrong};
     outline-offset: 2px;
   }
+`;
+
+const DialectSelect = styled.select`
+  width: 100%;
+  margin-top: 10px;
+  background: ${({ theme }) => theme.synth.inputBg};
+  border: 1px solid ${({ theme }) => theme.synth.accentBase};
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 11px;
+  color: ${({ theme }) => theme.synth.white};
+  font-family: inherit;
+  cursor: pointer;
+
+  &:focus {
+    border-color: ${({ theme }) => theme.synth.accentStrong};
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.synth.accentStrong};
+    outline-offset: 2px;
+  }
+`;
+
+const DialectHint = styled.p`
+  margin: 6px 0 0;
+  font-size: 9px;
+  line-height: 1.5;
+  color: ${({ theme }) => theme.synth.textMuted};
 `;
 
 const GenerateButton = styled.button`
