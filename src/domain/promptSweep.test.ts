@@ -21,6 +21,7 @@ describe('buildAxisSweep', () => {
   it('overrides an existing value on the swept axis', () => {
     const base = { ...EMPTY_SELECTIONS, STYLE: 'realist' };
     const columns = buildAxisSweep(base, 'STYLE');
-    expect(columns.map(c => c.prompt)).toEqual(CATEGORIES.STYLE.map(v => v));
+    // Other selections are empty, so each prompt collapses to the swept STYLE value.
+    expect(columns.map(c => c.prompt)).toEqual(CATEGORIES.STYLE);
   });
 });

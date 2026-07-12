@@ -22,12 +22,12 @@ export default function PromptSweepPanel({ selections, onClose }: Props) {
           <CloseButton onClick={onClose} aria-label="Close axis sweep">×</CloseButton>
         </PanelHeader>
 
-        <AxisPicker role="tablist" aria-label="Sweep axis">
+        <AxisPicker role="radiogroup" aria-label="Sweep axis">
           {CATEGORY_NAMES.map(name => (
             <AxisTab
               key={name}
-              role="tab"
-              aria-selected={name === axis}
+              role="radio"
+              aria-checked={name === axis}
               $active={name === axis}
               onClick={() => setAxis(name)}
             >
@@ -76,16 +76,16 @@ const Panel = styled.section`
   width: 900px;
   max-width: 94vw;
   max-height: 84vh;
-  background: rgba(8, 8, 14, 0.96);
+  background: ${({ theme }) => theme.synth.panelBg};
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(160, 32, 240, 0.3);
+  border: 1px solid ${({ theme }) => theme.synth.accentBase};
   border-radius: 6px;
   display: flex;
   flex-direction: column;
-  font-family: ui-monospace, Consolas, monospace;
+  font-family: ${({ theme }) => theme.fonts.mono};
   font-size: 12px;
-  color: #e5e4e7;
+  color: ${({ theme }) => theme.synth.textPrimary};
   animation: ${fadeIn} 0.2s ease-out;
 `;
 
@@ -94,7 +94,7 @@ const PanelHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 16px 20px;
-  border-bottom: 1px solid rgba(160, 32, 240, 0.2);
+  border-bottom: 1px solid ${({ theme }) => theme.synth.accentBorderLight};
   flex-shrink: 0;
 `;
 
@@ -102,7 +102,7 @@ const PanelTitle = styled.h2`
   font-size: 11px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: #c084fc;
+  color: ${({ theme }) => theme.synth.accent};
   margin: 0;
   font-weight: 600;
 `;
@@ -110,7 +110,7 @@ const PanelTitle = styled.h2`
 const CloseButton = styled.button`
   background: none;
   border: none;
-  color: #888;
+  color: ${({ theme }) => theme.synth.textMuted};
   font-size: 20px;
   line-height: 1;
   cursor: pointer;
@@ -122,7 +122,7 @@ const CloseButton = styled.button`
   justify-content: center;
 
   &:hover {
-    color: #fff;
+    color: ${({ theme }) => theme.synth.white};
   }
 `;
 
@@ -131,17 +131,17 @@ const AxisPicker = styled.div`
   flex-wrap: wrap;
   gap: 6px;
   padding: 14px 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid ${({ theme }) => theme.synth.subtleBorder};
   flex-shrink: 0;
 `;
 
 const AxisTab = styled.button<{ $active: boolean }>`
-  background: ${({ $active }) =>
-    $active ? 'rgba(160, 32, 240, 0.28)' : 'rgba(255, 255, 255, 0.04)'};
+  background: ${({ $active, theme }) =>
+    $active ? theme.synth.accentOptionBg : theme.synth.subtleBg};
   border: 1px solid
-    ${({ $active }) =>
-      $active ? 'rgba(160, 32, 240, 0.7)' : 'rgba(255, 255, 255, 0.12)'};
-  color: ${({ $active }) => ($active ? '#c084fc' : '#888')};
+    ${({ $active, theme }) =>
+      $active ? theme.synth.accentHover : theme.synth.subtleButtonBorder};
+  color: ${({ $active, theme }) => ($active ? theme.synth.accent : theme.synth.textMuted)};
   border-radius: 3px;
   padding: 4px 9px;
   font-size: 9px;
@@ -152,8 +152,8 @@ const AxisTab = styled.button<{ $active: boolean }>`
   transition: all 0.15s;
 
   &:hover {
-    border-color: rgba(160, 32, 240, 0.6);
-    color: #c084fc;
+    border-color: ${({ theme }) => theme.synth.accentStrong};
+    color: ${({ theme }) => theme.synth.accent};
   }
 `;
 
@@ -172,7 +172,7 @@ const Columns = styled.div`
     background: transparent;
   }
   &::-webkit-scrollbar-thumb {
-    background: rgba(160, 32, 240, 0.3);
+    background: ${({ theme }) => theme.synth.scrollbarThumb};
     border-radius: 3px;
   }
 `;
@@ -183,11 +183,11 @@ const Column = styled.div<{ $current: boolean }>`
   overflow-y: auto;
   padding: 12px;
   border: 1px solid
-    ${({ $current }) =>
-      $current ? 'rgba(160, 32, 240, 0.5)' : 'rgba(255, 255, 255, 0.08)'};
+    ${({ $current, theme }) =>
+      $current ? theme.synth.accentStrong : theme.synth.subtleButtonBorder};
   border-radius: 4px;
-  background: ${({ $current }) =>
-    $current ? 'rgba(160, 32, 240, 0.08)' : 'rgba(255, 255, 255, 0.02)'};
+  background: ${({ $current, theme }) =>
+    $current ? theme.synth.accentSubtle : theme.synth.subtleBg};
 
   &::-webkit-scrollbar {
     width: 5px;
@@ -196,7 +196,7 @@ const Column = styled.div<{ $current: boolean }>`
     background: transparent;
   }
   &::-webkit-scrollbar-thumb {
-    background: rgba(160, 32, 240, 0.3);
+    background: ${({ theme }) => theme.synth.scrollbarThumb};
     border-radius: 3px;
   }
 `;
@@ -213,7 +213,7 @@ const ColumnValue = styled.span<{ $current: boolean }>`
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: ${({ $current }) => ($current ? '#d8b4fe' : '#c084fc')};
+  color: ${({ $current, theme }) => ($current ? '#d8b4fe' : theme.synth.accent)};
 `;
 
 const CurrentTag = styled.span`
@@ -221,7 +221,7 @@ const CurrentTag = styled.span`
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: #d8b4fe;
-  border: 1px solid rgba(160, 32, 240, 0.5);
+  border: 1px solid ${({ theme }) => theme.synth.accentStrong};
   border-radius: 3px;
   padding: 1px 4px;
 `;
@@ -230,7 +230,7 @@ const PromptText = styled.p`
   margin: 0;
   font-size: 11px;
   line-height: 1.6;
-  color: #ccc;
+  color: ${({ theme }) => theme.synth.textToggle};
   word-break: break-word;
   white-space: pre-wrap;
 `;
@@ -238,13 +238,13 @@ const PromptText = styled.p`
 const Legend = styled.p`
   margin: 0;
   padding: 10px 20px 14px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid ${({ theme }) => theme.synth.subtleBorder};
   font-size: 9px;
-  color: #666;
+  color: ${({ theme }) => theme.synth.textFaint};
   letter-spacing: 0.06em;
   flex-shrink: 0;
 
   strong {
-    color: #c084fc;
+    color: ${({ theme }) => theme.synth.accent};
   }
 `;
