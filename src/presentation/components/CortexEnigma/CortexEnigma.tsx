@@ -9,6 +9,8 @@ import { usePresetTemplates } from '../../hooks/usePresetTemplates';
 import { useLockAxes } from '../../hooks/useLockAxes';
 import { useExpansionIntensity } from '../../hooks/useExpansionIntensity';
 import type { RandomizeBias } from '../../../application/SelectionService';
+import { EXPANSION_RECIPES, matchExpansionRecipe } from '../../../application/expansionRecipes';
+import type { ExpansionRecipe } from '../../../application/expansionRecipes';
 import Sidebar from './Sidebar';
 import EdgePanels from './EdgePanels';
 import PromptHistoryDrawer from './PromptHistoryDrawer';
@@ -29,6 +31,11 @@ export default function CortexEnigma() {
   const [randomizeBias, setRandomizeBias] = useState<RandomizeBias>('uniform');
   const handleRandomize = () =>
     randomize(lockedAxes, randomizeBias, historyEntries.map(e => e.prompt));
+  const activeRecipeId = matchExpansionRecipe(intensity, randomizeBias)?.id ?? null;
+  const handleSelectRecipe = (recipe: ExpansionRecipe) => {
+    setIntensity(recipe.intensity);
+    setRandomizeBias(recipe.bias);
+  };
   const [autoRotate, setAutoRotate] = useState(false);
   const [effectsEnabled, setEffectsEnabled] = useState(true);
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -117,6 +124,9 @@ export default function CortexEnigma() {
         onToggleLlmBypass={() => setLlmBypassed(v => !v)}
         intensity={intensity}
         onIntensityChange={setIntensity}
+        recipes={EXPANSION_RECIPES}
+        activeRecipeId={activeRecipeId}
+        onSelectRecipe={handleSelectRecipe}
         diffEnabled={diffEnabled}
         onToggleDiff={() => setDiffEnabled(v => !v)}
         canToggleDiff={canToggleDiff}
