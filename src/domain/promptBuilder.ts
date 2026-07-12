@@ -12,5 +12,9 @@ export function buildPrompt(selections: SelectionState): string {
     selections.METHOD ? `made via ${selections.METHOD}` : '',
     selections.CONTEXT ? `in a ${selections.CONTEXT} context` : '',
   ].filter(Boolean);
-  return parts.join(', ');
+  const positive = parts.join(', ');
+  const negative = selections.negative.trim();
+  if (!negative) return positive;
+  const suffix = `Negative prompt: ${negative}`;
+  return positive ? `${positive}\n${suffix}` : suffix;
 }

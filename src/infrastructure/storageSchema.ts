@@ -20,6 +20,9 @@ export const SelectionStateSchema = z.object({
   CONTEXT: categoryValue(CATEGORIES.CONTEXT),
   HISTORY: categoryValue(CATEGORIES.HISTORY),
   foundation: z.string(),
+  // Optional with a default so v1 configs exported before the negative-prompt
+  // layer still import cleanly under the same schema version.
+  negative: z.string().default(''),
 });
 
 export const PersistedEnvelopeSchema = z.object({

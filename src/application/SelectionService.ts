@@ -66,7 +66,7 @@ export function validate(raw: unknown): SelectionState {
   for (const key of Object.keys(EMPTY_SELECTIONS)) {
     const value = parsed[key];
     if (typeof value === 'string') {
-      if (key === 'foundation') {
+      if (key === 'foundation' || key === 'negative') {
         result[key] = value;
       } else if (value === '' || CATEGORIES[key]?.includes(value)) {
         result[key] = value;

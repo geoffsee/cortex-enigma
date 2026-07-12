@@ -37,6 +37,9 @@ export function useSelections() {
   const handleFoundationChange = (value: string) =>
     setSelections(prev => ({ ...prev, foundation: value }));
 
+  const handleNegativeChange = (value: string) =>
+    setSelections(prev => ({ ...prev, negative: value }));
+
   const randomize = (lockedAxes?: ReadonlySet<string>, bias?: RandomizeBias, historyPrompts?: readonly string[]) =>
     setSelections(prev => randomizeSelections(prev, lockedAxes, bias, historyPrompts));
 
@@ -45,5 +48,5 @@ export function useSelections() {
   const applySelections = (state: SelectionState) =>
     setSelections(validate(state));
 
-  return { selections, handleSelect, handleFoundationChange, randomize, clearAll, applySelections, mounted };
+  return { selections, handleSelect, handleFoundationChange, handleNegativeChange, randomize, clearAll, applySelections, mounted };
 }

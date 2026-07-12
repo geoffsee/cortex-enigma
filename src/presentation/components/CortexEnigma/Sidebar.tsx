@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import styled from 'styled-components';
 import { Lock, MessageSquare, Unlock } from 'lucide-react';
 import { CATEGORIES } from '../../../domain/categories';
@@ -31,6 +32,7 @@ type Props = {
   prompt: string;
   onSelect: (cat: string, val: string) => void;
   onFoundationChange: (val: string) => void;
+  onNegativeChange: (val: string) => void;
   onRandomize: () => void;
   onClear: () => void;
   onCopy: () => void;
@@ -69,6 +71,7 @@ export default function Sidebar({
   prompt,
   onSelect,
   onFoundationChange,
+  onNegativeChange,
   onRandomize,
   onClear,
   onCopy,
@@ -103,6 +106,8 @@ export default function Sidebar({
 }: Props) {
   const categoryKeys = Object.keys(CATEGORIES);
   const activeCount = Object.values(selections).filter(Boolean).length;
+  const [negativeOpen, setNegativeOpen] = useState(false);
+  const showNegative = negativeOpen || !!selections.negative;
   const dialEnabled = webGpuAvailable && !llmBypassed && !!onIntensityChange;
   const preserveActive = dialEnabled && intensity === 0;
 
@@ -172,6 +177,28 @@ export default function Sidebar({
             <LoadingProgress>{loadProgress}</LoadingProgress>
           )}
           {error && <ErrorMessage>{error}</ErrorMessage>}
+        </Section>
+
+        <Section>
+          <DisclosureButton
+            type="button"
+            onClick={() => setNegativeOpen((o) => !o)}
+            aria-expanded={showNegative}
+            aria-controls="negative-prompt-input"
+          >
+            <SectionTitle as="span">Negative Prompt</SectionTitle>
+            <DisclosureIcon>{showNegative ? '−' : '+'}</DisclosureIcon>
+          </DisclosureButton>
+          {showNegative && (
+            <NegativeInput
+              id="negative-prompt-input"
+              aria-label="Negative prompt"
+              placeholder="Terms to steer away from (e.g. blurry, text, watermark)…"
+              value={selections.negative}
+              onChange={(e) => onNegativeChange(e.target.value)}
+              rows={2}
+            />
+          )}
         </Section>
 
         <Section>
@@ -426,6 +453,60 @@ const Input = styled.input`
   font-size: 11px;
   color: ${({ theme }) => theme.synth.white};
   font-family: inherit;
+
+  &:focus {
+    border-color: ${({ theme }) => theme.synth.accentStrong};
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.synth.accentStrong};
+    outline-offset: 2px;
+  }
+`;
+
+const DisclosureButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 0 0 4px;
+  cursor: pointer;
+  font-family: inherit;
+
+  &:focus {
+    outline: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.synth.accentStrong};
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+`;
+
+const DisclosureIcon = styled.span`
+  color: ${({ theme }) => theme.synth.accent};
+  font-size: 13px;
+  line-height: 1;
+`;
+
+const NegativeInput = styled.textarea`
+  width: 100%;
+  background: ${({ theme }) => theme.synth.inputBg};
+  border: 1px solid ${({ theme }) => theme.synth.accentBase};
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 11px;
+  color: ${({ theme }) => theme.synth.white};
+  font-family: inherit;
+  resize: vertical;
+  line-height: 1.5;
+
+  &::placeholder {
+    color: ${({ theme }) => theme.synth.textEmpty};
+  }
 
   &:focus {
     border-color: ${({ theme }) => theme.synth.accentStrong};

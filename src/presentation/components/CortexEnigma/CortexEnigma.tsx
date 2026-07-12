@@ -20,7 +20,7 @@ const CortexCanvas = lazy(() => import('./Canvas/CortexCanvas'));
 type ExpansionInfo = { base: string; expanded: string };
 
 export default function CortexEnigma() {
-  const { selections, handleSelect, handleFoundationChange, randomize, clearAll, applySelections, mounted } = useSelections();
+  const { selections, handleSelect, handleFoundationChange, handleNegativeChange, randomize, clearAll, applySelections, mounted } = useSelections();
   const { generate, isGenerating, isModelLoading, loadProgress, error, streamingText, webGpuAvailable, llmBypassed, setLlmBypassed } = usePromptEngine();
   const { entries: historyEntries, addEntry: addHistoryEntry, clearHistory } = usePromptHistory();
   const { templates, saveTemplate, deleteTemplate } = usePresetTemplates();
@@ -90,6 +90,7 @@ export default function CortexEnigma() {
         prompt={prompt}
         onSelect={handleSelect}
         onFoundationChange={handleFoundationInput}
+        onNegativeChange={handleNegativeChange}
         isGenerating={isGenerating || isModelLoading}
         loadProgress={loadProgress}
         onGenerate={handleGenerate}
