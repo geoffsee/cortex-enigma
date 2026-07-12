@@ -20,7 +20,7 @@ const CortexCanvas = lazy(() => import('./Canvas/CortexCanvas'));
 type ExpansionInfo = { base: string; expanded: string };
 
 export default function CortexEnigma() {
-  const { selections, handleSelect, handleFoundationChange, randomize, clearAll, applySelections, mounted } = useSelections();
+  const { selections, handleSelect, handleFoundationChange, randomize, clearAll, applySelections, getShareableUrl, mounted } = useSelections();
   const { generate, isGenerating, isModelLoading, loadProgress, error, streamingText, webGpuAvailable, llmBypassed, setLlmBypassed } = usePromptEngine();
   const { entries: historyEntries, addEntry: addHistoryEntry, clearHistory } = usePromptHistory();
   const { templates, saveTemplate, deleteTemplate } = usePresetTemplates();
@@ -35,6 +35,7 @@ export default function CortexEnigma() {
   const [templatesOpen, setTemplatesOpen] = useState(false);
   const [transferOpen, setTransferOpen] = useState(false);
   const [diffEnabled, setDiffEnabled] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
   const [expansionInfo, setExpansionInfo] = useState<ExpansionInfo | null>(null);
   const orbitRef = useRef<{ reset: () => void } | null>(null);
 
@@ -81,6 +82,18 @@ export default function CortexEnigma() {
     addHistoryEntry(prompt);
   };
 
+  const handleCopyLink = () => {
+    const url = getShareableUrl();
+    if (!url || !navigator.clipboard) return;
+    navigator.clipboard
+      .writeText(url)
+      .then(() => {
+        setLinkCopied(true);
+        setTimeout(() => setLinkCopied(false), 2000);
+      })
+      .catch(() => { /* permission denied — no-op */ });
+  };
+
   const canToggleDiff = !llmBypassed && expansionInfo !== null;
 
   return (
@@ -97,6 +110,8 @@ export default function CortexEnigma() {
         onRandomize={handleRandomize}
         onClear={handleClearAll}
         onCopy={handleCopy}
+        onCopyLink={handleCopyLink}
+        linkCopied={linkCopied}
         autoRotate={autoRotate}
         onToggleAutoRotate={() => setAutoRotate(v => !v)}
         effectsEnabled={effectsEnabled}
