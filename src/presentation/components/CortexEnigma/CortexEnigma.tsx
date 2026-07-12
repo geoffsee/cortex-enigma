@@ -8,7 +8,7 @@ import { usePromptHistory } from '../../hooks/usePromptHistory';
 import { usePresetTemplates } from '../../hooks/usePresetTemplates';
 import { useLockAxes } from '../../hooks/useLockAxes';
 import { useExpansionIntensity } from '../../hooks/useExpansionIntensity';
-import type { RandomizeBias } from '../../../application/SelectionService';
+import { useRandomizeBias } from '../../hooks/useRandomizeBias';
 import { EXPANSION_RECIPES, matchExpansionRecipe } from '../../../application/expansionRecipes';
 import type { ExpansionRecipe } from '../../../application/expansionRecipes';
 import Sidebar from './Sidebar';
@@ -28,7 +28,7 @@ export default function CortexEnigma() {
   const { templates, saveTemplate, deleteTemplate } = usePresetTemplates();
   const { lockedAxes, toggleLock, lockedCount } = useLockAxes();
   const { intensity, setIntensity } = useExpansionIntensity();
-  const [randomizeBias, setRandomizeBias] = useState<RandomizeBias>('uniform');
+  const { randomizeBias, setRandomizeBias } = useRandomizeBias();
   const handleRandomize = () =>
     randomize(lockedAxes, randomizeBias, historyEntries.map(e => e.prompt));
   const activeRecipeId = matchExpansionRecipe(intensity, randomizeBias)?.id ?? null;

@@ -61,3 +61,11 @@ export const IntensityEnvelopeSchema = z.object({
   version: z.literal(INTENSITY_SCHEMA_VERSION),
   intensity: z.number().int().min(0).max(3),
 });
+
+export const RANDOMIZE_BIAS_SCHEMA_VERSION = 1;
+export const RANDOMIZE_BIAS_KEY = 'cortex-enigma:randomize-bias-v1';
+
+export const RandomizeBiasEnvelopeSchema = z.object({
+  version: z.literal(RANDOMIZE_BIAS_SCHEMA_VERSION),
+  bias: z.enum(['uniform', 'history']),
+});
