@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
-import { EMPTY_SELECTIONS } from '../../domain/types';
-import type { SelectionState } from '../../domain/types';
-import { toggle, randomize as randomizeSelections, clear, validate } from '../../application/SelectionService';
-import type { RandomizeBias } from '../../application/SelectionService';
+import { EMPTY_SELECTIONS } from '../../core';
+import type { SelectionState } from '../../core';
+import { toggle, randomize as randomizeSelections, clear, validate } from '../../core';
+import type { RandomizeBias } from '../../core';
 import { LocalStorageAdapter } from '../../infrastructure/LocalStorageAdapter';
 import { UrlHashAdapter } from '../../infrastructure/UrlHashAdapter';
 

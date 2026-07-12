@@ -1,4 +1,4 @@
-import type { SelectionState } from '../domain/types';
+import type { SelectionState } from '../core';
 import { SCHEMA_VERSION, PersistedEnvelopeSchema } from './storageSchema';
 
 export const EXPORT_FILENAME = 'cortex-enigma-config.json';

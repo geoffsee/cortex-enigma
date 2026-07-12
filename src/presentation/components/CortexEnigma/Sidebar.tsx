@@ -1,17 +1,17 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 import { Lock, MessageSquare, Unlock } from 'lucide-react';
-import { CATEGORIES } from '../../../domain/categories';
 import {
+  CATEGORIES,
   DEFAULT_EXPANSION_INTENSITY,
   EXPANSION_INTENSITY_LABELS,
   EXPANSION_INTENSITY_MAX,
   EXPANSION_INTENSITY_MIN,
   type ExpansionIntensity,
-} from '../../../domain/expansionIntensity';
-import type { DiffSegment } from '../../../domain/promptDiff';
-import type { SelectionState } from '../../../domain/types';
-import type { RandomizeBias } from '../../../application/SelectionService';
+} from '../../../core';
+import type { DiffSegment } from '../../../core';
+import type { SelectionState } from '../../../core';
+import type { RandomizeBias } from '../../../core';
 
 const FEEDBACK_URL = `https://github.com/geoffsee/cortex-enigma/issues/new?${new URLSearchParams({
   title: '[Feedback] ',

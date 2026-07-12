@@ -1,14 +1,13 @@
 import { useState, useRef, useMemo, lazy, Suspense } from 'react';
-import { buildPrompt } from '../../../domain/promptBuilder';
-import { wordBoundaryDiff } from '../../../domain/promptDiff';
-import type { DiffSegment } from '../../../domain/promptDiff';
+import { buildPrompt, wordBoundaryDiff } from '../../../core';
+import type { DiffSegment } from '../../../core';
 import { useSelections } from '../../hooks/useSelections';
 import { usePromptEngine } from '../../hooks/usePromptEngine';
 import { usePromptHistory } from '../../hooks/usePromptHistory';
 import { usePresetTemplates } from '../../hooks/usePresetTemplates';
 import { useLockAxes } from '../../hooks/useLockAxes';
 import { useExpansionIntensity } from '../../hooks/useExpansionIntensity';
-import type { RandomizeBias } from '../../../application/SelectionService';
+import type { RandomizeBias } from '../../../core';
 import Sidebar from './Sidebar';
 import EdgePanels from './EdgePanels';
 import PromptHistoryDrawer from './PromptHistoryDrawer';

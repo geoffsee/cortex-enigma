@@ -3,7 +3,7 @@ import {
   clampIntensity,
   DEFAULT_EXPANSION_INTENSITY,
   type ExpansionIntensity,
-} from '../../domain/expansionIntensity';
+} from '../../core';
 import {
   INTENSITY_KEY,
   INTENSITY_SCHEMA_VERSION,
