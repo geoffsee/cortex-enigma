@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import styled, { keyframes } from 'styled-components';
-import { wordBoundaryDiff } from '../../../domain/promptDiff';
-import type { DiffSegment } from '../../../domain/promptDiff';
+import { wordBoundaryDiff } from '../../../core';
+import type { DiffSegment } from '../../../core';
 import type { HistoryEntry } from '../../../infrastructure/storageSchema';
 
 type Props = {

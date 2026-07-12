@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { CATEGORIES } from '../domain/categories';
+import { CATEGORIES } from '../core';
 
 export const SCHEMA_VERSION = 1;
 export const HISTORY_SCHEMA_VERSION = 1;

@@ -1,7 +1,7 @@
 import { Float, Text } from '@react-three/drei';
-import { CATEGORIES } from '../../../../../domain/categories';
-import type { DiffSegment } from '../../../../../domain/promptDiff';
-import type { SelectionState } from '../../../../../domain/types';
+import { CATEGORIES } from '../../../../../core';
+import type { DiffSegment } from '../../../../../core';
+import type { SelectionState } from '../../../../../core';
 import { Knob } from './Knob';
 import { SynthButton } from './SynthButton';
 

@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import { Lock, Unlock } from 'lucide-react';
-import { CATEGORIES, CATEGORY_TOOLTIPS } from '../../../domain/categories';
-import type { SelectionState } from '../../../domain/types';
+import { CATEGORIES, CATEGORY_TOOLTIPS } from '../../../core';
+import type { SelectionState } from '../../../core';
 
 type Props = {
   selections: SelectionState;
