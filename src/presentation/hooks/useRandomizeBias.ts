@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import type { RandomizeBias } from '../../application/SelectionService';
 import {
   RANDOMIZE_BIAS_KEY,
@@ -39,7 +39,9 @@ export function useRandomizeBias() {
 
   // Hydrate from storage after mount so SSR markup (default bias) matches the first render.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setRandomizeBiasState(loadFromStorage());
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 
