@@ -41,6 +41,7 @@ export function useExpansionIntensity() {
 
   // Hydrate from storage after mount so SSR markup (default intensity) matches the first render.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIntensityState(loadFromStorage());
     setMounted(true);
   }, []);

@@ -41,7 +41,6 @@ export function useRandomizeBias() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setRandomizeBiasState(loadFromStorage());
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 
