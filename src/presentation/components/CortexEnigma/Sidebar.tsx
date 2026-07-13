@@ -18,6 +18,7 @@ import {
 } from '../../../domain/promptDialects';
 import type { SelectionState } from '../../../core';
 import type { RandomizeBias } from '../../../core';
+import type { ExpansionRecipe } from '../../../application/expansionRecipes';
 
 const FEEDBACK_URL = `https://github.com/geoffsee/cortex-enigma/issues/new?${new URLSearchParams({
   title: '[Feedback] ',
@@ -66,6 +67,9 @@ type Props = {
   onToggleLlmBypass?: () => void;
   intensity?: ExpansionIntensity;
   onIntensityChange?: (value: number) => void;
+  recipes?: readonly ExpansionRecipe[];
+  activeRecipeId?: string | null;
+  onSelectRecipe?: (recipe: ExpansionRecipe) => void;
   dialect?: DialectId;
   onDialectChange?: (value: string) => void;
   diffEnabled?: boolean;
@@ -107,6 +111,9 @@ export default function Sidebar({
   onToggleLlmBypass,
   intensity = DEFAULT_EXPANSION_INTENSITY,
   onIntensityChange,
+  recipes = [],
+  activeRecipeId = null,
+  onSelectRecipe,
   dialect = DEFAULT_DIALECT,
   onDialectChange,
   diffEnabled = false,
@@ -169,6 +176,25 @@ export default function Sidebar({
                 <span>Elaborate</span>
               </IntensityEnds>
             </IntensityGroup>
+          )}
+          {onSelectRecipe && recipes.length > 0 && (
+            <RecipeGroup>
+              <RecipeHeader>Expansion Recipes</RecipeHeader>
+              <RecipeRow>
+                {recipes.map((recipe) => (
+                  <RecipeChip
+                    key={recipe.id}
+                    type="button"
+                    $active={activeRecipeId === recipe.id}
+                    aria-pressed={activeRecipeId === recipe.id}
+                    title={recipe.description}
+                    onClick={() => onSelectRecipe(recipe)}
+                  >
+                    {recipe.label}
+                  </RecipeChip>
+                ))}
+              </RecipeRow>
+            </RecipeGroup>
           )}
           {!webGpuAvailable && (
             <LlmStatusBadge $variant="unavailable">
@@ -670,6 +696,54 @@ const IntensityEnds = styled.div`
   text-transform: uppercase;
   color: ${({ theme }) => theme.synth.textFaint};
   margin-top: 2px;
+`;
+
+const RecipeGroup = styled.div`
+  margin-top: 12px;
+`;
+
+const RecipeHeader = styled.div`
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: ${({ theme }) => theme.synth.textMuted};
+  margin-bottom: 6px;
+`;
+
+const RecipeRow = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+`;
+
+const RecipeChip = styled.button<{ $active?: boolean }>`
+  padding: 5px 9px;
+  border-radius: 3px;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+  background: ${({ $active, theme }) => ($active ? theme.synth.accentBase : theme.synth.subtleBg)};
+  color: ${({ $active, theme }) => ($active ? theme.synth.white : theme.synth.textToggle)};
+  border: 1px solid
+    ${({ $active, theme }) => ($active ? theme.synth.accentStrong : theme.synth.subtleButtonBorder)};
+
+  &:hover {
+    background: ${({ theme }) => theme.synth.accentMed};
+    border-color: ${({ theme }) => theme.synth.accentHover};
+    color: ${({ theme }) => theme.synth.white};
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.synth.accentStrong};
+    outline-offset: 2px;
+  }
 `;
 
 const ErrorMessage = styled.div`
