@@ -8,6 +8,7 @@
     "build": "tsc -b && node prerender.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
+    "cli": "bun run cli/cortex-prompt.ts",
     "test": "vitest run",
     "postinstall": "bash .dev/setup-git-hooks.sh",
     "typecheck": "tsc --noEmit",

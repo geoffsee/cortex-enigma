@@ -1,6 +1,7 @@
 import type { SelectionState } from './types';
 
-export function buildPrompt(selections: SelectionState): string {
+// The comma-joined positive body, shared by every output dialect.
+export function buildPositive(selections: SelectionState): string {
   const parts = [
     selections.foundation,
     selections.MEDIUM,
@@ -13,4 +14,12 @@ export function buildPrompt(selections: SelectionState): string {
     selections.CONTEXT ? `in a ${selections.CONTEXT} context` : '',
   ].filter(Boolean);
   return parts.join(', ');
+}
+
+export function buildPrompt(selections: SelectionState): string {
+  const positive = buildPositive(selections);
+  const negative = selections.negative.trim();
+  if (!negative) return positive;
+  const suffix = `Negative prompt: ${negative}`;
+  return positive ? `${positive}\n${suffix}` : suffix;
 }

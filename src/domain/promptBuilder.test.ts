@@ -29,4 +29,22 @@ describe('buildPrompt', () => {
       buildPrompt({ ...EMPTY_SELECTIONS, SUBJECT: 'cat', CONTEXT: 'gallery' }),
     ).toBe('cat, in a gallery context');
   });
+
+  it('leaves output unchanged when the negative prompt is empty or whitespace', () => {
+    const base = { ...EMPTY_SELECTIONS, SUBJECT: 'cat' };
+    expect(buildPrompt(base)).toBe('cat');
+    expect(buildPrompt({ ...base, negative: '   ' })).toBe('cat');
+  });
+
+  it('appends the negative prompt on its own line when present', () => {
+    expect(
+      buildPrompt({ ...EMPTY_SELECTIONS, SUBJECT: 'cat', negative: 'blurry, text' }),
+    ).toBe('cat\nNegative prompt: blurry, text');
+  });
+
+  it('emits only the negative prompt when there is no positive content', () => {
+    expect(
+      buildPrompt({ ...EMPTY_SELECTIONS, negative: 'watermark' }),
+    ).toBe('Negative prompt: watermark');
+  });
 });
