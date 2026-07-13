@@ -1,14 +1,15 @@
 import { useState, useRef, useMemo, lazy, Suspense } from 'react';
-import { buildPrompt } from '../../../domain/promptBuilder';
-import { wordBoundaryDiff } from '../../../domain/promptDiff';
-import type { DiffSegment } from '../../../domain/promptDiff';
+import { buildPrompt, wordBoundaryDiff } from '../../../core';
+import type { DiffSegment } from '../../../core';
+import { renderPrompt } from '../../../domain/promptDialects';
 import { useSelections } from '../../hooks/useSelections';
 import { usePromptEngine } from '../../hooks/usePromptEngine';
 import { usePromptHistory } from '../../hooks/usePromptHistory';
 import { usePresetTemplates } from '../../hooks/usePresetTemplates';
 import { useLockAxes } from '../../hooks/useLockAxes';
 import { useExpansionIntensity } from '../../hooks/useExpansionIntensity';
-import type { RandomizeBias } from '../../../application/SelectionService';
+import { usePromptDialect } from '../../hooks/usePromptDialect';
+import type { RandomizeBias } from '../../../core';
 import Sidebar from './Sidebar';
 import EdgePanels from './EdgePanels';
 import PromptHistoryDrawer from './PromptHistoryDrawer';
@@ -20,12 +21,13 @@ const CortexCanvas = lazy(() => import('./Canvas/CortexCanvas'));
 type ExpansionInfo = { base: string; expanded: string };
 
 export default function CortexEnigma() {
-  const { selections, handleSelect, handleFoundationChange, randomize, clearAll, applySelections, mounted } = useSelections();
+  const { selections, handleSelect, handleFoundationChange, handleNegativeChange, randomize, clearAll, applySelections, mounted } = useSelections();
   const { generate, isGenerating, isModelLoading, loadProgress, error, streamingText, webGpuAvailable, llmBypassed, setLlmBypassed } = usePromptEngine();
   const { entries: historyEntries, addEntry: addHistoryEntry, clearHistory } = usePromptHistory();
   const { templates, saveTemplate, deleteTemplate } = usePresetTemplates();
   const { lockedAxes, toggleLock, lockedCount } = useLockAxes();
   const { intensity, setIntensity } = useExpansionIntensity();
+  const { dialect, setDialect } = usePromptDialect();
   const [randomizeBias, setRandomizeBias] = useState<RandomizeBias>('uniform');
   const handleRandomize = () =>
     randomize(lockedAxes, randomizeBias, historyEntries.map(e => e.prompt));
@@ -38,7 +40,7 @@ export default function CortexEnigma() {
   const [expansionInfo, setExpansionInfo] = useState<ExpansionInfo | null>(null);
   const orbitRef = useRef<{ reset: () => void } | null>(null);
 
-  const prompt = useMemo(() => buildPrompt(selections), [selections]);
+  const prompt = useMemo(() => renderPrompt(selections, dialect), [selections, dialect]);
 
   const displayPrompt = useMemo(() => {
     if (!llmBypassed && isModelLoading) return 'LOADING MODEL...';
@@ -55,7 +57,7 @@ export default function CortexEnigma() {
   }, [diffEnabled, llmBypassed, expansionInfo]);
 
   const handleGenerate = async () => {
-    const snapBase = prompt;
+    const snapBase = buildPrompt(selections);
     const expansion = await generate(selections.foundation, intensity);
     if (expansion) {
       const newFoundation = `${selections.foundation}, ${expansion}`;
@@ -90,6 +92,7 @@ export default function CortexEnigma() {
         prompt={prompt}
         onSelect={handleSelect}
         onFoundationChange={handleFoundationInput}
+        onNegativeChange={handleNegativeChange}
         isGenerating={isGenerating || isModelLoading}
         loadProgress={loadProgress}
         onGenerate={handleGenerate}
@@ -117,6 +120,8 @@ export default function CortexEnigma() {
         onToggleLlmBypass={() => setLlmBypassed(v => !v)}
         intensity={intensity}
         onIntensityChange={setIntensity}
+        dialect={dialect}
+        onDialectChange={setDialect}
         diffEnabled={diffEnabled}
         onToggleDiff={() => setDiffEnabled(v => !v)}
         canToggleDiff={canToggleDiff}

@@ -5,7 +5,7 @@ import {
   serializeConfig,
   parseConfig,
 } from '../../../infrastructure/configTransfer';
-import type { SelectionState } from '../../../domain/types';
+import type { SelectionState } from '../../../core';
 
 type Props = {
   selections: SelectionState;

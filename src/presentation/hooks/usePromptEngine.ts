@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { WebLLMAdapter } from '../../infrastructure/WebLLMAdapter';
-import { expansionProfile, type ExpansionIntensity } from '../../domain/expansionIntensity';
+import { expansionProfile, type ExpansionIntensity } from '../../core';
 
 export function usePromptEngine() {
   const adapterRef = useRef(new WebLLMAdapter());

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { CATEGORIES } from '../domain/categories';
+import { CATEGORIES } from '../core';
 
 export const SCHEMA_VERSION = 1;
 export const HISTORY_SCHEMA_VERSION = 1;
@@ -20,6 +20,9 @@ export const SelectionStateSchema = z.object({
   CONTEXT: categoryValue(CATEGORIES.CONTEXT),
   HISTORY: categoryValue(CATEGORIES.HISTORY),
   foundation: z.string(),
+  // Optional with a default so v1 configs exported before the negative-prompt
+  // layer still import cleanly under the same schema version.
+  negative: z.string().default(''),
 });
 
 export const PersistedEnvelopeSchema = z.object({
@@ -60,4 +63,12 @@ export const INTENSITY_KEY = 'cortex-enigma:expansion-intensity-v1';
 export const IntensityEnvelopeSchema = z.object({
   version: z.literal(INTENSITY_SCHEMA_VERSION),
   intensity: z.number().int().min(0).max(3),
+});
+
+export const DIALECT_SCHEMA_VERSION = 1;
+export const DIALECT_KEY = 'cortex-enigma:prompt-dialect-v1';
+
+export const DialectEnvelopeSchema = z.object({
+  version: z.literal(DIALECT_SCHEMA_VERSION),
+  dialect: z.string(),
 });
