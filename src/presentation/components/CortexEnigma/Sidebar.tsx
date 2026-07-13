@@ -43,6 +43,8 @@ type Props = {
   onRandomize: () => void;
   onClear: () => void;
   onCopy: () => void;
+  onCopyLink: () => void;
+  linkStatus?: 'idle' | 'copied' | 'unavailable';
   autoRotate: boolean;
   onToggleAutoRotate: () => void;
   effectsEnabled: boolean;
@@ -87,6 +89,8 @@ export default function Sidebar({
   onRandomize,
   onClear,
   onCopy,
+  onCopyLink,
+  linkStatus = 'idle',
   autoRotate,
   onToggleAutoRotate,
   effectsEnabled,
@@ -341,6 +345,17 @@ export default function Sidebar({
             </Button>
             <Button onClick={onCopy} disabled={!prompt} style={{ gridColumn: 'span 2' }}>
               Copy to Clipboard
+            </Button>
+            <Button
+              onClick={onCopyLink}
+              style={{ gridColumn: 'span 2' }}
+              title="Copy a link that restores these selections when opened"
+            >
+              {linkStatus === 'copied'
+                ? 'Link Copied ✓'
+                : linkStatus === 'unavailable'
+                  ? 'Copy Unavailable'
+                  : 'Copy Share Link'}
             </Button>
             <Button
               onClick={onOpenHistory}

@@ -18,12 +18,22 @@ export class UrlHashAdapter implements IStoragePort {
   save(state: SelectionState): void {
     if (typeof window === 'undefined') return;
     try {
-      const encoded = encodeURIComponent(
-        JSON.stringify({ version: SCHEMA_VERSION, selections: state }),
-      );
-      window.history.replaceState(null, '', `#${encoded}`);
+      window.history.replaceState(null, '', `#${this.encode(state)}`);
     } catch {
       // ignore errors
     }
+  }
+
+  // Full absolute URL that hydrates the given selections when opened.
+  buildShareableUrl(state: SelectionState): string {
+    if (typeof window === 'undefined') return '';
+    const { origin, pathname, search } = window.location;
+    return `${origin}${pathname}${search}#${this.encode(state)}`;
+  }
+
+  private encode(state: SelectionState): string {
+    return encodeURIComponent(
+      JSON.stringify({ version: SCHEMA_VERSION, selections: state }),
+    );
   }
 }

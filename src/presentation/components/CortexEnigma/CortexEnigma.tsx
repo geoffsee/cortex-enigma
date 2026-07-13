@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo, lazy, Suspense } from 'react';
+import { useState, useRef, useMemo, useEffect, lazy, Suspense } from 'react';
 import { buildPrompt, wordBoundaryDiff } from '../../../core';
 import type { DiffSegment } from '../../../core';
 import { renderPrompt } from '../../../domain/promptDialects';
@@ -23,7 +23,7 @@ const CortexCanvas = lazy(() => import('./Canvas/CortexCanvas'));
 type ExpansionInfo = { base: string; expanded: string };
 
 export default function CortexEnigma() {
-  const { selections, handleSelect, handleFoundationChange, handleNegativeChange, randomize, clearAll, applySelections, mounted } = useSelections();
+  const { selections, handleSelect, handleFoundationChange, handleNegativeChange, randomize, clearAll, applySelections, getShareableUrl, mounted } = useSelections();
   const { generate, isGenerating, isModelLoading, loadProgress, error, streamingText, webGpuAvailable, llmBypassed, setLlmBypassed } = usePromptEngine();
   const { entries: historyEntries, addEntry: addHistoryEntry, clearHistory } = usePromptHistory();
   const { templates, saveTemplate, deleteTemplate } = usePresetTemplates();
@@ -44,8 +44,14 @@ export default function CortexEnigma() {
   const [templatesOpen, setTemplatesOpen] = useState(false);
   const [transferOpen, setTransferOpen] = useState(false);
   const [diffEnabled, setDiffEnabled] = useState(false);
+  const [linkStatus, setLinkStatus] = useState<'idle' | 'copied' | 'unavailable'>('idle');
   const [expansionInfo, setExpansionInfo] = useState<ExpansionInfo | null>(null);
   const orbitRef = useRef<{ reset: () => void } | null>(null);
+  const linkResetRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => () => {
+    if (linkResetRef.current) clearTimeout(linkResetRef.current);
+  }, []);
 
   const prompt = useMemo(() => renderPrompt(selections, dialect), [selections, dialect]);
 
@@ -90,6 +96,25 @@ export default function CortexEnigma() {
     addHistoryEntry(prompt);
   };
 
+  const flashLinkStatus = (status: 'copied' | 'unavailable') => {
+    setLinkStatus(status);
+    if (linkResetRef.current) clearTimeout(linkResetRef.current);
+    linkResetRef.current = setTimeout(() => setLinkStatus('idle'), 2000);
+  };
+
+  const handleCopyLink = () => {
+    const url = getShareableUrl();
+    if (!url) return;
+    if (!navigator.clipboard) {
+      flashLinkStatus('unavailable');
+      return;
+    }
+    navigator.clipboard
+      .writeText(url)
+      .then(() => flashLinkStatus('copied'))
+      .catch(() => flashLinkStatus('unavailable'));
+  };
+
   const canToggleDiff = !llmBypassed && expansionInfo !== null;
 
   return (
@@ -107,6 +132,8 @@ export default function CortexEnigma() {
         onRandomize={handleRandomize}
         onClear={handleClearAll}
         onCopy={handleCopy}
+        onCopyLink={handleCopyLink}
+        linkStatus={linkStatus}
         autoRotate={autoRotate}
         onToggleAutoRotate={() => setAutoRotate(v => !v)}
         effectsEnabled={effectsEnabled}

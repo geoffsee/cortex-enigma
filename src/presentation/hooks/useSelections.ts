@@ -48,5 +48,7 @@ export function useSelections() {
   const applySelections = (state: SelectionState) =>
     setSelections(validate(state));
 
-  return { selections, handleSelect, handleFoundationChange, handleNegativeChange, randomize, clearAll, applySelections, mounted };
+  const getShareableUrl = () => urlHashRef.current.buildShareableUrl(selections);
+
+  return { selections, handleSelect, handleFoundationChange, handleNegativeChange, randomize, clearAll, applySelections, getShareableUrl, mounted };
 }
