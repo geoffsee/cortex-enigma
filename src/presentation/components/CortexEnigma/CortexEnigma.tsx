@@ -1,14 +1,17 @@
-import { useState, useRef, useMemo, lazy, Suspense } from 'react';
-import { buildPrompt } from '../../../domain/promptBuilder';
-import { wordBoundaryDiff } from '../../../domain/promptDiff';
-import type { DiffSegment } from '../../../domain/promptDiff';
+import { useState, useRef, useMemo, useEffect, lazy, Suspense } from 'react';
+import { buildPrompt, wordBoundaryDiff } from '../../../core';
+import type { DiffSegment } from '../../../core';
+import { renderPrompt } from '../../../domain/promptDialects';
 import { useSelections } from '../../hooks/useSelections';
 import { usePromptEngine } from '../../hooks/usePromptEngine';
 import { usePromptHistory } from '../../hooks/usePromptHistory';
 import { usePresetTemplates } from '../../hooks/usePresetTemplates';
 import { useLockAxes } from '../../hooks/useLockAxes';
 import { useExpansionIntensity } from '../../hooks/useExpansionIntensity';
-import type { RandomizeBias } from '../../../application/SelectionService';
+import { useRandomizeBias } from '../../hooks/useRandomizeBias';
+import { usePromptDialect } from '../../hooks/usePromptDialect';
+import { EXPANSION_RECIPES, matchExpansionRecipe } from '../../../application/expansionRecipes';
+import type { ExpansionRecipe } from '../../../application/expansionRecipes';
 import Sidebar from './Sidebar';
 import EdgePanels from './EdgePanels';
 import PromptHistoryDrawer from './PromptHistoryDrawer';
@@ -21,15 +24,21 @@ const CortexCanvas = lazy(() => import('./Canvas/CortexCanvas'));
 type ExpansionInfo = { base: string; expanded: string };
 
 export default function CortexEnigma() {
-  const { selections, handleSelect, handleFoundationChange, randomize, clearAll, applySelections, mounted } = useSelections();
+  const { selections, handleSelect, handleFoundationChange, handleNegativeChange, randomize, clearAll, applySelections, getShareableUrl, mounted } = useSelections();
   const { generate, isGenerating, isModelLoading, loadProgress, error, streamingText, webGpuAvailable, llmBypassed, setLlmBypassed } = usePromptEngine();
   const { entries: historyEntries, addEntry: addHistoryEntry, clearHistory } = usePromptHistory();
   const { templates, saveTemplate, deleteTemplate } = usePresetTemplates();
   const { lockedAxes, toggleLock, lockedCount } = useLockAxes();
   const { intensity, setIntensity } = useExpansionIntensity();
-  const [randomizeBias, setRandomizeBias] = useState<RandomizeBias>('uniform');
+  const { randomizeBias, setRandomizeBias } = useRandomizeBias();
+  const { dialect, setDialect } = usePromptDialect();
   const handleRandomize = () =>
     randomize(lockedAxes, randomizeBias, historyEntries.map(e => e.prompt));
+  const activeRecipeId = matchExpansionRecipe(intensity, randomizeBias)?.id ?? null;
+  const handleSelectRecipe = (recipe: ExpansionRecipe) => {
+    setIntensity(recipe.intensity);
+    setRandomizeBias(recipe.bias);
+  };
   const [autoRotate, setAutoRotate] = useState(false);
   const [effectsEnabled, setEffectsEnabled] = useState(true);
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -37,10 +46,16 @@ export default function CortexEnigma() {
   const [transferOpen, setTransferOpen] = useState(false);
   const [sweepOpen, setSweepOpen] = useState(false);
   const [diffEnabled, setDiffEnabled] = useState(false);
+  const [linkStatus, setLinkStatus] = useState<'idle' | 'copied' | 'unavailable'>('idle');
   const [expansionInfo, setExpansionInfo] = useState<ExpansionInfo | null>(null);
   const orbitRef = useRef<{ reset: () => void } | null>(null);
+  const linkResetRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const prompt = useMemo(() => buildPrompt(selections), [selections]);
+  useEffect(() => () => {
+    if (linkResetRef.current) clearTimeout(linkResetRef.current);
+  }, []);
+
+  const prompt = useMemo(() => renderPrompt(selections, dialect), [selections, dialect]);
 
   const displayPrompt = useMemo(() => {
     if (!llmBypassed && isModelLoading) return 'LOADING MODEL...';
@@ -57,7 +72,7 @@ export default function CortexEnigma() {
   }, [diffEnabled, llmBypassed, expansionInfo]);
 
   const handleGenerate = async () => {
-    const snapBase = prompt;
+    const snapBase = buildPrompt(selections);
     const expansion = await generate(selections.foundation, intensity);
     if (expansion) {
       const newFoundation = `${selections.foundation}, ${expansion}`;
@@ -83,6 +98,25 @@ export default function CortexEnigma() {
     addHistoryEntry(prompt);
   };
 
+  const flashLinkStatus = (status: 'copied' | 'unavailable') => {
+    setLinkStatus(status);
+    if (linkResetRef.current) clearTimeout(linkResetRef.current);
+    linkResetRef.current = setTimeout(() => setLinkStatus('idle'), 2000);
+  };
+
+  const handleCopyLink = () => {
+    const url = getShareableUrl();
+    if (!url) return;
+    if (!navigator.clipboard) {
+      flashLinkStatus('unavailable');
+      return;
+    }
+    navigator.clipboard
+      .writeText(url)
+      .then(() => flashLinkStatus('copied'))
+      .catch(() => flashLinkStatus('unavailable'));
+  };
+
   const canToggleDiff = !llmBypassed && expansionInfo !== null;
 
   return (
@@ -92,6 +126,7 @@ export default function CortexEnigma() {
         prompt={prompt}
         onSelect={handleSelect}
         onFoundationChange={handleFoundationInput}
+        onNegativeChange={handleNegativeChange}
         isGenerating={isGenerating || isModelLoading}
         loadProgress={loadProgress}
         onGenerate={handleGenerate}
@@ -99,6 +134,8 @@ export default function CortexEnigma() {
         onRandomize={handleRandomize}
         onClear={handleClearAll}
         onCopy={handleCopy}
+        onCopyLink={handleCopyLink}
+        linkStatus={linkStatus}
         autoRotate={autoRotate}
         onToggleAutoRotate={() => setAutoRotate(v => !v)}
         effectsEnabled={effectsEnabled}
@@ -120,6 +157,11 @@ export default function CortexEnigma() {
         onToggleLlmBypass={() => setLlmBypassed(v => !v)}
         intensity={intensity}
         onIntensityChange={setIntensity}
+        recipes={EXPANSION_RECIPES}
+        activeRecipeId={activeRecipeId}
+        onSelectRecipe={handleSelectRecipe}
+        dialect={dialect}
+        onDialectChange={setDialect}
         diffEnabled={diffEnabled}
         onToggleDiff={() => setDiffEnabled(v => !v)}
         canToggleDiff={canToggleDiff}

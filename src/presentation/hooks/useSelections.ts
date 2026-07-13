@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
-import { EMPTY_SELECTIONS } from '../../domain/types';
-import type { SelectionState } from '../../domain/types';
-import { toggle, randomize as randomizeSelections, clear, validate } from '../../application/SelectionService';
-import type { RandomizeBias } from '../../application/SelectionService';
+import { EMPTY_SELECTIONS } from '../../core';
+import type { SelectionState } from '../../core';
+import { toggle, randomize as randomizeSelections, clear, validate } from '../../core';
+import type { RandomizeBias } from '../../core';
 import { LocalStorageAdapter } from '../../infrastructure/LocalStorageAdapter';
 import { UrlHashAdapter } from '../../infrastructure/UrlHashAdapter';
 
@@ -37,6 +37,9 @@ export function useSelections() {
   const handleFoundationChange = (value: string) =>
     setSelections(prev => ({ ...prev, foundation: value }));
 
+  const handleNegativeChange = (value: string) =>
+    setSelections(prev => ({ ...prev, negative: value }));
+
   const randomize = (lockedAxes?: ReadonlySet<string>, bias?: RandomizeBias, historyPrompts?: readonly string[]) =>
     setSelections(prev => randomizeSelections(prev, lockedAxes, bias, historyPrompts));
 
@@ -45,5 +48,7 @@ export function useSelections() {
   const applySelections = (state: SelectionState) =>
     setSelections(validate(state));
 
-  return { selections, handleSelect, handleFoundationChange, randomize, clearAll, applySelections, mounted };
+  const getShareableUrl = () => urlHashRef.current.buildShareableUrl(selections);
+
+  return { selections, handleSelect, handleFoundationChange, handleNegativeChange, randomize, clearAll, applySelections, getShareableUrl, mounted };
 }

@@ -1,8 +1,8 @@
 import type { MutableRefObject, Ref } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, Environment } from '@react-three/drei';
-import type { DiffSegment } from '../../../../domain/promptDiff';
-import type { SelectionState } from '../../../../domain/types';
+import type { DiffSegment } from '../../../../core';
+import type { SelectionState } from '../../../../core';
 import { CortexCore } from './scene/CortexCore';
 import { OutputPanel } from './scene/OutputPanel';
 import { BackgroundStars } from './scene/BackgroundStars';

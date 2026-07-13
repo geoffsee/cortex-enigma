@@ -2,7 +2,7 @@ import { useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { MAX_TEMPLATES } from '../../../infrastructure/storageSchema';
 import type { TemplateRecord } from '../../../infrastructure/storageSchema';
-import type { SelectionState } from '../../../domain/types';
+import type { SelectionState } from '../../../core';
 
 type Props = {
   templates: TemplateRecord[];

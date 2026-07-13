@@ -1,5 +1,4 @@
-import type { ILLMPort } from '../application/ports/ILLMPort';
-import type { ExpansionProfile } from '../domain/expansionIntensity';
+import type { ILLMPort, ExpansionProfile } from '../core';
 
 type ChatMessage = { role: 'system' | 'user' | 'assistant'; content: string };
 type ChatCompletionChunk = { choices: Array<{ delta: { content: string | null } }> };

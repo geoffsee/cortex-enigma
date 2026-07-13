@@ -1,5 +1,4 @@
-import type { IStoragePort } from '../application/ports/IStoragePort';
-import type { SelectionState } from '../domain/types';
+import type { IStoragePort, SelectionState } from '../core';
 import { SCHEMA_VERSION, PersistedEnvelopeSchema } from './storageSchema';
 
 export class UrlHashAdapter implements IStoragePort {
@@ -19,12 +18,22 @@ export class UrlHashAdapter implements IStoragePort {
   save(state: SelectionState): void {
     if (typeof window === 'undefined') return;
     try {
-      const encoded = encodeURIComponent(
-        JSON.stringify({ version: SCHEMA_VERSION, selections: state }),
-      );
-      window.history.replaceState(null, '', `#${encoded}`);
+      window.history.replaceState(null, '', `#${this.encode(state)}`);
     } catch {
       // ignore errors
     }
+  }
+
+  // Full absolute URL that hydrates the given selections when opened.
+  buildShareableUrl(state: SelectionState): string {
+    if (typeof window === 'undefined') return '';
+    const { origin, pathname, search } = window.location;
+    return `${origin}${pathname}${search}#${this.encode(state)}`;
+  }
+
+  private encode(state: SelectionState): string {
+    return encodeURIComponent(
+      JSON.stringify({ version: SCHEMA_VERSION, selections: state }),
+    );
   }
 }
