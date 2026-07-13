@@ -1,5 +1,4 @@
-import type { IStoragePort } from '../application/ports/IStoragePort';
-import type { SelectionState } from '../domain/types';
+import type { IStoragePort, SelectionState } from '../core';
 import { SCHEMA_VERSION, PersistedEnvelopeSchema } from './storageSchema';
 
 export class UrlHashAdapter implements IStoragePort {

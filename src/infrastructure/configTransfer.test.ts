@@ -18,6 +18,24 @@ describe('serializeConfig / parseConfig', () => {
     expect(result).toEqual({ ok: true, selections });
   });
 
+  it('round-trips a negative prompt under the current schema version', () => {
+    const selections = {
+      ...EMPTY_SELECTIONS,
+      foundation: 'a misty harbor',
+      negative: 'blurry, text, watermark',
+    };
+    const result = parseConfig(serializeConfig(selections));
+    expect(result).toEqual({ ok: true, selections });
+  });
+
+  it('imports a v1 config that predates the negative field, defaulting it to empty', () => {
+    const legacy = { ...EMPTY_SELECTIONS } as Record<string, unknown>;
+    delete legacy.negative;
+    const json = JSON.stringify({ version: SCHEMA_VERSION, selections: legacy });
+    const result = parseConfig(json);
+    expect(result).toEqual({ ok: true, selections: { ...EMPTY_SELECTIONS, negative: '' } });
+  });
+
   it('rejects text that is not JSON', () => {
     const result = parseConfig('not json at all');
     expect(result.ok).toBe(false);

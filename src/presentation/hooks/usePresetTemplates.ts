@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
-import type { SelectionState } from '../../domain/types';
+import type { SelectionState } from '../../core';
 import {
   TEMPLATES_KEY,
   TEMPLATES_SCHEMA_VERSION,

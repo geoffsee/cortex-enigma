@@ -1,16 +1,23 @@
+import { useState } from 'react';
 import styled from 'styled-components';
 import { Lock, MessageSquare, Unlock } from 'lucide-react';
-import { CATEGORIES } from '../../../domain/categories';
 import {
+  CATEGORIES,
   DEFAULT_EXPANSION_INTENSITY,
   EXPANSION_INTENSITY_LABELS,
   EXPANSION_INTENSITY_MAX,
   EXPANSION_INTENSITY_MIN,
   type ExpansionIntensity,
-} from '../../../domain/expansionIntensity';
-import type { DiffSegment } from '../../../domain/promptDiff';
-import type { SelectionState } from '../../../domain/types';
-import type { RandomizeBias } from '../../../application/SelectionService';
+} from '../../../core';
+import type { DiffSegment } from '../../../core';
+import {
+  DEFAULT_DIALECT,
+  PROMPT_DIALECTS,
+  dialectDescription,
+  type DialectId,
+} from '../../../domain/promptDialects';
+import type { SelectionState } from '../../../core';
+import type { RandomizeBias } from '../../../core';
 
 const FEEDBACK_URL = `https://github.com/geoffsee/cortex-enigma/issues/new?${new URLSearchParams({
   title: '[Feedback] ',
@@ -31,6 +38,7 @@ type Props = {
   prompt: string;
   onSelect: (cat: string, val: string) => void;
   onFoundationChange: (val: string) => void;
+  onNegativeChange: (val: string) => void;
   onRandomize: () => void;
   onClear: () => void;
   onCopy: () => void;
@@ -60,6 +68,8 @@ type Props = {
   onToggleLlmBypass?: () => void;
   intensity?: ExpansionIntensity;
   onIntensityChange?: (value: number) => void;
+  dialect?: DialectId;
+  onDialectChange?: (value: string) => void;
   diffEnabled?: boolean;
   onToggleDiff?: () => void;
   canToggleDiff?: boolean;
@@ -71,6 +81,7 @@ export default function Sidebar({
   prompt,
   onSelect,
   onFoundationChange,
+  onNegativeChange,
   onRandomize,
   onClear,
   onCopy,
@@ -100,6 +111,8 @@ export default function Sidebar({
   onToggleLlmBypass,
   intensity = DEFAULT_EXPANSION_INTENSITY,
   onIntensityChange,
+  dialect = DEFAULT_DIALECT,
+  onDialectChange,
   diffEnabled = false,
   onToggleDiff,
   canToggleDiff = false,
@@ -107,6 +120,10 @@ export default function Sidebar({
 }: Props) {
   const categoryKeys = Object.keys(CATEGORIES);
   const activeCount = Object.values(selections).filter(Boolean).length;
+  const [negativeOpen, setNegativeOpen] = useState(false);
+  const showNegative = negativeOpen || !!selections.negative;
+  const [dialectOpen, setDialectOpen] = useState(false);
+  const showDialect = dialectOpen || dialect !== DEFAULT_DIALECT;
   const dialEnabled = webGpuAvailable && !llmBypassed && !!onIntensityChange;
   const preserveActive = dialEnabled && intensity === 0;
 
@@ -179,6 +196,28 @@ export default function Sidebar({
         </Section>
 
         <Section>
+          <DisclosureButton
+            type="button"
+            onClick={() => setNegativeOpen((o) => !o)}
+            aria-expanded={showNegative}
+            aria-controls="negative-prompt-input"
+          >
+            <SectionTitle as="span">Negative Prompt</SectionTitle>
+            <DisclosureIcon>{showNegative ? '−' : '+'}</DisclosureIcon>
+          </DisclosureButton>
+          {showNegative && (
+            <NegativeInput
+              id="negative-prompt-input"
+              aria-label="Negative prompt"
+              placeholder="Terms to steer away from (e.g. blurry, text, watermark)…"
+              value={selections.negative}
+              onChange={(e) => onNegativeChange(e.target.value)}
+              rows={2}
+            />
+          )}
+        </Section>
+
+        <Section>
           <SectionTitle>Active Selections</SectionTitle>
           {categoryKeys.map((cat) => {
             const value = selections[cat];
@@ -236,6 +275,37 @@ export default function Sidebar({
               prompt || 'Select options to generate a prompt...'
             )}
           </PromptBox>
+          {onDialectChange && (
+            <>
+              <DisclosureButton
+                type="button"
+                onClick={() => setDialectOpen((o) => !o)}
+                aria-expanded={showDialect}
+                aria-controls="dialect-select"
+                style={{ marginTop: 10 }}
+              >
+                <SectionTitle as="span">Output Dialect</SectionTitle>
+                <DisclosureIcon>{showDialect ? '−' : '+'}</DisclosureIcon>
+              </DisclosureButton>
+              {showDialect && (
+                <>
+                  <DialectSelect
+                    id="dialect-select"
+                    aria-label="Output dialect"
+                    value={dialect}
+                    onChange={(e) => onDialectChange(e.target.value)}
+                  >
+                    {PROMPT_DIALECTS.map((d) => (
+                      <option key={d.id} value={d.id}>
+                        {d.label}
+                      </option>
+                    ))}
+                  </DialectSelect>
+                  <DialectHint>{dialectDescription(dialect)}</DialectHint>
+                </>
+              )}
+            </>
+          )}
         </Section>
 
         <Section>
@@ -450,6 +520,89 @@ const Input = styled.input`
     outline: 2px solid ${({ theme }) => theme.synth.accentStrong};
     outline-offset: 2px;
   }
+`;
+
+const DisclosureButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 0 0 4px;
+  cursor: pointer;
+  font-family: inherit;
+
+  &:focus {
+    outline: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.synth.accentStrong};
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+`;
+
+const DisclosureIcon = styled.span`
+  color: ${({ theme }) => theme.synth.accent};
+  font-size: 13px;
+  line-height: 1;
+`;
+
+const NegativeInput = styled.textarea`
+  width: 100%;
+  background: ${({ theme }) => theme.synth.inputBg};
+  border: 1px solid ${({ theme }) => theme.synth.accentBase};
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 11px;
+  color: ${({ theme }) => theme.synth.white};
+  font-family: inherit;
+  resize: vertical;
+  line-height: 1.5;
+
+  &::placeholder {
+    color: ${({ theme }) => theme.synth.textEmpty};
+  }
+
+  &:focus {
+    border-color: ${({ theme }) => theme.synth.accentStrong};
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.synth.accentStrong};
+    outline-offset: 2px;
+  }
+`;
+
+const DialectSelect = styled.select`
+  width: 100%;
+  margin-top: 10px;
+  background: ${({ theme }) => theme.synth.inputBg};
+  border: 1px solid ${({ theme }) => theme.synth.accentBase};
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 11px;
+  color: ${({ theme }) => theme.synth.white};
+  font-family: inherit;
+  cursor: pointer;
+
+  &:focus {
+    border-color: ${({ theme }) => theme.synth.accentStrong};
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.synth.accentStrong};
+    outline-offset: 2px;
+  }
+`;
+
+const DialectHint = styled.p`
+  margin: 6px 0 0;
+  font-size: 9px;
+  line-height: 1.5;
+  color: ${({ theme }) => theme.synth.textMuted};
 `;
 
 const GenerateButton = styled.button`
