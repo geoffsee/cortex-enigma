@@ -43,6 +43,8 @@ type Props = {
   onRandomize: () => void;
   onClear: () => void;
   onCopy: () => void;
+  onCopyLink: () => void;
+  linkStatus?: 'idle' | 'copied' | 'unavailable';
   autoRotate: boolean;
   onToggleAutoRotate: () => void;
   effectsEnabled: boolean;
@@ -57,6 +59,7 @@ type Props = {
   templateCount?: number;
   onOpenTemplates?: () => void;
   onOpenTransfer?: () => void;
+  onOpenSweep?: () => void;
   lockedAxes?: ReadonlySet<string>;
   onToggleLock?: (axis: string) => void;
   lockedCount?: number;
@@ -87,6 +90,8 @@ export default function Sidebar({
   onRandomize,
   onClear,
   onCopy,
+  onCopyLink,
+  linkStatus = 'idle',
   autoRotate,
   onToggleAutoRotate,
   effectsEnabled,
@@ -101,6 +106,7 @@ export default function Sidebar({
   templateCount = 0,
   onOpenTemplates,
   onOpenTransfer,
+  onOpenSweep,
   lockedAxes,
   onToggleLock,
   lockedCount = 0,
@@ -343,6 +349,17 @@ export default function Sidebar({
               Copy to Clipboard
             </Button>
             <Button
+              onClick={onCopyLink}
+              style={{ gridColumn: 'span 2' }}
+              title="Copy a link that restores these selections when opened"
+            >
+              {linkStatus === 'copied'
+                ? 'Link Copied ✓'
+                : linkStatus === 'unavailable'
+                  ? 'Copy Unavailable'
+                  : 'Copy Share Link'}
+            </Button>
+            <Button
               onClick={onOpenHistory}
               disabled={!onOpenHistory}
               style={{ gridColumn: 'span 2' }}
@@ -362,6 +379,14 @@ export default function Sidebar({
               style={{ gridColumn: 'span 2' }}
             >
               Export / Import
+            </Button>
+            <Button
+              onClick={onOpenSweep}
+              disabled={!onOpenSweep}
+              style={{ gridColumn: 'span 2' }}
+              title="Emit one prompt per value of a chosen axis, holding all other selections fixed"
+            >
+              Axis Sweep
             </Button>
           </ButtonGrid>
           {onToggleRandomizeBias && (
