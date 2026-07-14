@@ -6,20 +6,22 @@ import {
   parseConfig,
 } from '../../../infrastructure/configTransfer';
 import type { SelectionState } from '../../../core';
+import type { DialectId } from '../../../domain/promptDialects';
 
 type Props = {
   selections: SelectionState;
-  onImport: (selections: SelectionState) => void;
+  dialect: DialectId;
+  onImport: (selections: SelectionState, dialect: DialectId) => void;
   onClose: () => void;
 };
 
-export default function ConfigTransferDrawer({ selections, onImport, onClose }: Props) {
+export default function ConfigTransferDrawer({ selections, dialect, onImport, onClose }: Props) {
   const [pasteText, setPasteText] = useState('');
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleDownload = () => {
-    const blob = new Blob([serializeConfig(selections)], { type: 'application/json' });
+    const blob = new Blob([serializeConfig(selections, dialect)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -31,7 +33,7 @@ export default function ConfigTransferDrawer({ selections, onImport, onClose }: 
   const applyText = (text: string) => {
     const result = parseConfig(text);
     if (result.ok) {
-      onImport(result.selections);
+      onImport(result.selections, result.dialect);
       onClose();
     } else {
       setError(result.error);

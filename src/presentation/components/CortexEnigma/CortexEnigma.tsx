@@ -24,14 +24,14 @@ const CortexCanvas = lazy(() => import('./Canvas/CortexCanvas'));
 type ExpansionInfo = { base: string; expanded: string };
 
 export default function CortexEnigma() {
-  const { selections, handleSelect, handleFoundationChange, handleNegativeChange, randomize, clearAll, applySelections, getShareableUrl, mounted } = useSelections();
+  const { dialect, setDialect } = usePromptDialect();
+  const { selections, handleSelect, handleFoundationChange, handleNegativeChange, randomize, clearAll, applySelections, getShareableUrl, mounted } = useSelections(dialect, setDialect);
   const { generate, isGenerating, isModelLoading, loadProgress, error, streamingText, webGpuAvailable, llmBypassed, setLlmBypassed } = usePromptEngine();
   const { entries: historyEntries, addEntry: addHistoryEntry, clearHistory } = usePromptHistory();
   const { templates, saveTemplate, deleteTemplate } = usePresetTemplates();
   const { lockedAxes, toggleLock, lockedCount } = useLockAxes();
   const { intensity, setIntensity } = useExpansionIntensity();
   const { randomizeBias, setRandomizeBias } = useRandomizeBias();
-  const { dialect, setDialect } = usePromptDialect();
   const handleRandomize = () =>
     randomize(lockedAxes, randomizeBias, historyEntries.map(e => e.prompt));
   const activeRecipeId = matchExpansionRecipe(intensity, randomizeBias)?.id ?? null;
@@ -205,7 +205,11 @@ export default function CortexEnigma() {
       {transferOpen && (
         <ConfigTransferDrawer
           selections={selections}
-          onImport={applySelections}
+          dialect={dialect}
+          onImport={(importedSelections, importedDialect) => {
+            applySelections(importedSelections);
+            setDialect(importedDialect);
+          }}
           onClose={() => setTransferOpen(false)}
         />
       )}
