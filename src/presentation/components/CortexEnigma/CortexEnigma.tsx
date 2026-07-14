@@ -10,6 +10,7 @@ import { useLockAxes } from '../../hooks/useLockAxes';
 import { useExpansionIntensity } from '../../hooks/useExpansionIntensity';
 import { useRandomizeBias } from '../../hooks/useRandomizeBias';
 import { usePromptDialect } from '../../hooks/usePromptDialect';
+import { useOnboarding } from '../../hooks/useOnboarding';
 import { EXPANSION_RECIPES, matchExpansionRecipe } from '../../../application/expansionRecipes';
 import type { ExpansionRecipe } from '../../../application/expansionRecipes';
 import Sidebar from './Sidebar';
@@ -18,6 +19,7 @@ import PromptHistoryDrawer from './PromptHistoryDrawer';
 import PresetPaletteDrawer from './PresetPaletteDrawer';
 import ConfigTransferDrawer from './ConfigTransferDrawer';
 import PromptSweepPanel from './PromptSweepPanel';
+import OnboardingGuide from './OnboardingGuide';
 
 const CortexCanvas = lazy(() => import('./Canvas/CortexCanvas'));
 
@@ -32,6 +34,7 @@ export default function CortexEnigma() {
   const { intensity, setIntensity } = useExpansionIntensity();
   const { randomizeBias, setRandomizeBias } = useRandomizeBias();
   const { dialect, setDialect } = usePromptDialect();
+  const { onboardingVisible, dismissOnboarding } = useOnboarding();
   const handleRandomize = () =>
     randomize(lockedAxes, randomizeBias, historyEntries.map(e => e.prompt));
   const activeRecipeId = matchExpansionRecipe(intensity, randomizeBias)?.id ?? null;
@@ -215,6 +218,7 @@ export default function CortexEnigma() {
           onClose={() => setSweepOpen(false)}
         />
       )}
+      {onboardingVisible && <OnboardingGuide onDismiss={dismissOnboarding} />}
     </>
   );
 }

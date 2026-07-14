@@ -80,3 +80,11 @@ export const DialectEnvelopeSchema = z.object({
   version: z.literal(DIALECT_SCHEMA_VERSION),
   dialect: z.string(),
 });
+
+export const ONBOARDING_SCHEMA_VERSION = 1;
+export const ONBOARDING_KEY = 'cortex-enigma:onboarding-dismissed-v1';
+
+export const OnboardingEnvelopeSchema = z.object({
+  version: z.literal(ONBOARDING_SCHEMA_VERSION),
+  dismissed: z.boolean(),
+});
