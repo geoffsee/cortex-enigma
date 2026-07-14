@@ -56,4 +56,76 @@ describe('runCli', () => {
   it('--help returns usage text', () => {
     expect(runCli(['--help']).stdout).toContain('Usage:');
   });
+
+  it('renders a single prompt in the midjourney dialect', () => {
+    const { stdout } = runCli([
+      '--foundation', 'a lone lighthouse',
+      '--medium', 'painting',
+      '--negative', 'blurry',
+      '--dialect', 'midjourney',
+    ]);
+    expect(stdout).toBe('a lone lighthouse, painting --no blurry');
+  });
+
+  it('warns about and ignores an unknown dialect', () => {
+    const { stdout, stderr } = runCli(['--subject', 'figure', '--dialect', 'bogus']);
+    expect(stdout).toBe('figure');
+    expect(stderr).toContain('unknown dialect "bogus"');
+  });
+
+  it('--sweep emits one prompt per value of the chosen axis, holding others fixed', () => {
+    const { stdout } = runCli(['--medium', 'painting', '--sweep', 'style']);
+    const lines = stdout.split('\n');
+    expect(lines).toHaveLength(CATEGORIES.STYLE.length);
+    for (const value of CATEGORIES.STYLE) {
+      expect(lines).toContain(`painting, ${value}`);
+    }
+  });
+
+  it('warns about and ignores a non-sweepable axis', () => {
+    const { stdout, stderr } = runCli(['--subject', 'figure', '--sweep', 'nope']);
+    expect(stdout).toBe('figure');
+    expect(stderr).toContain('is not a sweepable axis');
+  });
+
+  it('--count emits N deterministic variations for a fixed seed', () => {
+    const first = runCli(['--count', '5', '--seed', '7']).stdout;
+    const second = runCli(['--count', '5', '--seed', '7']).stdout;
+    expect(first).toBe(second);
+    expect(first.split('\n')).toHaveLength(5);
+    expect(first).not.toBe(runCli(['--count', '5', '--seed', '8']).stdout);
+  });
+
+  it('--count keeps explicit flags fixed across every variation', () => {
+    const { stdout } = runCli(['--count', '4', '--seed', '3', '--medium', 'painting']);
+    const lines = stdout.split('\n');
+    expect(lines).toHaveLength(4);
+    for (const line of lines) expect(line).toContain('painting');
+  });
+
+  it('drives a batch from an injected config file, with CLI flags overriding it', () => {
+    const readFile = () =>
+      JSON.stringify({ seed: 7, count: 3, dialect: 'midjourney', base: { medium: 'sculpture' } });
+    const fromConfig = runCli(['--config', 'batch.json'], { readFile });
+    expect(fromConfig.stdout.split('\n')).toHaveLength(3);
+    for (const line of fromConfig.stdout.split('\n')) expect(line).toContain('sculpture');
+
+    const overridden = runCli(['--config', 'batch.json', '--medium', 'painting'], { readFile });
+    for (const line of overridden.stdout.split('\n')) {
+      expect(line).toContain('painting');
+      expect(line).not.toContain('sculpture');
+    }
+  });
+
+  it('surfaces the resolved output path without performing I/O', () => {
+    const { out } = runCli(['--subject', 'figure', '--out', 'prompts.txt']);
+    expect(out).toBe('prompts.txt');
+  });
+
+  it('reports an error when the config file cannot be read', () => {
+    const readFile = () => { throw new Error('ENOENT'); };
+    const { stdout, stderr } = runCli(['--config', 'missing.json'], { readFile });
+    expect(stdout).toBe('');
+    expect(stderr).toContain('failed to load config');
+  });
 });
