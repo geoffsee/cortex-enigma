@@ -60,6 +60,7 @@ type Props = {
   onOpenTemplates?: () => void;
   onOpenTransfer?: () => void;
   onOpenSweep?: () => void;
+  onOpenSession?: () => void;
   lockedAxes?: ReadonlySet<string>;
   onToggleLock?: (axis: string) => void;
   lockedCount?: number;
@@ -107,6 +108,7 @@ export default function Sidebar({
   onOpenTemplates,
   onOpenTransfer,
   onOpenSweep,
+  onOpenSession,
   lockedAxes,
   onToggleLock,
   lockedCount = 0,
@@ -387,6 +389,14 @@ export default function Sidebar({
               title="Emit one prompt per value of a chosen axis, holding all other selections fixed"
             >
               Axis Sweep
+            </Button>
+            <Button
+              onClick={onOpenSession}
+              disabled={!onOpenSession}
+              style={{ gridColumn: 'span 2' }}
+              title="Exploratory spike: drive an ambient soundscape from the composition and coordinate collaborators"
+            >
+              Live Session
             </Button>
           </ButtonGrid>
           {onToggleRandomizeBias && (
