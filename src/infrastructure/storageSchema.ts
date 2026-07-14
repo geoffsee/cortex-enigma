@@ -92,3 +92,38 @@ export const DialectEnvelopeSchema = z.object({
   version: z.literal(DIALECT_SCHEMA_VERSION),
   dialect: z.string(),
 });
+
+export const GALLERY_SCHEMA_VERSION = 1;
+export const GALLERY_KEY = 'cortex-enigma:prompt-gallery-v1';
+export const MAX_GALLERY_ENTRIES = 50;
+// Cap how deep the provenance chain is kept so heavily-remixed entries can't
+// grow the stored lineage without bound; the most recent ancestors are kept.
+export const MAX_LINEAGE_DEPTH = 20;
+
+// A single ancestor in an entry's provenance chain. Carries just enough to
+// attribute the remix (who + what) without duplicating the full config.
+export const GalleryLineageEntrySchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  author: z.string(),
+});
+
+export type GalleryLineageEntry = z.infer<typeof GalleryLineageEntrySchema>;
+
+export const GalleryEntrySchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  author: z.string(),
+  timestamp: z.number(),
+  selections: SelectionStateSchema,
+  dialect: dialectValue,
+  // Oldest → newest ancestors this config was remixed from; empty for originals.
+  lineage: z.array(GalleryLineageEntrySchema).default([]),
+});
+
+export type GalleryEntry = z.infer<typeof GalleryEntrySchema>;
+
+export const GalleryEnvelopeSchema = z.object({
+  version: z.literal(GALLERY_SCHEMA_VERSION),
+  entries: z.array(GalleryEntrySchema),
+});

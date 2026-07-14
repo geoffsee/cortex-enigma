@@ -10,6 +10,8 @@ import { useLockAxes } from '../../hooks/useLockAxes';
 import { useExpansionIntensity } from '../../hooks/useExpansionIntensity';
 import { useRandomizeBias } from '../../hooks/useRandomizeBias';
 import { usePromptDialect } from '../../hooks/usePromptDialect';
+import { usePromptGallery } from '../../hooks/usePromptGallery';
+import type { GalleryEntry } from '../../../infrastructure/storageSchema';
 import { EXPANSION_RECIPES, matchExpansionRecipe } from '../../../application/expansionRecipes';
 import type { ExpansionRecipe } from '../../../application/expansionRecipes';
 import Sidebar from './Sidebar';
@@ -18,6 +20,7 @@ import PromptHistoryDrawer from './PromptHistoryDrawer';
 import PresetPaletteDrawer from './PresetPaletteDrawer';
 import ConfigTransferDrawer from './ConfigTransferDrawer';
 import PromptSweepPanel from './PromptSweepPanel';
+import PromptGalleryDrawer from './PromptGalleryDrawer';
 
 const CortexCanvas = lazy(() => import('./Canvas/CortexCanvas'));
 
@@ -32,6 +35,7 @@ export default function CortexEnigma() {
   const { lockedAxes, toggleLock, lockedCount } = useLockAxes();
   const { intensity, setIntensity } = useExpansionIntensity();
   const { randomizeBias, setRandomizeBias } = useRandomizeBias();
+  const { entries: galleryEntries, publish: publishToGallery, deleteEntry: deleteGalleryEntry } = usePromptGallery();
   const handleRandomize = () =>
     randomize(lockedAxes, randomizeBias, historyEntries.map(e => e.prompt));
   const activeRecipeId = matchExpansionRecipe(intensity, randomizeBias)?.id ?? null;
@@ -45,6 +49,8 @@ export default function CortexEnigma() {
   const [templatesOpen, setTemplatesOpen] = useState(false);
   const [transferOpen, setTransferOpen] = useState(false);
   const [sweepOpen, setSweepOpen] = useState(false);
+  const [galleryOpen, setGalleryOpen] = useState(false);
+  const [remixSource, setRemixSource] = useState<GalleryEntry | null>(null);
   const [diffEnabled, setDiffEnabled] = useState(false);
   const [linkStatus, setLinkStatus] = useState<'idle' | 'copied' | 'unavailable'>('idle');
   const [expansionInfo, setExpansionInfo] = useState<ExpansionInfo | null>(null);
@@ -89,7 +95,18 @@ export default function CortexEnigma() {
 
   const handleClearAll = () => {
     setExpansionInfo(null);
+    setRemixSource(null);
     clearAll();
+  };
+
+  const handlePublish = (title: string, author: string) => {
+    publishToGallery({ title, author, selections, dialect, source: remixSource });
+  };
+
+  const handleRemix = (entry: GalleryEntry) => {
+    applySelections(entry.selections);
+    setDialect(entry.dialect);
+    setRemixSource(entry);
   };
 
   const handleCopy = () => {
@@ -147,6 +164,8 @@ export default function CortexEnigma() {
         onOpenTemplates={() => setTemplatesOpen(true)}
         onOpenTransfer={() => setTransferOpen(true)}
         onOpenSweep={() => setSweepOpen(true)}
+        galleryCount={galleryEntries.length}
+        onOpenGallery={() => setGalleryOpen(true)}
         lockedAxes={lockedAxes}
         onToggleLock={toggleLock}
         lockedCount={lockedCount}
@@ -209,6 +228,7 @@ export default function CortexEnigma() {
           onImport={(importedSelections, importedDialect) => {
             applySelections(importedSelections);
             setDialect(importedDialect);
+            setRemixSource(null);
           }}
           onClose={() => setTransferOpen(false)}
         />
@@ -217,6 +237,18 @@ export default function CortexEnigma() {
         <PromptSweepPanel
           selections={selections}
           onClose={() => setSweepOpen(false)}
+        />
+      )}
+      {galleryOpen && (
+        <PromptGalleryDrawer
+          entries={galleryEntries}
+          currentSelections={selections}
+          currentDialect={dialect}
+          remixSource={remixSource}
+          onPublish={handlePublish}
+          onRemix={handleRemix}
+          onDelete={deleteGalleryEntry}
+          onClose={() => setGalleryOpen(false)}
         />
       )}
     </>
