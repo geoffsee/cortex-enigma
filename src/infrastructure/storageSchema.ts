@@ -127,3 +127,23 @@ export const GalleryEnvelopeSchema = z.object({
   version: z.literal(GALLERY_SCHEMA_VERSION),
   entries: z.array(GalleryEntrySchema),
 });
+
+// Opt-in usage-signal consent. 'unset' means the user has not answered the
+// prompt yet; nothing is captured unless it is explicitly 'granted'.
+export const ANALYTICS_CONSENT_SCHEMA_VERSION = 1;
+export const ANALYTICS_CONSENT_KEY = 'cortex-enigma:analytics-consent-v1';
+
+export const AnalyticsConsentEnvelopeSchema = z.object({
+  version: z.literal(ANALYTICS_CONSENT_SCHEMA_VERSION),
+  consent: z.enum(['unset', 'granted', 'denied']),
+});
+
+// Aggregate, on-device event counts. Keyed by fixed event name; values are
+// non-negative integers. No timestamps, ordering, or content is retained.
+export const ANALYTICS_EVENTS_SCHEMA_VERSION = 1;
+export const ANALYTICS_EVENTS_KEY = 'cortex-enigma:analytics-events-v1';
+
+export const AnalyticsEventsEnvelopeSchema = z.object({
+  version: z.literal(ANALYTICS_EVENTS_SCHEMA_VERSION),
+  counts: z.record(z.string(), z.number().int().nonnegative()),
+});
