@@ -17,9 +17,13 @@ bun run dev       # dev server with HMR
 bun run build     # tsc + SSR pre-render (node prerender.mjs)
 bun run lint      # ESLint
 bun run preview   # preview production build
+bun run test      # run the Vitest suite once (vitest run)
 ```
 
-No test suite is configured.
+Unit tests use [Vitest](https://vitest.dev/). Run `bun run test` for a single pass,
+or `bunx vitest` for interactive watch mode. Test files live next to the code they
+cover as `*.test.ts` (e.g. `src/domain/promptBuilder.test.ts`,
+`src/application/SelectionService.test.ts`).
 
 ## Project Structure
 
@@ -104,4 +108,4 @@ Domain knowledge for prompt composition lives in `.agents/skills/` as [Agent Ski
 - Styled-components for all styling; theme via `DefaultTheme` in `styled.d.ts`
 - State persisted in `localStorage`
 - ESLint flat config (`eslint.config.js`) with `noUnusedLocals` / `noUnusedParameters` enforced by TypeScript
-- No separate test files — verify with `npm run build` and `npm run lint`
+- Vitest `*.test.ts` files colocated with the code they cover — verify with `bun run test`, `bun run build`, and `bun run lint`

@@ -141,6 +141,17 @@ A keyboard-only user can complete the full flow without a pointer:
 
 **Decision record (issue #71):** rather than giving the Three.js meshes synthetic focus and ARIA semantics, the DOM path is documented as the supported accessible route and the canvas is hidden from the accessibility tree. The 3D surface duplicates — never extends — the DOM controls, so keeping it pointer-only loses no functionality. Future accessibility reviews should treat this as settled unless the canvas gains a control with no DOM equivalent.
 
+## Privacy & Usage Signal
+
+Cortex Enigma ships an **opt-in, anonymous** usage signal that is **off by default**. On first use a banner asks whether you want to help by sharing anonymous usage counts. If you decline (or ignore it), the app is fully functional and nothing is captured.
+
+- **Anonymous** — no account, no identity, no IP, no fingerprint, no PII.
+- **On-device only** — counts live in this browser's `localStorage`; there is no network transport, so nothing leaves your machine before or after opt-in.
+- **Counts, not content** — only per-action occurrence counts are kept. Prompt text and selected axis values are never recorded.
+- **Reversible** — declining or revoking consent purges any counts already stored.
+
+See [PRIVACY.md](./PRIVACY.md) for the full list of what is and isn't collected.
+
 ## Browser Requirements
 
 The in-browser LLM requires **WebGPU** support. Chrome 113+ and Edge 113+ work out of the box. Firefox and Safari do not yet support WebGPU by default. The rest of the app (3D canvas, selection UI) works in any modern browser.
