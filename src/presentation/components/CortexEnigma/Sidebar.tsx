@@ -60,6 +60,8 @@ type Props = {
   onOpenTemplates?: () => void;
   onOpenTransfer?: () => void;
   onOpenSweep?: () => void;
+  galleryCount?: number;
+  onOpenGallery?: () => void;
   lockedAxes?: ReadonlySet<string>;
   onToggleLock?: (axis: string) => void;
   lockedCount?: number;
@@ -107,6 +109,8 @@ export default function Sidebar({
   onOpenTemplates,
   onOpenTransfer,
   onOpenSweep,
+  galleryCount = 0,
+  onOpenGallery,
   lockedAxes,
   onToggleLock,
   lockedCount = 0,
@@ -387,6 +391,14 @@ export default function Sidebar({
               title="Emit one prompt per value of a chosen axis, holding all other selections fixed"
             >
               Axis Sweep
+            </Button>
+            <Button
+              onClick={onOpenGallery}
+              disabled={!onOpenGallery}
+              style={{ gridColumn: 'span 2' }}
+              title="Publish, browse, and remix shared configs with author and lineage attribution"
+            >
+              Gallery{galleryCount > 0 ? ` (${galleryCount})` : ''}
             </Button>
           </ButtonGrid>
           {onToggleRandomizeBias && (
