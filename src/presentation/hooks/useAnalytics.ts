@@ -1,11 +1,13 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { emptyCounts, type AnalyticsEvent, type AnalyticsCounts } from '../../core';
 import {
-  ANALYTICS_EVENT_NAMES,
-  emptyCounts,
-  isAnalyticsEvent,
-  type AnalyticsEvent,
-  type AnalyticsCounts,
-} from '../../core';
+  capture as captureEvent,
+  purge,
+  normalizeCounts,
+  totalEvents as computeTotal,
+  DEFAULT_CONSENT,
+  type AnalyticsConsent,
+} from '../../application/usageSignal';
 import {
   ANALYTICS_CONSENT_KEY,
   ANALYTICS_CONSENT_SCHEMA_VERSION,
@@ -15,9 +17,7 @@ import {
   AnalyticsEventsEnvelopeSchema,
 } from '../../infrastructure/storageSchema';
 
-export type AnalyticsConsent = 'unset' | 'granted' | 'denied';
-
-const DEFAULT_CONSENT: AnalyticsConsent = 'unset';
+export type { AnalyticsConsent };
 
 function loadConsent(): AnalyticsConsent {
   if (typeof window === 'undefined') return DEFAULT_CONSENT;
@@ -44,19 +44,15 @@ function saveConsent(consent: AnalyticsConsent): void {
 }
 
 function loadCounts(): AnalyticsCounts {
-  const base = emptyCounts();
-  if (typeof window === 'undefined') return base;
+  if (typeof window === 'undefined') return emptyCounts();
   try {
     const raw = window.localStorage.getItem(ANALYTICS_EVENTS_KEY);
-    if (!raw) return base;
+    if (!raw) return emptyCounts();
     const result = AnalyticsEventsEnvelopeSchema.safeParse(JSON.parse(raw));
-    if (!result.success) return base;
-    for (const [name, value] of Object.entries(result.data.counts)) {
-      if (isAnalyticsEvent(name)) base[name] = value;
-    }
-    return base;
+    if (!result.success) return emptyCounts();
+    return normalizeCounts(result.data.counts);
   } catch {
-    return base;
+    return emptyCounts();
   }
 }
 
@@ -76,7 +72,9 @@ function saveCounts(counts: AnalyticsCounts): void {
  * Opt-in, anonymous usage signal. Captured events are aggregate per-name counts
  * held on-device only — there is no network transport, so nothing leaves the
  * browser before or after opt-in. Capture is a no-op unless consent is
- * 'granted', which keeps the tool fully functional for users who decline.
+ * 'granted', which keeps the tool fully functional for users who decline. All
+ * gate/purge/increment rules live in `application/usageSignal`; this hook only
+ * wires them to React state and localStorage.
  */
 export function useAnalytics() {
   const [consent, setConsentState] = useState<AnalyticsConsent>(DEFAULT_CONSENT);
@@ -98,28 +96,28 @@ export function useAnalytics() {
     setMounted(true);
   }, []);
 
+  // Persist counts after they commit, never inside a state updater — a discarded
+  // or double-invoked updater must not write to localStorage. Gated on `mounted`
+  // so the pre-hydration empty state can't clobber stored counts.
+  useEffect(() => {
+    if (!mounted) return;
+    saveCounts(counts);
+  }, [counts, mounted]);
+
   const setConsent = useCallback((next: AnalyticsConsent) => {
     consentRef.current = next;
     setConsentState(next);
     saveConsent(next);
-    // Revoking consent purges anything already captured.
-    if (next !== 'granted') {
-      const cleared = emptyCounts();
-      setCounts(cleared);
-      saveCounts(cleared);
-    }
+    // Revoking consent purges anything already captured; the effect above then
+    // persists the cleared counts.
+    if (next !== 'granted') setCounts(purge());
   }, []);
 
   const capture = useCallback((event: AnalyticsEvent) => {
-    if (consentRef.current !== 'granted') return;
-    setCounts(prev => {
-      const next = { ...prev, [event]: (prev[event] ?? 0) + 1 };
-      saveCounts(next);
-      return next;
-    });
+    setCounts(prev => captureEvent(prev, consentRef.current, event));
   }, []);
 
-  const totalEvents = ANALYTICS_EVENT_NAMES.reduce((sum, name) => sum + (counts[name] ?? 0), 0);
+  const totalEvents = computeTotal(counts);
 
   return { consent, setConsent, capture, counts, totalEvents, mounted };
 }

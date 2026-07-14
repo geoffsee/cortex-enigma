@@ -11,7 +11,7 @@ export default function AnalyticsConsentBanner({ onEnable, onDecline }: Props) {
   const [detailsOpen, setDetailsOpen] = useState(false);
 
   return (
-    <Banner role="dialog" aria-label="Anonymous usage signal">
+    <Banner role="region" aria-label="Anonymous usage signal">
       <Content>
         <Title>Help improve Cortex Enigma?</Title>
         <Blurb>

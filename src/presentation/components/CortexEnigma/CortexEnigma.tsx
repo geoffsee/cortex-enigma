@@ -105,8 +105,10 @@ export default function CortexEnigma() {
 
   const handleCopy = () => {
     if (!prompt) return;
-    capture(ANALYTICS_EVENTS.copyPrompt);
-    navigator.clipboard.writeText(prompt).catch(() => { /* permission denied */ });
+    navigator.clipboard
+      .writeText(prompt)
+      .then(() => capture(ANALYTICS_EVENTS.copyPrompt))
+      .catch(() => { /* permission denied */ });
     addHistoryEntry(prompt);
   };
 
