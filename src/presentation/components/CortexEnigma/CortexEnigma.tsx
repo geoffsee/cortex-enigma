@@ -10,14 +10,17 @@ import { useLockAxes } from '../../hooks/useLockAxes';
 import { useExpansionIntensity } from '../../hooks/useExpansionIntensity';
 import { useRandomizeBias } from '../../hooks/useRandomizeBias';
 import { usePromptDialect } from '../../hooks/usePromptDialect';
+import { useAnalytics } from '../../hooks/useAnalytics';
 import { EXPANSION_RECIPES, matchExpansionRecipe } from '../../../application/expansionRecipes';
 import type { ExpansionRecipe } from '../../../application/expansionRecipes';
+import { ANALYTICS_EVENTS } from '../../../core';
 import Sidebar from './Sidebar';
 import EdgePanels from './EdgePanels';
 import PromptHistoryDrawer from './PromptHistoryDrawer';
 import PresetPaletteDrawer from './PresetPaletteDrawer';
 import ConfigTransferDrawer from './ConfigTransferDrawer';
 import PromptSweepPanel from './PromptSweepPanel';
+import AnalyticsConsentBanner from './AnalyticsConsentBanner';
 
 const CortexCanvas = lazy(() => import('./Canvas/CortexCanvas'));
 
@@ -32,8 +35,15 @@ export default function CortexEnigma() {
   const { intensity, setIntensity } = useExpansionIntensity();
   const { randomizeBias, setRandomizeBias } = useRandomizeBias();
   const { dialect, setDialect } = usePromptDialect();
-  const handleRandomize = () =>
+  const { consent, setConsent, capture, mounted: analyticsMounted } = useAnalytics();
+  const handleSelectTracked = (category: string, value: string) => {
+    capture(ANALYTICS_EVENTS.axisSelect);
+    handleSelect(category, value);
+  };
+  const handleRandomize = () => {
+    capture(ANALYTICS_EVENTS.randomize);
     randomize(lockedAxes, randomizeBias, historyEntries.map(e => e.prompt));
+  };
   const activeRecipeId = matchExpansionRecipe(intensity, randomizeBias)?.id ?? null;
   const handleSelectRecipe = (recipe: ExpansionRecipe) => {
     setIntensity(recipe.intensity);
@@ -75,6 +85,7 @@ export default function CortexEnigma() {
     const snapBase = buildPrompt(selections);
     const expansion = await generate(selections.foundation, intensity);
     if (expansion) {
+      capture(ANALYTICS_EVENTS.expand);
       const newFoundation = `${selections.foundation}, ${expansion}`;
       handleFoundationChange(newFoundation);
       const expandedPrompt = buildPrompt({ ...selections, foundation: newFoundation });
@@ -94,7 +105,10 @@ export default function CortexEnigma() {
 
   const handleCopy = () => {
     if (!prompt) return;
-    navigator.clipboard.writeText(prompt).catch(() => { /* permission denied */ });
+    navigator.clipboard
+      .writeText(prompt)
+      .then(() => capture(ANALYTICS_EVENTS.copyPrompt))
+      .catch(() => { /* permission denied */ });
     addHistoryEntry(prompt);
   };
 
@@ -113,7 +127,10 @@ export default function CortexEnigma() {
     }
     navigator.clipboard
       .writeText(url)
-      .then(() => flashLinkStatus('copied'))
+      .then(() => {
+        capture(ANALYTICS_EVENTS.share);
+        flashLinkStatus('copied');
+      })
       .catch(() => flashLinkStatus('unavailable'));
   };
 
@@ -124,7 +141,7 @@ export default function CortexEnigma() {
       <Sidebar
         selections={selections}
         prompt={prompt}
-        onSelect={handleSelect}
+        onSelect={handleSelectTracked}
         onFoundationChange={handleFoundationInput}
         onNegativeChange={handleNegativeChange}
         isGenerating={isGenerating || isModelLoading}
@@ -167,12 +184,12 @@ export default function CortexEnigma() {
         canToggleDiff={canToggleDiff}
         diffSegments={diffSegments}
       />
-      <EdgePanels selections={selections} onSelect={handleSelect} lockedAxes={lockedAxes} onToggleLock={toggleLock} />
+      <EdgePanels selections={selections} onSelect={handleSelectTracked} lockedAxes={lockedAxes} onToggleLock={toggleLock} />
       {mounted && (
         <Suspense fallback={null}>
           <CortexCanvas
             selections={selections}
-            onSelect={handleSelect}
+            onSelect={handleSelectTracked}
             prompt={displayPrompt}
             onRandomize={handleRandomize}
             onCopy={handleCopy}
@@ -213,6 +230,12 @@ export default function CortexEnigma() {
         <PromptSweepPanel
           selections={selections}
           onClose={() => setSweepOpen(false)}
+        />
+      )}
+      {analyticsMounted && consent === 'unset' && (
+        <AnalyticsConsentBanner
+          onEnable={() => setConsent('granted')}
+          onDecline={() => setConsent('denied')}
         />
       )}
     </>
