@@ -61,6 +61,8 @@ type Props = {
   onOpenTransfer?: () => void;
   onOpenSweep?: () => void;
   onOpenSession?: () => void;
+  galleryCount?: number;
+  onOpenGallery?: () => void;
   lockedAxes?: ReadonlySet<string>;
   onToggleLock?: (axis: string) => void;
   lockedCount?: number;
@@ -109,6 +111,8 @@ export default function Sidebar({
   onOpenTransfer,
   onOpenSweep,
   onOpenSession,
+  galleryCount = 0,
+  onOpenGallery,
   lockedAxes,
   onToggleLock,
   lockedCount = 0,
@@ -397,6 +401,14 @@ export default function Sidebar({
               title="Exploratory spike: drive an ambient soundscape from the composition and coordinate collaborators"
             >
               Live Session
+            </Button>
+            <Button
+              onClick={onOpenGallery}
+              disabled={!onOpenGallery}
+              style={{ gridColumn: 'span 2' }}
+              title="Publish, browse, and remix shared configs with author and lineage attribution"
+            >
+              Gallery{galleryCount > 0 ? ` (${galleryCount})` : ''}
             </Button>
           </ButtonGrid>
           {onToggleRandomizeBias && (

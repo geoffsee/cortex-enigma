@@ -5,21 +5,30 @@ import { toggle, randomize as randomizeSelections, clear, validate } from '../..
 import type { RandomizeBias } from '../../core';
 import { LocalStorageAdapter } from '../../infrastructure/LocalStorageAdapter';
 import { UrlHashAdapter } from '../../infrastructure/UrlHashAdapter';
+import { DEFAULT_DIALECT, type DialectId } from '../../domain/promptDialects';
 
-export function useSelections() {
+export function useSelections(
+  dialect: DialectId = DEFAULT_DIALECT,
+  onDialectFromHash?: (dialect: DialectId) => void,
+) {
   const storageRef = useRef(new LocalStorageAdapter());
   const urlHashRef = useRef(new UrlHashAdapter());
   const [selections, setSelections] = useState<SelectionState>(() => ({ ...EMPTY_SELECTIONS }));
   const [mounted, setMounted] = useState(false);
 
   // Hydrate from URL hash first; fall back to localStorage, then defaults.
+  // A shared hash also carries the dialect, which takes precedence over the
+  // recipient's stored dialect.
   useEffect(() => {
-    const fromHash = urlHashRef.current.load();
-    const state = fromHash !== null
-      ? validate(fromHash)
-      : validate(storageRef.current.load());
-    setSelections(state);
+    const fromHash = urlHashRef.current.loadConfig();
+    if (fromHash !== null) {
+      setSelections(validate(fromHash.selections));
+      onDialectFromHash?.(fromHash.dialect);
+    } else {
+      setSelections(validate(storageRef.current.load()));
+    }
     setMounted(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount
   }, []);
 
   // Persist to localStorage and URL hash on every change; mounted guard prevents wiping before hydration.
@@ -28,8 +37,8 @@ export function useSelections() {
   useEffect(() => {
     if (!mounted) return;
     storageRef.current.save(selections);
-    urlHashRef.current.save(selections);
-  }, [selections, mounted]);
+    urlHashRef.current.save(selections, dialect);
+  }, [selections, dialect, mounted]);
 
   const handleSelect = (category: string, value: string) =>
     setSelections(prev => toggle(prev, category, value));
@@ -48,7 +57,7 @@ export function useSelections() {
   const applySelections = (state: SelectionState) =>
     setSelections(validate(state));
 
-  const getShareableUrl = () => urlHashRef.current.buildShareableUrl(selections);
+  const getShareableUrl = () => urlHashRef.current.buildShareableUrl(selections, dialect);
 
   return { selections, handleSelect, handleFoundationChange, handleNegativeChange, randomize, clearAll, applySelections, getShareableUrl, mounted };
 }

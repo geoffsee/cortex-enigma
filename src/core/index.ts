@@ -31,3 +31,12 @@ export { toggle, randomize, clear, validate } from '../application/SelectionServ
 
 export type { ILLMPort } from '../application/ports/ILLMPort';
 export type { IStoragePort } from '../application/ports/IStoragePort';
+
+export type { AnalyticsEvent, AnalyticsCounts } from '../domain/analyticsEvents';
+export {
+  ANALYTICS_EVENTS,
+  ANALYTICS_EVENT_NAMES,
+  ANALYTICS_EVENT_DESCRIPTIONS,
+  isAnalyticsEvent,
+  emptyCounts,
+} from '../domain/analyticsEvents';
