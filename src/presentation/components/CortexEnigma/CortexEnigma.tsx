@@ -10,6 +10,7 @@ import { useLockAxes } from '../../hooks/useLockAxes';
 import { useExpansionIntensity } from '../../hooks/useExpansionIntensity';
 import { useRandomizeBias } from '../../hooks/useRandomizeBias';
 import { usePromptDialect } from '../../hooks/usePromptDialect';
+import { useOnboarding } from '../../hooks/useOnboarding';
 import { usePromptGallery } from '../../hooks/usePromptGallery';
 import type { GalleryEntry } from '../../../infrastructure/storageSchema';
 import { useAnalytics } from '../../hooks/useAnalytics';
@@ -22,6 +23,8 @@ import PromptHistoryDrawer from './PromptHistoryDrawer';
 import PresetPaletteDrawer from './PresetPaletteDrawer';
 import ConfigTransferDrawer from './ConfigTransferDrawer';
 import PromptSweepPanel from './PromptSweepPanel';
+import OnboardingGuide from './OnboardingGuide';
+import SessionStudioPanel from './SessionStudioPanel';
 import PromptGalleryDrawer from './PromptGalleryDrawer';
 import AnalyticsConsentBanner from './AnalyticsConsentBanner';
 
@@ -38,6 +41,7 @@ export default function CortexEnigma() {
   const { lockedAxes, toggleLock, lockedCount } = useLockAxes();
   const { intensity, setIntensity } = useExpansionIntensity();
   const { randomizeBias, setRandomizeBias } = useRandomizeBias();
+  const { onboardingVisible, dismissOnboarding } = useOnboarding();
   const { entries: galleryEntries, publish: publishToGallery, deleteEntry: deleteGalleryEntry } = usePromptGallery();
   const { consent, setConsent, capture, mounted: analyticsMounted } = useAnalytics();
   const handleSelectTracked = (category: string, value: string) => {
@@ -59,6 +63,7 @@ export default function CortexEnigma() {
   const [templatesOpen, setTemplatesOpen] = useState(false);
   const [transferOpen, setTransferOpen] = useState(false);
   const [sweepOpen, setSweepOpen] = useState(false);
+  const [sessionOpen, setSessionOpen] = useState(false);
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [remixSource, setRemixSource] = useState<GalleryEntry | null>(null);
   const [diffEnabled, setDiffEnabled] = useState(false);
@@ -181,6 +186,7 @@ export default function CortexEnigma() {
         onOpenTemplates={() => setTemplatesOpen(true)}
         onOpenTransfer={() => setTransferOpen(true)}
         onOpenSweep={() => setSweepOpen(true)}
+        onOpenSession={() => setSessionOpen(true)}
         galleryCount={galleryEntries.length}
         onOpenGallery={() => setGalleryOpen(true)}
         lockedAxes={lockedAxes}
@@ -256,6 +262,13 @@ export default function CortexEnigma() {
           onClose={() => setSweepOpen(false)}
         />
       )}
+      {sessionOpen && (
+        <SessionStudioPanel
+          selections={selections}
+          prompt={prompt}
+          onClose={() => setSessionOpen(false)}
+        />
+      )}
       {galleryOpen && (
         <PromptGalleryDrawer
           entries={galleryEntries}
@@ -274,6 +287,7 @@ export default function CortexEnigma() {
           onDecline={() => setConsent('denied')}
         />
       )}
+      {onboardingVisible && <OnboardingGuide onDismiss={dismissOnboarding} />}
     </>
   );
 }
