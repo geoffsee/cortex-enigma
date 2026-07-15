@@ -10,6 +10,7 @@ import { useLockAxes } from '../../hooks/useLockAxes';
 import { useExpansionIntensity } from '../../hooks/useExpansionIntensity';
 import { useRandomizeBias } from '../../hooks/useRandomizeBias';
 import { usePromptDialect } from '../../hooks/usePromptDialect';
+import { useOnboarding } from '../../hooks/useOnboarding';
 import { usePromptGallery } from '../../hooks/usePromptGallery';
 import type { GalleryEntry } from '../../../infrastructure/storageSchema';
 import { useAnalytics } from '../../hooks/useAnalytics';
@@ -22,6 +23,7 @@ import PromptHistoryDrawer from './PromptHistoryDrawer';
 import PresetPaletteDrawer from './PresetPaletteDrawer';
 import ConfigTransferDrawer from './ConfigTransferDrawer';
 import PromptSweepPanel from './PromptSweepPanel';
+import OnboardingGuide from './OnboardingGuide';
 import SessionStudioPanel from './SessionStudioPanel';
 import PromptGalleryDrawer from './PromptGalleryDrawer';
 import AnalyticsConsentBanner from './AnalyticsConsentBanner';
@@ -39,6 +41,7 @@ export default function CortexEnigma() {
   const { lockedAxes, toggleLock, lockedCount } = useLockAxes();
   const { intensity, setIntensity } = useExpansionIntensity();
   const { randomizeBias, setRandomizeBias } = useRandomizeBias();
+  const { onboardingVisible, dismissOnboarding } = useOnboarding();
   const { entries: galleryEntries, publish: publishToGallery, deleteEntry: deleteGalleryEntry } = usePromptGallery();
   const { consent, setConsent, capture, mounted: analyticsMounted } = useAnalytics();
   const handleSelectTracked = (category: string, value: string) => {
@@ -284,6 +287,7 @@ export default function CortexEnigma() {
           onDecline={() => setConsent('denied')}
         />
       )}
+      {onboardingVisible && <OnboardingGuide onDismiss={dismissOnboarding} />}
     </>
   );
 }

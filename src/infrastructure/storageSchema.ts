@@ -93,6 +93,14 @@ export const DialectEnvelopeSchema = z.object({
   dialect: z.string(),
 });
 
+export const ONBOARDING_SCHEMA_VERSION = 1;
+export const ONBOARDING_KEY = 'cortex-enigma:onboarding-dismissed-v1';
+
+export const OnboardingEnvelopeSchema = z.object({
+  version: z.literal(ONBOARDING_SCHEMA_VERSION),
+  dismissed: z.boolean(),
+});
+
 export const GALLERY_SCHEMA_VERSION = 1;
 export const GALLERY_KEY = 'cortex-enigma:prompt-gallery-v1';
 export const MAX_GALLERY_ENTRIES = 50;
