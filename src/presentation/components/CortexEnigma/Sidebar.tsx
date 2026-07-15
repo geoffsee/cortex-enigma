@@ -60,6 +60,7 @@ type Props = {
   onOpenTemplates?: () => void;
   onOpenTransfer?: () => void;
   onOpenSweep?: () => void;
+  onOpenSession?: () => void;
   galleryCount?: number;
   onOpenGallery?: () => void;
   lockedAxes?: ReadonlySet<string>;
@@ -109,6 +110,7 @@ export default function Sidebar({
   onOpenTemplates,
   onOpenTransfer,
   onOpenSweep,
+  onOpenSession,
   galleryCount = 0,
   onOpenGallery,
   lockedAxes,
@@ -391,6 +393,14 @@ export default function Sidebar({
               title="Emit one prompt per value of a chosen axis, holding all other selections fixed"
             >
               Axis Sweep
+            </Button>
+            <Button
+              onClick={onOpenSession}
+              disabled={!onOpenSession}
+              style={{ gridColumn: 'span 2' }}
+              title="Exploratory spike: drive an ambient soundscape from the composition and coordinate collaborators"
+            >
+              Live Session
             </Button>
             <Button
               onClick={onOpenGallery}
