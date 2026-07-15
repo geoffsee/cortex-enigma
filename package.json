@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "cli": "bun run cli/cortex-prompt.ts",
+    "mcp": "bun run mcp/cortex-mcp.ts",
     "test": "vitest run",
     "postinstall": "bash .dev/setup-git-hooks.sh",
     "typecheck": "tsc --noEmit",

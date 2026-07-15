@@ -1,5 +1,10 @@
-import { z } from 'zod';
+// Namespace import (not `import { z }`): zod 3.25 re-exports `z` as a namespace
+// binding, which Vite/Vitest's ESM interop resolves to `undefined`. The star
+// import exposes the same builders (`z.object`, `z.enum`, …) reliably.
+import * as z from 'zod';
 import { CATEGORIES } from '../core';
+import { DEFAULT_DIALECT, PROMPT_DIALECTS } from '../domain/promptDialects';
+import type { DialectId } from '../domain/promptDialects';
 
 export const SCHEMA_VERSION = 1;
 export const HISTORY_SCHEMA_VERSION = 1;
@@ -25,9 +30,16 @@ export const SelectionStateSchema = z.object({
   negative: z.string().default(''),
 });
 
+const DIALECT_IDS = PROMPT_DIALECTS.map(d => d.id) as [DialectId, ...DialectId[]];
+
+// Optional with a fallback so permalinks/exports written before the dialect
+// layer (or carrying an unknown dialect) still load, defaulting to standard.
+const dialectValue = z.enum(DIALECT_IDS).catch(DEFAULT_DIALECT);
+
 export const PersistedEnvelopeSchema = z.object({
   version: z.literal(SCHEMA_VERSION),
   selections: SelectionStateSchema,
+  dialect: dialectValue,
 });
 
 export const HistoryEntrySchema = z.object({
@@ -87,4 +99,59 @@ export const ONBOARDING_KEY = 'cortex-enigma:onboarding-dismissed-v1';
 export const OnboardingEnvelopeSchema = z.object({
   version: z.literal(ONBOARDING_SCHEMA_VERSION),
   dismissed: z.boolean(),
+});
+
+export const GALLERY_SCHEMA_VERSION = 1;
+export const GALLERY_KEY = 'cortex-enigma:prompt-gallery-v1';
+export const MAX_GALLERY_ENTRIES = 50;
+// Cap how deep the provenance chain is kept so heavily-remixed entries can't
+// grow the stored lineage without bound; the most recent ancestors are kept.
+export const MAX_LINEAGE_DEPTH = 20;
+
+// A single ancestor in an entry's provenance chain. Carries just enough to
+// attribute the remix (who + what) without duplicating the full config.
+export const GalleryLineageEntrySchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  author: z.string(),
+});
+
+export type GalleryLineageEntry = z.infer<typeof GalleryLineageEntrySchema>;
+
+export const GalleryEntrySchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  author: z.string(),
+  timestamp: z.number(),
+  selections: SelectionStateSchema,
+  dialect: dialectValue,
+  // Oldest → newest ancestors this config was remixed from; empty for originals.
+  lineage: z.array(GalleryLineageEntrySchema).default([]),
+});
+
+export type GalleryEntry = z.infer<typeof GalleryEntrySchema>;
+
+export const GalleryEnvelopeSchema = z.object({
+  version: z.literal(GALLERY_SCHEMA_VERSION),
+  entries: z.array(GalleryEntrySchema),
+});
+
+// Opt-in usage-signal consent. 'unset' means the user has not answered the
+// prompt yet; nothing is captured unless it is explicitly 'granted'.
+export const ANALYTICS_CONSENT_SCHEMA_VERSION = 1;
+export const ANALYTICS_CONSENT_KEY = 'cortex-enigma:analytics-consent-v1';
+
+export const AnalyticsConsentEnvelopeSchema = z.object({
+  version: z.literal(ANALYTICS_CONSENT_SCHEMA_VERSION),
+  consent: z.enum(['unset', 'granted', 'denied']),
+});
+
+// Aggregate, on-device event counts. Keyed by fixed event name; values are
+// non-negative integers. No timestamps, ordering, or content is retained.
+export const ANALYTICS_EVENTS_SCHEMA_VERSION = 1;
+export const ANALYTICS_EVENTS_KEY = 'cortex-enigma:analytics-events-v1';
+
+export const AnalyticsEventsEnvelopeSchema = z.object({
+  version: z.literal(ANALYTICS_EVENTS_SCHEMA_VERSION),
+  counts: z.record(z.string(), z.number().int().nonnegative()),
 });

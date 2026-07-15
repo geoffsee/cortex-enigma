@@ -11,8 +11,12 @@ import { useExpansionIntensity } from '../../hooks/useExpansionIntensity';
 import { useRandomizeBias } from '../../hooks/useRandomizeBias';
 import { usePromptDialect } from '../../hooks/usePromptDialect';
 import { useOnboarding } from '../../hooks/useOnboarding';
+import { usePromptGallery } from '../../hooks/usePromptGallery';
+import type { GalleryEntry } from '../../../infrastructure/storageSchema';
+import { useAnalytics } from '../../hooks/useAnalytics';
 import { EXPANSION_RECIPES, matchExpansionRecipe } from '../../../application/expansionRecipes';
 import type { ExpansionRecipe } from '../../../application/expansionRecipes';
+import { ANALYTICS_EVENTS } from '../../../core';
 import Sidebar from './Sidebar';
 import EdgePanels from './EdgePanels';
 import PromptHistoryDrawer from './PromptHistoryDrawer';
@@ -20,23 +24,33 @@ import PresetPaletteDrawer from './PresetPaletteDrawer';
 import ConfigTransferDrawer from './ConfigTransferDrawer';
 import PromptSweepPanel from './PromptSweepPanel';
 import OnboardingGuide from './OnboardingGuide';
+import PromptGalleryDrawer from './PromptGalleryDrawer';
+import AnalyticsConsentBanner from './AnalyticsConsentBanner';
 
 const CortexCanvas = lazy(() => import('./Canvas/CortexCanvas'));
 
 type ExpansionInfo = { base: string; expanded: string };
 
 export default function CortexEnigma() {
-  const { selections, handleSelect, handleFoundationChange, handleNegativeChange, randomize, clearAll, applySelections, getShareableUrl, mounted } = useSelections();
+  const { dialect, setDialect } = usePromptDialect();
+  const { selections, handleSelect, handleFoundationChange, handleNegativeChange, randomize, clearAll, applySelections, getShareableUrl, mounted } = useSelections(dialect, setDialect);
   const { generate, isGenerating, isModelLoading, loadProgress, error, streamingText, webGpuAvailable, llmBypassed, setLlmBypassed } = usePromptEngine();
   const { entries: historyEntries, addEntry: addHistoryEntry, clearHistory } = usePromptHistory();
   const { templates, saveTemplate, deleteTemplate } = usePresetTemplates();
   const { lockedAxes, toggleLock, lockedCount } = useLockAxes();
   const { intensity, setIntensity } = useExpansionIntensity();
   const { randomizeBias, setRandomizeBias } = useRandomizeBias();
-  const { dialect, setDialect } = usePromptDialect();
   const { onboardingVisible, dismissOnboarding } = useOnboarding();
-  const handleRandomize = () =>
+  const { entries: galleryEntries, publish: publishToGallery, deleteEntry: deleteGalleryEntry } = usePromptGallery();
+  const { consent, setConsent, capture, mounted: analyticsMounted } = useAnalytics();
+  const handleSelectTracked = (category: string, value: string) => {
+    capture(ANALYTICS_EVENTS.axisSelect);
+    handleSelect(category, value);
+  };
+  const handleRandomize = () => {
+    capture(ANALYTICS_EVENTS.randomize);
     randomize(lockedAxes, randomizeBias, historyEntries.map(e => e.prompt));
+  };
   const activeRecipeId = matchExpansionRecipe(intensity, randomizeBias)?.id ?? null;
   const handleSelectRecipe = (recipe: ExpansionRecipe) => {
     setIntensity(recipe.intensity);
@@ -48,6 +62,8 @@ export default function CortexEnigma() {
   const [templatesOpen, setTemplatesOpen] = useState(false);
   const [transferOpen, setTransferOpen] = useState(false);
   const [sweepOpen, setSweepOpen] = useState(false);
+  const [galleryOpen, setGalleryOpen] = useState(false);
+  const [remixSource, setRemixSource] = useState<GalleryEntry | null>(null);
   const [diffEnabled, setDiffEnabled] = useState(false);
   const [linkStatus, setLinkStatus] = useState<'idle' | 'copied' | 'unavailable'>('idle');
   const [expansionInfo, setExpansionInfo] = useState<ExpansionInfo | null>(null);
@@ -78,6 +94,7 @@ export default function CortexEnigma() {
     const snapBase = buildPrompt(selections);
     const expansion = await generate(selections.foundation, intensity);
     if (expansion) {
+      capture(ANALYTICS_EVENTS.expand);
       const newFoundation = `${selections.foundation}, ${expansion}`;
       handleFoundationChange(newFoundation);
       const expandedPrompt = buildPrompt({ ...selections, foundation: newFoundation });
@@ -92,12 +109,26 @@ export default function CortexEnigma() {
 
   const handleClearAll = () => {
     setExpansionInfo(null);
+    setRemixSource(null);
     clearAll();
+  };
+
+  const handlePublish = (title: string, author: string) => {
+    publishToGallery({ title, author, selections, dialect, source: remixSource });
+  };
+
+  const handleRemix = (entry: GalleryEntry) => {
+    applySelections(entry.selections);
+    setDialect(entry.dialect);
+    setRemixSource(entry);
   };
 
   const handleCopy = () => {
     if (!prompt) return;
-    navigator.clipboard.writeText(prompt).catch(() => { /* permission denied */ });
+    navigator.clipboard
+      .writeText(prompt)
+      .then(() => capture(ANALYTICS_EVENTS.copyPrompt))
+      .catch(() => { /* permission denied */ });
     addHistoryEntry(prompt);
   };
 
@@ -116,7 +147,10 @@ export default function CortexEnigma() {
     }
     navigator.clipboard
       .writeText(url)
-      .then(() => flashLinkStatus('copied'))
+      .then(() => {
+        capture(ANALYTICS_EVENTS.share);
+        flashLinkStatus('copied');
+      })
       .catch(() => flashLinkStatus('unavailable'));
   };
 
@@ -127,7 +161,7 @@ export default function CortexEnigma() {
       <Sidebar
         selections={selections}
         prompt={prompt}
-        onSelect={handleSelect}
+        onSelect={handleSelectTracked}
         onFoundationChange={handleFoundationInput}
         onNegativeChange={handleNegativeChange}
         isGenerating={isGenerating || isModelLoading}
@@ -150,6 +184,8 @@ export default function CortexEnigma() {
         onOpenTemplates={() => setTemplatesOpen(true)}
         onOpenTransfer={() => setTransferOpen(true)}
         onOpenSweep={() => setSweepOpen(true)}
+        galleryCount={galleryEntries.length}
+        onOpenGallery={() => setGalleryOpen(true)}
         lockedAxes={lockedAxes}
         onToggleLock={toggleLock}
         lockedCount={lockedCount}
@@ -170,12 +206,12 @@ export default function CortexEnigma() {
         canToggleDiff={canToggleDiff}
         diffSegments={diffSegments}
       />
-      <EdgePanels selections={selections} onSelect={handleSelect} lockedAxes={lockedAxes} onToggleLock={toggleLock} />
+      <EdgePanels selections={selections} onSelect={handleSelectTracked} lockedAxes={lockedAxes} onToggleLock={toggleLock} />
       {mounted && (
         <Suspense fallback={null}>
           <CortexCanvas
             selections={selections}
-            onSelect={handleSelect}
+            onSelect={handleSelectTracked}
             prompt={displayPrompt}
             onRandomize={handleRandomize}
             onCopy={handleCopy}
@@ -208,7 +244,12 @@ export default function CortexEnigma() {
       {transferOpen && (
         <ConfigTransferDrawer
           selections={selections}
-          onImport={applySelections}
+          dialect={dialect}
+          onImport={(importedSelections, importedDialect) => {
+            applySelections(importedSelections);
+            setDialect(importedDialect);
+            setRemixSource(null);
+          }}
           onClose={() => setTransferOpen(false)}
         />
       )}
@@ -216,6 +257,24 @@ export default function CortexEnigma() {
         <PromptSweepPanel
           selections={selections}
           onClose={() => setSweepOpen(false)}
+        />
+      )}
+      {galleryOpen && (
+        <PromptGalleryDrawer
+          entries={galleryEntries}
+          currentSelections={selections}
+          currentDialect={dialect}
+          remixSource={remixSource}
+          onPublish={handlePublish}
+          onRemix={handleRemix}
+          onDelete={deleteGalleryEntry}
+          onClose={() => setGalleryOpen(false)}
+        />
+      )}
+      {analyticsMounted && consent === 'unset' && (
+        <AnalyticsConsentBanner
+          onEnable={() => setConsent('granted')}
+          onDecline={() => setConsent('denied')}
         />
       )}
       {onboardingVisible && <OnboardingGuide onDismiss={dismissOnboarding} />}

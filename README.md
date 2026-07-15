@@ -55,6 +55,75 @@ src/
 
 Dependency flow: `presentation → application → domain`; infrastructure implements application ports.
 
+## Headless & Agent Interfaces
+
+The prompt-composition domain (`src/domain` + `src/application`) is React-free
+and browser-free, re-exported from `src/core`. Two headless consumers wrap it so
+the exact same validated logic runs in pipelines and agents:
+
+### CLI
+
+```bash
+bun run cli --foundation "a lone lighthouse" --medium painting --style surreal
+bun run cli --sweep style --medium painting --dialect midjourney
+bun run cli --count 30 --seed 7 --out variations.txt
+bun run cli --help    # full flag reference
+```
+
+### MCP Server
+
+`mcp/cortex-mcp.ts` exposes the same domain as [Model Context
+Protocol](https://modelcontextprotocol.io) tools over stdio (JSON-RPC 2.0, no
+external SDK, no React). Start it with:
+
+```bash
+bun run mcp
+```
+
+**Tools**
+
+| Tool | Purpose | Input |
+|------|---------|-------|
+| `build_prompt` | Compose one prompt | `foundation`, `negative`, any of the eight axes (`medium`, `method`, `subject`, `style`, `elements`, `function`, `context`, `history`), optional `dialect` (`standard` \| `midjourney` \| `natural`) |
+| `axis_sweep` | One prompt per value of an axis, others held fixed | `axis` (required) + the same selection fields as `build_prompt` |
+| `list_axes` | Every axis and its allowed values | — |
+| `list_dialects` | Available output dialects | — |
+
+Each axis field is constrained to its allowed values (an `enum` in the tool's
+JSON schema); call `tools/list` for the full machine-readable schema, or the
+`list_axes` tool for a human-readable listing. Tool results carry an `isError`
+flag — invalid axis values or dialects return `isError: true` with an actionable
+message rather than a protocol error.
+
+**Example agent invocation**
+
+Register the server with any MCP-capable client. A Claude Desktop / Claude Code
+`mcpServers` entry:
+
+```json
+{
+  "mcpServers": {
+    "cortex-enigma": {
+      "command": "bun",
+      "args": ["run", "mcp/cortex-mcp.ts"],
+      "cwd": "/absolute/path/to/cortex-enigma"
+    }
+  }
+}
+```
+
+The raw stdio session an agent drives (newline-delimited JSON-RPC) looks like:
+
+```jsonc
+// → initialize
+{"jsonrpc":"2.0","id":1,"method":"initialize"}
+// ← {"jsonrpc":"2.0","id":1,"result":{"protocolVersion":"2024-11-05","capabilities":{"tools":{}},"serverInfo":{"name":"cortex-enigma-prompt","version":"0.1.0"}}}
+
+// → call build_prompt
+{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"build_prompt","arguments":{"foundation":"a lone lighthouse","medium":"painting","style":"surreal","negative":"blurry","dialect":"midjourney"}}}
+// ← {"jsonrpc":"2.0","id":2,"result":{"content":[{"type":"text","text":"a lone lighthouse, painting, surreal --no blurry"}],"isError":false}}
+```
+
 ## Deployment
 
 Pushes to `master` trigger a GitHub Actions workflow that builds the static site and deploys it to GitHub Pages at `/cortex-enigma/`.
@@ -71,6 +140,17 @@ A keyboard-only user can complete the full flow without a pointer:
 4. **Copy** — sidebar → Actions → Copy to Clipboard.
 
 **Decision record (issue #71):** rather than giving the Three.js meshes synthetic focus and ARIA semantics, the DOM path is documented as the supported accessible route and the canvas is hidden from the accessibility tree. The 3D surface duplicates — never extends — the DOM controls, so keeping it pointer-only loses no functionality. Future accessibility reviews should treat this as settled unless the canvas gains a control with no DOM equivalent.
+
+## Privacy & Usage Signal
+
+Cortex Enigma ships an **opt-in, anonymous** usage signal that is **off by default**. On first use a banner asks whether you want to help by sharing anonymous usage counts. If you decline (or ignore it), the app is fully functional and nothing is captured.
+
+- **Anonymous** — no account, no identity, no IP, no fingerprint, no PII.
+- **On-device only** — counts live in this browser's `localStorage`; there is no network transport, so nothing leaves your machine before or after opt-in.
+- **Counts, not content** — only per-action occurrence counts are kept. Prompt text and selected axis values are never recorded.
+- **Reversible** — declining or revoking consent purges any counts already stored.
+
+See [PRIVACY.md](./PRIVACY.md) for the full list of what is and isn't collected.
 
 ## Browser Requirements
 

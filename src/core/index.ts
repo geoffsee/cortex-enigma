@@ -13,6 +13,15 @@ export { CATEGORIES, CATEGORY_TOOLTIPS } from '../domain/categories';
 
 export { buildPrompt } from '../domain/promptBuilder';
 
+export type { DialectId, PromptDialect } from '../domain/promptDialects';
+export {
+  DEFAULT_DIALECT,
+  PROMPT_DIALECTS,
+  isDialectId,
+  dialectDescription,
+  renderPrompt,
+} from '../domain/promptDialects';
+
 export type { DiffSegment } from '../domain/promptDiff';
 export { wordBoundaryDiff } from '../domain/promptDiff';
 
@@ -31,3 +40,12 @@ export { toggle, randomize, clear, validate } from '../application/SelectionServ
 
 export type { ILLMPort } from '../application/ports/ILLMPort';
 export type { IStoragePort } from '../application/ports/IStoragePort';
+
+export type { AnalyticsEvent, AnalyticsCounts } from '../domain/analyticsEvents';
+export {
+  ANALYTICS_EVENTS,
+  ANALYTICS_EVENT_NAMES,
+  ANALYTICS_EVENT_DESCRIPTIONS,
+  isAnalyticsEvent,
+  emptyCounts,
+} from '../domain/analyticsEvents';
